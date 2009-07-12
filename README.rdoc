@@ -1,0 +1,33 @@
+= ruby-mpfr
+
+* http://github.com/#{github_username}/#{project_name}
+
+== DESCRIPTION:
+
+ruby-mpfr is library to use MPFR which is a C library for
+multiple-precision floating-point computations.
+
+== FEATURES/PROBLEMS:
+
+* Many methods have not been tested.
+
+== SYNOPSIS:
+
+ require "mpfr"
+ MPFR.get_default_prec(100)
+ a = MPFR.new(3)
+ b = MPFR.new('2.2')
+ puts (a * b).to_strf("%.30Re")
+
+== REQUIREMENTS:
+
+* GMP
+* MPFR
+
+== INSTALL:
+
+* sudo gem install ruby-mpfr
+
+== LICENSE:
+
+LGPL v3
