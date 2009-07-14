@@ -22,7 +22,7 @@ multiple-precision floating-point computations.
 == REQUIREMENTS:
 
 * GMP
-* MPFR
+* MPFR 2.4.0 or later
 
 == INSTALL:
 
