@@ -2126,21 +2126,27 @@ static VALUE r_mpfr_math_free_cache(VALUE self){
   return Qnil;
 }
 
-/* static VALUE r_mpfr_math_sum(int argc, VALUE *argv, VALUE self){ */
-/*   mp_rnd_t rnd; */
-/*   mp_prec_t prec; */
-/*   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv); */
-/*   MPFR *ptr_return, *ptr_args[argc]; */
-/*   VALUE val_ret; */
-/*   int i; */
-/*   for(i = 0; i < argc; i++){ */
-/*     volatile VALUE tmp_argvi = r_mpfr_new_fr_obj(argv[i]); */
-/*     r_mpfr_get_struct(ptr_args[i], tmp_argvi); */
-/*   } */
-/*   r_mpfr_make_struct_init2(val_ret, ptr_return, prec); */
-/*   r_mpfr_set_special_func_state(mpfr_sum(ptr_return, ptr_args, argc, rnd)); */
-/*   return val_ret; */
-/* } */
+/* Calculate sum of MPFR objects. */
+static VALUE r_mpfr_math_sum(int argc, VALUE *argv, VALUE self){
+  int num;
+  for (num = 0; num < argc; num += 1) {
+    if(!RTEST(rb_funcall(__mpfr_class__, eqq, 1, argv[num]))){ break; }
+  }
+  
+  mp_rnd_t rnd;
+  mp_prec_t prec;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, num, num + 2, argc, argv);
+  MPFR *ptr_return, *ptr_args[num];
+  VALUE val_ret;
+  int i;
+  for(i = 0; i < num; i++){
+    volatile VALUE tmp_argvi = r_mpfr_new_fr_obj(argv[i]);
+    r_mpfr_get_struct(ptr_args[i], tmp_argvi);
+  }
+  r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
+  r_mpfr_set_special_func_state(mpfr_sum(ptr_return, ptr_args, argc, rnd));
+  return val_ret;
+}
 
 /* ------------------------------ Special Functions End ------------------------------ */
 
@@ -2544,7 +2550,7 @@ void Init_mpfr(){
   rb_define_module_function(r_mpfr_math, "const_euler", r_mpfr_math_const_euler, -1);
   rb_define_module_function(r_mpfr_math, "const_catalan", r_mpfr_math_const_catalan, -1);
   rb_define_module_function(r_mpfr_math, "free_cache", r_mpfr_math_free_cache, 0);
-  /* rb_define_module_function(r_mpfr_math, "sum", r_mpfr_math_sum, -1); */
+  rb_define_module_function(r_mpfr_math, "sum", r_mpfr_math_sum, -1);
 
   /* ------------------------------ Special Functions End ------------------------------ */
 
