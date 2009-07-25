@@ -287,6 +287,7 @@ static VALUE r_mpfr_initialize(int argc, VALUE *argv, VALUE self){
   return Qtrue;
 }
 
+/* This method is the method of initialization for copying object. */
 static VALUE r_mpfr_initialize_copy(VALUE self, VALUE other){
   MPFR *ptr_self, *ptr_other;
   r_mpfr_get_struct(ptr_self, self);
@@ -1081,6 +1082,7 @@ static VALUE r_mpfr_unordered_p(VALUE self, VALUE other){
 
 /* ------------------------------ Integer Related Functions Start  ------------------------------ */
 
+/* mpfr_rint(ret, self, rnd) */
 static VALUE r_mpfr_m_rint(int argc, VALUE *argv, VALUE self){
   mp_rnd_t rnd;
   mp_prec_t prec;
@@ -1093,6 +1095,7 @@ static VALUE r_mpfr_m_rint(int argc, VALUE *argv, VALUE self){
   return val_ret;
 }
 
+/* mpfr_ceil(ret, self) */
 static VALUE r_mpfr_m_ceil(int argc, VALUE *argv, VALUE self){
   mp_prec_t prec = r_mpfr_prec_from_optional_argument(0, 1, argc, argv);
   MPFR *ptr_self, *ptr_return;
@@ -1103,6 +1106,7 @@ static VALUE r_mpfr_m_ceil(int argc, VALUE *argv, VALUE self){
   return val_ret;
 }
 
+/* mpfr_floor(ret, self) */
 static VALUE r_mpfr_m_floor(int argc, VALUE *argv, VALUE self){
   mp_prec_t prec = r_mpfr_prec_from_optional_argument(0, 1, argc, argv);
   MPFR *ptr_self, *ptr_return;
@@ -1113,6 +1117,7 @@ static VALUE r_mpfr_m_floor(int argc, VALUE *argv, VALUE self){
   return val_ret;
 }
 
+/* mpfr_round(ret, self) */
 static VALUE r_mpfr_m_round(int argc, VALUE *argv, VALUE self){
   mp_prec_t prec = r_mpfr_prec_from_optional_argument(0, 1, argc, argv);
   MPFR *ptr_self, *ptr_return;
@@ -1123,6 +1128,7 @@ static VALUE r_mpfr_m_round(int argc, VALUE *argv, VALUE self){
   return val_ret;
 }
 
+/* mpfr_trunc(ret, self) */
 static VALUE r_mpfr_m_trunc(int argc, VALUE *argv, VALUE self){
   mp_prec_t prec = r_mpfr_prec_from_optional_argument(0, 1, argc, argv);
   MPFR *ptr_self, *ptr_return;
@@ -1133,6 +1139,7 @@ static VALUE r_mpfr_m_trunc(int argc, VALUE *argv, VALUE self){
   return val_ret;
 }
 
+/* mpfr_rint_ceil(ret, self, rnd) */
 static VALUE r_mpfr_rint_ceil(int argc, VALUE *argv, VALUE self){
   mp_rnd_t rnd;
   mp_prec_t prec;
@@ -1145,6 +1152,7 @@ static VALUE r_mpfr_rint_ceil(int argc, VALUE *argv, VALUE self){
   return val_ret;
 }
 
+/* mpfr_rint_floor(ret, self, rnd) */
 static VALUE r_mpfr_rint_floor(int argc, VALUE *argv, VALUE self){
   mp_rnd_t rnd;
   mp_prec_t prec;
@@ -1157,6 +1165,7 @@ static VALUE r_mpfr_rint_floor(int argc, VALUE *argv, VALUE self){
   return val_ret;
 }
 
+/* mpfr_rint_round(ret, self, rnd) */
 static VALUE r_mpfr_rint_round(int argc, VALUE *argv, VALUE self){
   mp_rnd_t rnd;
   mp_prec_t prec;
@@ -1169,6 +1178,7 @@ static VALUE r_mpfr_rint_round(int argc, VALUE *argv, VALUE self){
   return val_ret;
 }
 
+/* mpfr_rint_trunc(ret, self, rnd) */
 static VALUE r_mpfr_rint_trunc(int argc, VALUE *argv, VALUE self){
   mp_rnd_t rnd;
   mp_prec_t prec;
@@ -1181,6 +1191,7 @@ static VALUE r_mpfr_rint_trunc(int argc, VALUE *argv, VALUE self){
   return val_ret;
 }
 
+/* mpfr_frac(ret, self, rnd) */
 static VALUE r_mpfr_frac(int argc, VALUE *argv, VALUE self){
   mp_rnd_t rnd;
   mp_prec_t prec;
@@ -1207,6 +1218,7 @@ static VALUE r_mpfr_modf(int argc, VALUE *argv, VALUE self){
   return rb_ary_new3(2, val_ret1, val_ret2);
 }
 
+/* mpfr_fmod(ret, self, p1, rnd) */
 static VALUE r_mpfr_fmod(int argc, VALUE *argv, VALUE self){
   mp_rnd_t rnd;
   mp_prec_t prec;
@@ -1221,6 +1233,7 @@ static VALUE r_mpfr_fmod(int argc, VALUE *argv, VALUE self){
   return val_ret;
 }
 
+/* mpfr_remainder(ret, self, p1, rnd) */
 static VALUE r_mpfr_remainder(int argc, VALUE *argv, VALUE self){
   mp_rnd_t rnd;
   mp_prec_t prec;
@@ -1235,6 +1248,7 @@ static VALUE r_mpfr_remainder(int argc, VALUE *argv, VALUE self){
   return val_ret;
 }
 
+/* mpfr_remainder(ret, self, p1, mpfr_getdefault_rounding_mode()) */
 static VALUE r_mpfr_remainder2(VALUE self, VALUE other){
   MPFR *ptr_self, *ptr_other, *ptr_return;
   VALUE val_ret;
@@ -1246,6 +1260,7 @@ static VALUE r_mpfr_remainder2(VALUE self, VALUE other){
   return val_ret;
 }
 
+/* mpfr_remquo(ret1, ret2, self, p1, rnd) */
 static VALUE r_mpfr_remquo(int argc, VALUE *argv, VALUE self){
   mp_rnd_t rnd;
   mp_prec_t prec;
@@ -1261,6 +1276,7 @@ static VALUE r_mpfr_remquo(int argc, VALUE *argv, VALUE self){
   return rb_ary_new3(2, val_ret, LONG2FIX(q));
 }
 
+/* If value of self is integer, return true. Otherwise, nil. */
 static VALUE r_mpfr_integer_p(VALUE self){
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
@@ -1271,6 +1287,7 @@ static VALUE r_mpfr_integer_p(VALUE self){
 
 /* ------------------------------ Miscellaneous Functions Start ------------------------------ */
 
+/* mpfr_nexttoward(self, p1) */
 static VALUE r_mpfr_nexttoward(VALUE self, VALUE other){
   MPFR *ptr_self, *ptr_other;
   r_mpfr_get_struct(ptr_self, self);
@@ -1280,6 +1297,7 @@ static VALUE r_mpfr_nexttoward(VALUE self, VALUE other){
   return self;
 }
 
+/* mpfr_nextabove(self) */
 static VALUE r_mpfr_nextabove(VALUE self){
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
@@ -1287,6 +1305,7 @@ static VALUE r_mpfr_nextabove(VALUE self){
   return self;
 }
 
+/* mpfr_nextbelow(self) */
 static VALUE r_mpfr_nextbelow(VALUE self){
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
@@ -1294,6 +1313,7 @@ static VALUE r_mpfr_nextbelow(VALUE self){
   return self;
 }
 
+/* If self is not number, return nil. Otherwise return an integer mpfr_get_exp(self). */
 static VALUE r_mpfr_get_exp(VALUE self){
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
@@ -1304,6 +1324,7 @@ static VALUE r_mpfr_get_exp(VALUE self){
   }
 }
 
+/* arg_exp is integer and we execute mpfr_set_exp(self, arg_exp). */
 static VALUE r_mpfr_set_exp(VALUE self, VALUE arg_exp){
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
@@ -1312,12 +1333,14 @@ static VALUE r_mpfr_set_exp(VALUE self, VALUE arg_exp){
   return self;
 }
 
+/* Return integer which is mpfr_signbit(self). */
 static VALUE r_mpfr_signbit(VALUE self){
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   return INT2FIX(mpfr_signbit(ptr_self));
 }
 
+/* mpfr_setsign(ret, self, p1, rnd) */
 static VALUE r_mpfr_setsign(int argc, VALUE *argv, VALUE self){
   mp_rnd_t rnd;
   mp_prec_t prec;
@@ -1331,6 +1354,7 @@ static VALUE r_mpfr_setsign(int argc, VALUE *argv, VALUE self){
   return val_ret;
 }
 
+/* mpfr_copysign(ret, self, p1, rnd) */
 static VALUE r_mpfr_copysign(int argc, VALUE *argv, VALUE self){
   mp_rnd_t rnd;
   mp_prec_t prec;
@@ -1349,6 +1373,7 @@ static VALUE r_mpfr_copysign(int argc, VALUE *argv, VALUE self){
 
 /* ------------------------------ Rounding Mode Related Functions Start ------------------------------ */
 
+/* mpfr_prec_round(ret, prec, rnd) */
 static VALUE r_mpfr_prec_round(int argc, VALUE *argv, VALUE self){
   mp_rnd_t rnd;
   mp_prec_t prec;
@@ -1362,6 +1387,7 @@ static VALUE r_mpfr_prec_round(int argc, VALUE *argv, VALUE self){
   return val_ret;
 }
 
+/* mpfr_prec_round(ret, prec, rnd) */
 static VALUE r_mpfr_prec_round2(int argc, VALUE *argv, VALUE self){
   mp_rnd_t rnd;
   mp_prec_t prec;
@@ -1827,6 +1853,7 @@ static VALUE r_mpfr_math_lngamma(int argc, VALUE *argv, VALUE self){
   return val_ret;
 }
 
+/* Execute mpfr_lgamma(ret1, ret2, p1, rnd) and return [ret1, ret2]. */
 static VALUE r_mpfr_math_lgamma(int argc, VALUE *argv, VALUE self){
   mp_rnd_t rnd;
   mp_prec_t prec;
@@ -1919,6 +1946,7 @@ static VALUE r_mpfr_math_j1(int argc, VALUE *argv, VALUE self){
   return val_ret;
 }
 
+/* mpfr_jn(ret, p2, p1, rnd) */
 static VALUE r_mpfr_math_jn(int argc, VALUE *argv, VALUE self){
   mp_rnd_t rnd;
   mp_prec_t prec;
@@ -1961,6 +1989,7 @@ static VALUE r_mpfr_math_y1(int argc, VALUE *argv, VALUE self){
   return val_ret;
 }
 
+/* mpfr_yn(ret, p2, p1, rnd) */
 static VALUE r_mpfr_math_yn(int argc, VALUE *argv, VALUE self){
   mp_rnd_t rnd;
   mp_prec_t prec;
