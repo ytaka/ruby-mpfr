@@ -1,0 +1,17 @@
+History.txt
+Manifest.txt
+PostInstall.txt
+README.rdoc
+Rakefile
+lib/ruby-mpc.rb
+ext/ruby_mpc.c
+ext/ruby_mpc.h
+ext/ruby_mpfr.h
+ext/extconf.rb
+script/console
+script/destroy
+script/generate
+spec/ruby-mpc_spec.rb
+spec/spec.opts
+spec/spec_helper.rb
+tasks/rspec.rake
