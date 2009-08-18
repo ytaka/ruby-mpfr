@@ -131,7 +131,7 @@ static VALUE r_mpc_alloc(VALUE self){
   return self;
 }
 
-VALUE r_mpc_converted_object(VALUE obj){
+VALUE r_mpc_new_c_obj(VALUE obj){
   if(RTEST(rb_funcall(__mpc_class__, eqq, 1, obj))){
     return obj;
   }else{

@@ -24,9 +24,11 @@ VALUE r_mpc_class, r_mpc_math;
 #define r_mpc_rnd_from_value(rnd) (mp_rnd_t)NUM2INT(rnd)
 
 void r_mpc_free(void *ptr);
-VALUE r_mpc_converted_object(VALUE obj);
+VALUE r_mpc_new_c_obj(VALUE obj);
 /* VALUE r_mpc_new_robj(MPC *ptr); */
 /* void r_mpc_set_robj(MPC *ptr, VALUE obj); */
+
+/* Arguments */
 mpc_rnd_t r_mpc_rnd_from_optional_argument(int min, int max, int argc, VALUE *argv);
 mpc_rnd_t r_mpc_prec_from_optional_argument(int min, int max, int argc, VALUE *argv);
 void r_mpc_get_rnd_prec_from_optional_arguments(mpc_rnd_t *rnd, mp_prec_t *prec, int min, int max,

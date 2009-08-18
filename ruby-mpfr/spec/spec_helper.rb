@@ -7,4 +7,7 @@ rescue LoadError
 end
 
 $:.unshift(File.dirname(__FILE__) + '/../lib')
-require 'ruby-mpfr'
+$:.unshift(File.dirname(__FILE__) + '/../ext')
+$:.unshift(File.dirname(__FILE__))
+require 'mpfr'
+require "generate_number_modulue"
