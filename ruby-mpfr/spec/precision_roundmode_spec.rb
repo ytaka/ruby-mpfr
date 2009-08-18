@@ -7,7 +7,7 @@ def check_rnd(a)
   u = MPFR.new(a, MPFR::RNDU)
   d = MPFR.new(a, MPFR::RNDD)
   (n > 0 ? d : u).should == z
-  [(a - z).abs, (a - u).abs, (a - d).abs].min.should > (a - n).abs
+  [(a - z).abs, (a - u).abs, (a - d).abs].min.should >= (a - n).abs
   (d <= u && (n == z || n == u || n == d)).should be_true
 end
 
@@ -52,7 +52,7 @@ def check_set_prec(prec)
   MPFR.set_default_prec(prec3)
   c = MPFR.new(rand(10000) - rand)
   prec3.should == c.get_prec
-  c.get_prec.should == b.get_prec
+  c.get_prec.should_not == b.get_prec
 end
 
 describe MPFR, 'when setting precision' do
