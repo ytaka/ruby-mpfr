@@ -1,10 +1,10 @@
 = ruby-mpfr
 
-* http://github.com/#{github_username}/#{project_name}
+* http://rubyforge.org/projects/ruby-mpfr/
 
 == DESCRIPTION:
 
-ruby-mpfr is library to use MPFR which is a C library for
+ruby-mpfr is library to use MPFR[http://www.mpfr.org/] which is a C library for
 multiple-precision floating-point computations.
 
 == FEATURES/PROBLEMS:
@@ -19,14 +19,17 @@ multiple-precision floating-point computations.
  b = MPFR.new('2.2')
  puts (a * b).to_strf("%.30Re")
 
-== REQUIREMENTS:
+=== REQUIREMENTS:
 
-* GMP
-* MPFR 2.4.0 or later
+* MPFR[http://www.mpfr.org/] 2.4.1 or later
+
+For Ubuntu 9.10, we can install MPFR with the following command.
+ $ sudo apt-get install libmpfr-dev
 
 == INSTALL:
-
-* sudo gem install ruby-mpfr
+The package of rubygems of ruby-mpfr is provided.
+ 
+ $ sudo gem install ruby-mpfr
 
 == LICENSE:
 
@@ -45,4 +48,3 @@ details.
 
 You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
-

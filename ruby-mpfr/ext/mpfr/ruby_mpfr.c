@@ -9,7 +9,8 @@ static VALUE __mpfr_class__, __sym_to_s__, __sym_to_str__;
 
 /* Convert VALUE rnd (rounding mode number) to C integer and */
 /* return it if it is valid as rounding mode number. */
-mp_rnd_t r_mpfr_rnd_from_value(VALUE rnd){
+mp_rnd_t r_mpfr_rnd_from_value(VALUE rnd)
+{
   mp_rnd_t r = (mp_rnd_t)NUM2INT(rnd);
   if(!VALID_RND(r)){
     rb_raise(rb_eArgError, "Argument must be Rounding Mode.");
@@ -19,7 +20,8 @@ mp_rnd_t r_mpfr_rnd_from_value(VALUE rnd){
 
 /* If argc equals max, convert last argument to rounding mode number. */
 /* Otherwise, return defoult rounding mode number. */
-mp_rnd_t r_mpfr_rnd_from_optional_argument(int min, int max, int argc, VALUE *argv){
+mp_rnd_t r_mpfr_rnd_from_optional_argument(int min, int max, int argc, VALUE *argv)
+{
   mp_rnd_t rnd;
   if(argc >= min && argc <= max){
     if(argc == max){
@@ -35,7 +37,8 @@ mp_rnd_t r_mpfr_rnd_from_optional_argument(int min, int max, int argc, VALUE *ar
 
 /* If argc equals max, convert last argument to precision number. */
 /* Otherwise, return defoult precision number. */
-mp_rnd_t r_mpfr_prec_from_optional_argument(int min, int max, int argc, VALUE *argv){
+mp_rnd_t r_mpfr_prec_from_optional_argument(int min, int max, int argc, VALUE *argv)
+{
   mp_prec_t prec;
   if(argc >= min && argc <= max){
     if(argc == max){
@@ -52,7 +55,8 @@ mp_rnd_t r_mpfr_prec_from_optional_argument(int min, int max, int argc, VALUE *a
 /* min is a minimum number of arguments. */
 /* max is a maximum number of arguments. */
 void r_mpfr_get_rnd_prec_from_optional_arguments(mp_rnd_t *rnd, mp_prec_t *prec, int min, int max,
-							int argc, VALUE *argv){
+							int argc, VALUE *argv)
+{
   if(argc >= min && argc <= max){
     if(argc >= max - 1){
       *rnd = r_mpfr_rnd_from_value(argv[max - 2]);
@@ -71,7 +75,8 @@ void r_mpfr_get_rnd_prec_from_optional_arguments(mp_rnd_t *rnd, mp_prec_t *prec,
 
 
 /* Set the default MPFR precision in bits. */
-static VALUE r_mpfr_set_default_prec(VALUE self, VALUE prec){
+static VALUE r_mpfr_set_default_prec(VALUE self, VALUE prec)
+{
   int set_prec = NUM2INT(prec);
   if(set_prec <= 0){
     rb_raise(rb_eRangeError, "Argument must be positive.");
@@ -81,10 +86,14 @@ static VALUE r_mpfr_set_default_prec(VALUE self, VALUE prec){
 }
 
 /* Return the default MPFR precision in bits. */
-static VALUE r_mpfr_get_default_prec(VALUE self){ return INT2NUM((int)mpfr_get_default_prec()); }
+static VALUE r_mpfr_get_default_prec(VALUE self)
+{
+  return INT2NUM((int)mpfr_get_default_prec());
+}
 
 /* Set the default rounding mode. The default rounding mode is MPFR::RNDN. */
-static VALUE r_mpfr_set_default_rounding_mode(VALUE self, VALUE rnd){
+static VALUE r_mpfr_set_default_rounding_mode(VALUE self, VALUE rnd)
+{
   mp_rnd_t a = NUM2INT(rnd);
   if(VALID_RND(a)){
     mpfr_set_default_rounding_mode(a);
@@ -95,86 +104,173 @@ static VALUE r_mpfr_set_default_rounding_mode(VALUE self, VALUE rnd){
 }
 
 /* Get the default rounding mode. */
-static VALUE r_mpfr_get_default_rounding_mode(VALUE self){ return INT2NUM(mpfr_get_default_rounding_mode()); }
+static VALUE r_mpfr_get_default_rounding_mode(VALUE self)
+{
+  return INT2NUM(mpfr_get_default_rounding_mode());
+}
 
 /* ------------------------------ Precision and Rounding Mode End ------------------------------ */
 
 /* ------------------------------ Exception Related Functions Start ------------------------------ */
 
 /* Return integer which is mpfr_get_emin(). */
-static VALUE r_mpfr_get_emin(VALUE self){ return INT2NUM(mpfr_get_emin()); }
+static VALUE r_mpfr_get_emin(VALUE self)
+{
+  return INT2NUM(mpfr_get_emin());
+}
 
 /* Return integer which is mpfr_get_emax(). */
-static VALUE r_mpfr_get_emax(VALUE self){ return INT2NUM(mpfr_get_emax()); }
+static VALUE r_mpfr_get_emax(VALUE self)
+{
+  return INT2NUM(mpfr_get_emax());
+}
 
 /* Return integer which is mpfr_set_emin( p1 ). */
-static VALUE r_mpfr_set_emin(VALUE self, VALUE exp){ return INT2NUM(mpfr_set_emin(NUM2INT(exp))); }
+static VALUE r_mpfr_set_emin(VALUE self, VALUE exp)
+{
+  return INT2NUM(mpfr_set_emin(NUM2INT(exp)));
+}
 
 /* Return integer which is mpfr_set_emax( p1 ). */
-static VALUE r_mpfr_set_emax(VALUE self, VALUE exp){ return INT2NUM(mpfr_set_emax(NUM2INT(exp))); }
+static VALUE r_mpfr_set_emax(VALUE self, VALUE exp)
+{
+  return INT2NUM(mpfr_set_emax(NUM2INT(exp)));
+}
 
 /* Return integer which is mpfr_get_emin_min(). */
-static VALUE r_mpfr_get_emin_min(VALUE self){ return INT2NUM(mpfr_get_emin_min()); }
+static VALUE r_mpfr_get_emin_min(VALUE self)
+{
+  return INT2NUM(mpfr_get_emin_min());
+}
 
 /* Return integer which is mpfr_get_emin_max(). */
-static VALUE r_mpfr_get_emin_max(VALUE self){ return INT2NUM(mpfr_get_emin_max()); }
+static VALUE r_mpfr_get_emin_max(VALUE self)
+{
+  return INT2NUM(mpfr_get_emin_max());
+}
 
 /* Return integer which is mpfr_get_emax_min(). */
-static VALUE r_mpfr_get_emax_min(VALUE self){ return INT2NUM(mpfr_get_emax_min()); }
+static VALUE r_mpfr_get_emax_min(VALUE self)
+{
+  return INT2NUM(mpfr_get_emax_min());
+}
 
 /* Return integer which is mpfr_get_emax_max(). */
-static VALUE r_mpfr_get_emax_max(VALUE self){ return INT2NUM(mpfr_get_emax_max()); }
+static VALUE r_mpfr_get_emax_max(VALUE self)
+{
+  return INT2NUM(mpfr_get_emax_max());
+}
 
 /* Execute mpfr_clear_underflow() and return nil. */
-static VALUE r_mpfr_clear_underflow(VALUE self){ mpfr_clear_underflow(); return Qnil; }
+static VALUE r_mpfr_clear_underflow(VALUE self)
+{
+  mpfr_clear_underflow();
+  return Qnil;
+}
 
 /* Execute mpfr_clear_overflow() and return nil. */
-static VALUE r_mpfr_clear_overflow(VALUE self){ mpfr_clear_overflow(); return Qnil; }
+static VALUE r_mpfr_clear_overflow(VALUE self)
+{
+  mpfr_clear_overflow();
+  return Qnil;
+}
 
 /* Execute mpfr_clear_nanflag() and return nil. */
-static VALUE r_mpfr_clear_nanflag(VALUE self){ mpfr_clear_nanflag(); return Qnil; }
+static VALUE r_mpfr_clear_nanflag(VALUE self)
+{
+  mpfr_clear_nanflag();
+  return Qnil;
+}
 
 /* Execute mpfr_clear_inexflag() and return nil. */
-static VALUE r_mpfr_clear_inexflag(VALUE self){ mpfr_clear_inexflag(); return Qnil; }
+static VALUE r_mpfr_clear_inexflag(VALUE self)
+{
+  mpfr_clear_inexflag();
+  return Qnil;
+}
 
 /* Execute mpfr_clear_erangeflag() and return nil. */
-static VALUE r_mpfr_clear_erangeflag(VALUE self){ mpfr_clear_erangeflag(); return Qnil; }
+static VALUE r_mpfr_clear_erangeflag(VALUE self)
+{
+  mpfr_clear_erangeflag();
+  return Qnil;
+}
 
 /* Execute mpfr_set_underflow() and return nil. */
-static VALUE r_mpfr_set_underflow(VALUE self){ mpfr_set_underflow(); return Qnil; }
+static VALUE r_mpfr_set_underflow(VALUE self)
+{
+  mpfr_set_underflow();
+  return Qnil;
+}
 
 /* Execute mpfr_set_overflow() and return nil. */
-static VALUE r_mpfr_set_overflow(VALUE self){ mpfr_set_overflow(); return Qnil; }
+static VALUE r_mpfr_set_overflow(VALUE self)
+{
+  mpfr_set_overflow();
+  return Qnil;
+}
 
 /* Execute mpfr_set_nanflag() and return nil. */
-static VALUE r_mpfr_set_nanflag(VALUE self){ mpfr_set_nanflag(); return Qnil; }
+static VALUE r_mpfr_set_nanflag(VALUE self)
+{
+  mpfr_set_nanflag();
+  return Qnil;
+}
 
 /* Execute mpfr_set_inexflag() and return nil. */
-static VALUE r_mpfr_set_inexflag(VALUE self){ mpfr_set_inexflag(); return Qnil; }
+static VALUE r_mpfr_set_inexflag(VALUE self)
+{
+  mpfr_set_inexflag();
+  return Qnil;
+}
 
 /* Execute mpfr_set_erangeflag() and return nil. */
-static VALUE r_mpfr_set_erangeflag(VALUE self){ mpfr_set_erangeflag(); return Qnil; }
+static VALUE r_mpfr_set_erangeflag(VALUE self)
+{
+  mpfr_set_erangeflag();
+  return Qnil;
+}
 
 /* Execute mpfr_clear_flags() and return nil. */
-static VALUE r_mpfr_clear_flags(VALUE self){ mpfr_clear_flags(); return Qnil; }
+static VALUE r_mpfr_clear_flags(VALUE self)
+{
+  mpfr_clear_flags();
+  return Qnil;
+}
 
 /* If underflow flag is set, this method returns true. Otherwise nil. */
-static VALUE r_mpfr_underflow_p(VALUE self){ return (mpfr_underflow_p() != 0 ? Qtrue : Qnil); }
+static VALUE r_mpfr_underflow_p(VALUE self)
+{
+  return (mpfr_underflow_p() != 0 ? Qtrue : Qfalse);
+}
 
 /* If owerflow flag is set, this method returns true. Otherwise nil. */
-static VALUE r_mpfr_overflow_p(VALUE self){ return (mpfr_overflow_p() != 0 ? Qtrue : Qnil); }
+static VALUE r_mpfr_overflow_p(VALUE self)
+{
+  return (mpfr_overflow_p() != 0 ? Qtrue : Qfalse);
+}
 
 /* If invalid flag is set, this method returns true. Otherwise nil. */
-static VALUE r_mpfr_nanflag_p(VALUE self){ return (mpfr_nanflag_p() != 0 ? Qtrue : Qnil); }
+static VALUE r_mpfr_nanflag_p(VALUE self)
+{
+  return (mpfr_nanflag_p() != 0 ? Qtrue : Qfalse);
+}
 
 /* If inexact flag is set, this method returns true. Otherwise nil. */
-static VALUE r_mpfr_inexflag_p(VALUE self){ return (mpfr_inexflag_p() != 0 ? Qtrue : Qnil); }
+static VALUE r_mpfr_inexflag_p(VALUE self)
+{
+  return (mpfr_inexflag_p() != 0 ? Qtrue : Qfalse);
+}
 
 /* If erange flag is set, this method returns true. Otherwise nil. */
-static VALUE r_mpfr_erangeflag_p(VALUE self){ return (mpfr_erangeflag_p() != 0 ? Qtrue : Qnil); }
+static VALUE r_mpfr_erangeflag_p(VALUE self)
+{
+  return (mpfr_erangeflag_p() != 0 ? Qtrue : Qfalse);
+}
 
 /* Execute mpfr_check_range( self, p1, rnd ) and return self. */
-static VALUE r_mpfr_check_range(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_check_range(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd = r_mpfr_rnd_from_optional_argument(1, 2, argc, argv);
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
@@ -183,7 +279,8 @@ static VALUE r_mpfr_check_range(int argc, VALUE *argv, VALUE self){
 }
 
 /* Execute mpfr_subnormalize( self, p1, rnd ) and return self. */
-static VALUE r_mpfr_subnormalize(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_subnormalize(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd = r_mpfr_rnd_from_optional_argument(1, 2, argc, argv);
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
@@ -195,12 +292,32 @@ static VALUE r_mpfr_subnormalize(int argc, VALUE *argv, VALUE self){
 
 /* ------------------------------ MPFR allocation Start ------------------------------ */
 
-void r_mpfr_free(void *ptr){
+void r_mpfr_free(void *ptr)
+{
   mpfr_clear(ptr);
   free(ptr);
 }
 
-static void r_mpfr_convert_to_str_set(MPFR *ptr, VALUE obj, mp_rnd_t rnd){
+VALUE r_mpfr_make_new_fr_obj(MPFR *ptr)
+{
+  VALUE ret;
+  MPFR *ptr_ret;
+  r_mpfr_make_struct_init(ret, ptr_ret);
+  mpfr_set(ptr_ret, ptr, mpfr_get_default_prec());
+  return ret;
+}
+
+VALUE r_mpfr_make_new_fr_obj2(MPFR *ptr, int prec)
+{
+  VALUE ret;
+  MPFR *ptr_ret;
+  r_mpfr_make_struct_init2(ret, ptr_ret, prec);
+  mpfr_set(ptr_ret, ptr, prec);
+  return ret;
+}
+
+static void r_mpfr_convert_to_str_set(MPFR *ptr, VALUE obj, mp_rnd_t rnd)
+{
   if(RTEST(rb_funcall(rb_funcall(obj, class, 0), method_defined, 1, __sym_to_str__))){
     char *str = StringValuePtr(obj);
     mpfr_set_str(ptr, str, 10, rnd);
@@ -211,7 +328,8 @@ static void r_mpfr_convert_to_str_set(MPFR *ptr, VALUE obj, mp_rnd_t rnd){
   }
 }
 
-void r_mpfr_set_robj(MPFR *ptr, VALUE obj, mp_rnd_t rnd){
+void r_mpfr_set_robj(MPFR *ptr, VALUE obj, mp_rnd_t rnd)
+{
   if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, obj))){
     MPFR *ptr_obj;
     r_mpfr_get_struct(ptr_obj, obj);
@@ -239,7 +357,8 @@ void r_mpfr_set_robj(MPFR *ptr, VALUE obj, mp_rnd_t rnd){
 
 /* If obj is MPFR instance, then this method returns obj. */
 /* Otherwise it returns MPFR.new(obj). */
-VALUE r_mpfr_new_fr_obj(VALUE obj){
+VALUE r_mpfr_new_fr_obj(VALUE obj)
+{
   if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, obj))){
     return obj;
   }else{
@@ -247,7 +366,8 @@ VALUE r_mpfr_new_fr_obj(VALUE obj){
   }
 }
 
-static VALUE r_mpfr_alloc(VALUE self){
+static VALUE r_mpfr_alloc(VALUE self)
+{
   MPFR *ptr;
   r_mpfr_make_struct(self, ptr);
   return self;
@@ -259,7 +379,8 @@ static VALUE r_mpfr_alloc(VALUE self){
   Possible arguments are value, rounding mode, and precesion.
   All arguments are optional.
 */
-static VALUE r_mpfr_initialize(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_initialize(int argc, VALUE *argv, VALUE self)
+{
   MPFR *ptr;
   r_mpfr_get_struct(ptr, self);
   switch(argc){
@@ -288,7 +409,8 @@ static VALUE r_mpfr_initialize(int argc, VALUE *argv, VALUE self){
 }
 
 /* This method is the method of initialization for copying object. */
-static VALUE r_mpfr_initialize_copy(VALUE self, VALUE other){
+static VALUE r_mpfr_initialize_copy(VALUE self, VALUE other)
+{
   MPFR *ptr_self, *ptr_other;
   r_mpfr_get_struct(ptr_self, self);
   r_mpfr_get_struct(ptr_other, other);
@@ -298,7 +420,8 @@ static VALUE r_mpfr_initialize_copy(VALUE self, VALUE other){
 }
 
 /* Return array which have MPFR instance converted to from p1 and self. */
-static VALUE r_mpfr_coerce(VALUE self, VALUE other){
+static VALUE r_mpfr_coerce(VALUE self, VALUE other)
+{
   VALUE val_other;
   MPFR *ptr_self, *ptr_other;
   r_mpfr_get_struct(ptr_self, self);
@@ -308,7 +431,8 @@ static VALUE r_mpfr_coerce(VALUE self, VALUE other){
 }
 
 /* Return NaN. This method takes one optional argument meaning precision. */
-static VALUE r_mpfr_nan(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_nan(int argc, VALUE *argv, VALUE self)
+{
   mp_prec_t prec = r_mpfr_prec_from_optional_argument(0, 1, argc, argv);
   MPFR *ptr_return;
   VALUE val_ret;
@@ -318,7 +442,8 @@ static VALUE r_mpfr_nan(int argc, VALUE *argv, VALUE self){
 }
 
 /* Return plus infinity. This method takes one optional argument meaning precision. */
-static VALUE r_mpfr_pinf(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_pinf(int argc, VALUE *argv, VALUE self)
+{
   mp_prec_t prec = r_mpfr_prec_from_optional_argument(0, 1, argc, argv);
   MPFR *ptr_return;
   VALUE val_ret;
@@ -328,7 +453,8 @@ static VALUE r_mpfr_pinf(int argc, VALUE *argv, VALUE self){
 }
 
 /* Return minus infinity. This method takes one optional argument meaning precision. */
-static VALUE r_mpfr_minf(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_minf(int argc, VALUE *argv, VALUE self)
+{
   mp_prec_t prec = r_mpfr_prec_from_optional_argument(0, 1, argc, argv);
   MPFR *ptr_return;
   VALUE val_ret;
@@ -342,7 +468,8 @@ static VALUE r_mpfr_minf(int argc, VALUE *argv, VALUE self){
 /* ------------------------------ Assignment Functions Start ------------------------------ */
 
 /* Reset the precision of self to be exactly p1 bits and set its value to NaN. */
-static VALUE r_mpfr_set_prec(VALUE self, VALUE prec){
+static VALUE r_mpfr_set_prec(VALUE self, VALUE prec)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   mpfr_set_prec(ptr_self, NUM2INT(prec));
@@ -350,14 +477,16 @@ static VALUE r_mpfr_set_prec(VALUE self, VALUE prec){
 }
 
 /* Return precision actually used for assignments of self. */
-static VALUE r_mpfr_get_prec(VALUE self){
+static VALUE r_mpfr_get_prec(VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   return INT2NUM((int)mpfr_get_prec(ptr_self));
 }
 
 /* Arguments are val, rnd, and prec. Set the value of self from val. rnd and prec are optional.*/
-static VALUE r_mpfr_set(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_set(int argc, VALUE *argv, VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   mp_rnd_t rnd = r_mpfr_rnd_from_optional_argument(1, 2, argc, argv);
@@ -369,7 +498,8 @@ static VALUE r_mpfr_set(int argc, VALUE *argv, VALUE self){
   Arguments are num, exp, rnd, and prec. Set the value of self from num multiplied by two to the power exp.
   Set the value of self from val. rnd and prec are optional.
 */
-static VALUE r_mpfr_set_fixnum_2exp(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_set_fixnum_2exp(int argc, VALUE *argv, VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   mp_rnd_t rnd = r_mpfr_rnd_from_optional_argument(2, 3, argc, argv);
@@ -381,7 +511,8 @@ static VALUE r_mpfr_set_fixnum_2exp(int argc, VALUE *argv, VALUE self){
   If p1 is nonnegative Fixnum, set the value of self to plus Inf.
   Otherwise, set the value of self to minus Inf.
 */
-static VALUE r_mpfr_set_inf(VALUE self, VALUE sign){
+static VALUE r_mpfr_set_inf(VALUE self, VALUE sign)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   mpfr_set_inf(ptr_self, NUM2INT(sign));
@@ -389,7 +520,8 @@ static VALUE r_mpfr_set_inf(VALUE self, VALUE sign){
 }
 
 /* Set the value of self to NaN. */
-static VALUE r_mpfr_set_nan(VALUE self){
+static VALUE r_mpfr_set_nan(VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   mpfr_set_nan(ptr_self);
@@ -397,7 +529,8 @@ static VALUE r_mpfr_set_nan(VALUE self){
 }
 
 /* Swap the values self and p1 efficiently. p1 must be MPFR object. */
-static VALUE r_mpfr_swap(VALUE self, VALUE other){
+static VALUE r_mpfr_swap(VALUE self, VALUE other)
+{
   MPFR *ptr_self, *ptr_other;
   r_mpfr_get_struct(ptr_self, self);
   if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, other))){
@@ -414,7 +547,8 @@ static VALUE r_mpfr_swap(VALUE self, VALUE other){
 /* ------------------------------ Methods related to string Start ------------------------------ */
 
 /* Output self by mpfr_asprintf( some_val, p1, self ). For example, p1 are "%.Re", "%.Rf" or "%.30Re" etc. */
-static VALUE r_mpfr_to_strf(VALUE self, VALUE format_str){
+static VALUE r_mpfr_to_strf(VALUE self, VALUE format_str)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   char *format = StringValuePtr(format_str);
@@ -426,7 +560,8 @@ static VALUE r_mpfr_to_strf(VALUE self, VALUE format_str){
 }
 
 /* Convert to string. */
-static VALUE r_mpfr_to_s(VALUE self){
+static VALUE r_mpfr_to_s(VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   char *ret_str;
@@ -437,7 +572,8 @@ static VALUE r_mpfr_to_s(VALUE self){
 }
 
 /* Output for debugging. */
-static VALUE r_mpfr_inspect(VALUE self){
+static VALUE r_mpfr_inspect(VALUE self)
+{
   MPFR *ptr_s;
   r_mpfr_get_struct(ptr_s, self);
   char *ret_str;
@@ -452,7 +588,8 @@ static VALUE r_mpfr_inspect(VALUE self){
 /* ------------------------------ Conversion functions Start ------------------------------ */
 
 /* Return Float object by converting self. Optional argument is rnd meaning rounding mode. See MPFR reference for detail. */
-static VALUE r_mpfr_get_d(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_get_d(int argc, VALUE *argv, VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   return rb_float_new(mpfr_get_d(ptr_self, r_mpfr_rnd_from_optional_argument(0, 1, argc, argv)));
@@ -460,7 +597,8 @@ static VALUE r_mpfr_get_d(int argc, VALUE *argv, VALUE self){
 
 /* Return array having Float object d and Fixnum object i such that 0.5 <= abs(d) < 1.0 and */
 /* d times 2 raised to exp equals self rounded to double precision. See MPFR reference for detail. */
-static VALUE r_mpfr_get_d_2exp(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_get_d_2exp(int argc, VALUE *argv, VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   long int ret_val2;
@@ -469,42 +607,48 @@ static VALUE r_mpfr_get_d_2exp(int argc, VALUE *argv, VALUE self){
 }
 
 /* Return Fixnum object converted after rounding self with respect to rnd which is optional argument. */
-static VALUE r_mpfr_get_si(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_get_si(int argc, VALUE *argv, VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   return INT2NUM(mpfr_get_si(ptr_self, r_mpfr_rnd_from_optional_argument(0, 1, argc, argv)));
 }
 
 /* Return Fixnum object which is nearest integer to self. */
-static VALUE r_mpfr_round_to_i(VALUE self){
+static VALUE r_mpfr_round_to_i(VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   return INT2NUM(mpfr_get_si(ptr_self, GMP_RNDN));
 }
 
 /* Return Fixnum object which is the minimum integer over self. */
-static VALUE r_mpfr_ceil_to_i(VALUE self){
+static VALUE r_mpfr_ceil_to_i(VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   return INT2NUM(mpfr_get_si(ptr_self, GMP_RNDU));
 }
 
 /* Return Fixnum object which is the maximum integer not over self. */
-static VALUE r_mpfr_floor_to_i(VALUE self){
+static VALUE r_mpfr_floor_to_i(VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   return INT2NUM(mpfr_get_si(ptr_self, GMP_RNDD));
 }
 
 /* Return Fixnum object by truncating self. */
-static VALUE r_mpfr_truncate_to_i(VALUE self){
+static VALUE r_mpfr_truncate_to_i(VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   return INT2NUM(mpfr_get_si(ptr_self, GMP_RNDZ));
 }
 
 /* Return array having String object meaning mantissa and Fixnum object meaning exponent. See MPFR reference for detail. */
-static VALUE r_mpfr_get_str(VALUE self){
+static VALUE r_mpfr_get_str(VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   mp_exp_t e;
@@ -519,7 +663,8 @@ static VALUE r_mpfr_get_str(VALUE self){
 /* ------------------------------ Basic Arithmetic Functions Start ------------------------------ */
 
 /* Return self + p1. */
-static VALUE r_mpfr_add(VALUE self, VALUE other){
+static VALUE r_mpfr_add(VALUE self, VALUE other)
+{
   MPFR *ptr_self, *ptr_other, *ptr_return;
   VALUE val_ret;
   r_mpfr_get_struct(ptr_self, self);
@@ -543,7 +688,8 @@ static VALUE r_mpfr_add(VALUE self, VALUE other){
 }
 
 /* Return self - p1. */
-static VALUE r_mpfr_sub(VALUE self, VALUE other){
+static VALUE r_mpfr_sub(VALUE self, VALUE other)
+{
   MPFR *ptr_self, *ptr_other, *ptr_return;
   VALUE val_ret;
   r_mpfr_get_struct(ptr_self, self);
@@ -567,7 +713,8 @@ static VALUE r_mpfr_sub(VALUE self, VALUE other){
 }
 
 /* Return self * p1. */
-static VALUE r_mpfr_mul(VALUE self, VALUE other){
+static VALUE r_mpfr_mul(VALUE self, VALUE other)
+{
   MPFR *ptr_self, *ptr_other, *ptr_return;
   VALUE val_ret;
   r_mpfr_get_struct(ptr_self, self);
@@ -591,7 +738,8 @@ static VALUE r_mpfr_mul(VALUE self, VALUE other){
 }
 
 /* Return self / p1. */
-static VALUE r_mpfr_div(VALUE self, VALUE other){
+static VALUE r_mpfr_div(VALUE self, VALUE other)
+{
   MPFR *ptr_self, *ptr_other, *ptr_return;
   VALUE val_ret;
   r_mpfr_get_struct(ptr_self, self);
@@ -615,7 +763,8 @@ static VALUE r_mpfr_div(VALUE self, VALUE other){
 }
 
 /* Return p1-th power of self. */
-static VALUE r_mpfr_pow(VALUE self, VALUE other){
+static VALUE r_mpfr_pow(VALUE self, VALUE other)
+{
   MPFR *ptr_self, *ptr_other, *ptr_return;
   VALUE val_ret;
   r_mpfr_get_struct(ptr_self, self);
@@ -631,7 +780,8 @@ static VALUE r_mpfr_pow(VALUE self, VALUE other){
 }
 
 /* Return negative value of self. */
-static VALUE r_mpfr_neg(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_neg(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -644,7 +794,8 @@ static VALUE r_mpfr_neg(int argc, VALUE *argv, VALUE self){
 }
 
 /* Return absolute value of self. */
-static VALUE r_mpfr_abs(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_abs(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -661,7 +812,8 @@ static VALUE r_mpfr_abs(int argc, VALUE *argv, VALUE self){
 /* ------------------------------ Math Basic Arithmetic Functions Start ------------------------------ */
 
 /* This method needs two required arguments and returns p1 + p2. */
-static VALUE r_mpfr_math_add(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_add(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
@@ -684,10 +836,11 @@ static VALUE r_mpfr_math_add(int argc, VALUE *argv, VALUE self){
 }
 
 /* This method needs two required arguments and returns p1 - p2. */
-static VALUE r_mpfr_math_sub(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_sub(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   MPFR *ptr_arg1, *ptr_arg2, *ptr_return;
   VALUE val_ret;
   volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
@@ -707,10 +860,11 @@ static VALUE r_mpfr_math_sub(int argc, VALUE *argv, VALUE self){
 }
 
 /* This method needs two required arguments and returns p1 - p2. */
-static VALUE r_mpfr_math_mul(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_mul(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   MPFR *ptr_arg1, *ptr_arg2, *ptr_return;
   VALUE val_ret;
   volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
@@ -730,10 +884,11 @@ static VALUE r_mpfr_math_mul(int argc, VALUE *argv, VALUE self){
 }
 
 /* This method needs two required arguments and returns p1 / p2. */
-static VALUE r_mpfr_math_div(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_div(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   MPFR *ptr_arg1, *ptr_arg2, *ptr_return;
   VALUE val_ret;
   volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
@@ -753,7 +908,8 @@ static VALUE r_mpfr_math_div(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_sqr(ret, p1, rnd). */
-static VALUE r_mpfr_math_sqr(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_sqr(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -767,7 +923,8 @@ static VALUE r_mpfr_math_sqr(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_sqrt(ret, p1, rnd). */
-static VALUE r_mpfr_math_sqrt(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_sqrt(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -791,7 +948,8 @@ static VALUE r_mpfr_math_sqrt(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_rec_sqrt(ret, p1, rnd). */
-static VALUE r_mpfr_math_rec_sqrt(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_rec_sqrt(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -805,7 +963,8 @@ static VALUE r_mpfr_math_rec_sqrt(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_cbrt(ret, p1, rnd). */
-static VALUE r_mpfr_math_cbrt(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_cbrt(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -819,7 +978,8 @@ static VALUE r_mpfr_math_cbrt(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_root(ret, p1, rnd). */
-static VALUE r_mpfr_math_root(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_root(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
@@ -838,7 +998,8 @@ static VALUE r_mpfr_math_root(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_pow(ret, p1, p2, rnd). */
-static VALUE r_mpfr_math_pow(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_pow(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
@@ -858,7 +1019,8 @@ static VALUE r_mpfr_math_pow(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_dim(ret, p1, p2, rnd). */
-static VALUE r_mpfr_math_dim(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_dim(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
@@ -874,7 +1036,8 @@ static VALUE r_mpfr_math_dim(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_mul_2si(ret, p1, p2, rnd). p2 must be integer. */
-static VALUE r_mpfr_math_mul_2si(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_mul_2si(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
@@ -888,7 +1051,8 @@ static VALUE r_mpfr_math_mul_2si(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_div_2si(ret, p1, p2, rnd). p2 must be integer. */
-static VALUE r_mpfr_math_div_2si(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_div_2si(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
@@ -906,7 +1070,8 @@ static VALUE r_mpfr_math_div_2si(int argc, VALUE *argv, VALUE self){
 /* ------------------------------ Comparison Functions Start ------------------------------ */
 
 /* Return negative integer if self < other, negative integer if self > other, or 0 if self == other. */
-static VALUE r_mpfr_cmp(VALUE self, VALUE other){
+static VALUE r_mpfr_cmp(VALUE self, VALUE other)
+{
   MPFR *ptr_self, *ptr_other;
   r_mpfr_get_struct(ptr_self, self);
   int val_ret;
@@ -929,7 +1094,8 @@ static VALUE r_mpfr_cmp(VALUE self, VALUE other){
 }
 
 /* mpfr_cmp_ui_2exp(self, p1, p2). */
-static VALUE r_mpfr_cmp_ui_2exp(VALUE self, VALUE other, VALUE exp){
+static VALUE r_mpfr_cmp_ui_2exp(VALUE self, VALUE other, VALUE exp)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   VALUE val_ret;
@@ -943,14 +1109,16 @@ static VALUE r_mpfr_cmp_ui_2exp(VALUE self, VALUE other, VALUE exp){
 }
 
 /* mpfr_cmp_si_2exp(self, p1, p2). */
-static VALUE r_mpfr_cmp_si_2exp(VALUE self, VALUE other, VALUE exp){
+static VALUE r_mpfr_cmp_si_2exp(VALUE self, VALUE other, VALUE exp)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   return INT2FIX(mpfr_cmp_si_2exp(ptr_self, NUM2INT(other), NUM2INT(exp)));
 }
 
 /* mpfr_cmpabs(self, p1). */
-static VALUE r_mpfr_cmpabs(VALUE self, VALUE other){
+static VALUE r_mpfr_cmpabs(VALUE self, VALUE other)
+{
   MPFR *ptr_self, *ptr_other;
   r_mpfr_get_struct(ptr_self, self);
   volatile VALUE tmp_other = r_mpfr_new_fr_obj(other);
@@ -959,123 +1127,137 @@ static VALUE r_mpfr_cmpabs(VALUE self, VALUE other){
 }
 
 /* Return true if self is NaN, nil otherwise. */
-static VALUE r_mpfr_nan_p(VALUE self){
+static VALUE r_mpfr_nan_p(VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   if(mpfr_nan_p(ptr_self) != 0){
     return Qtrue;
   }else{
-    return Qnil;
+    return Qfalse;
   }
 }
 
 /* Return true if self is infinity, nil otherwise. */
-static VALUE r_mpfr_inf_p(VALUE self){
+static VALUE r_mpfr_inf_p(VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
-  return (mpfr_inf_p(ptr_self) != 0 ? Qtrue : Qnil);
+  return (mpfr_inf_p(ptr_self) != 0 ? Qtrue : Qfalse);
 }
 
 /* Return 1 if self is plus infinity, -1 if minus infinity. nil otherwise. */
-static VALUE r_mpfr_inf_p2(VALUE self){
+static VALUE r_mpfr_inf_p2(VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   if(mpfr_inf_p(ptr_self) != 0){
     return (mpfr_sgn(ptr_self) > 0 ? INT2NUM(1) : INT2NUM(-1));
   }else{
-    return Qnil;
+    return Qfalse;
   }
 }
 
 /* Return true if self is number, nil otherwise */
-static VALUE r_mpfr_number_p(VALUE self){
+static VALUE r_mpfr_number_p(VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
-  return (mpfr_number_p(ptr_self) != 0 ? Qtrue : Qnil);
+  return (mpfr_number_p(ptr_self) != 0 ? Qtrue : Qfalse);
 }
 
 /* Return true if self is 0, nil otherwise. */
-static VALUE r_mpfr_zero_p(VALUE self){
+static VALUE r_mpfr_zero_p(VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
-  return (mpfr_zero_p(ptr_self) != 0 ? Qtrue : Qnil);
+  return (mpfr_zero_p(ptr_self) != 0 ? Qtrue : Qfalse);
 }
 
 /* Return true if self is non zero, nil otherwise. */
-static VALUE r_mpfr_nonzero_p(VALUE self){
+static VALUE r_mpfr_nonzero_p(VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
-  return (mpfr_zero_p(ptr_self) == 0 ? Qtrue : Qnil);
+  return (mpfr_zero_p(ptr_self) == 0 ? Qtrue : Qfalse);
 }
 
 /* mpfr_sgn(self). */
-static VALUE r_mpfr_sgn(VALUE self){
+static VALUE r_mpfr_sgn(VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   return INT2FIX(mpfr_sgn(ptr_self));
 }
 
 /* Return true if self > other, nil otherwise. */
-static VALUE r_mpfr_greater_p(VALUE self, VALUE other){
+static VALUE r_mpfr_greater_p(VALUE self, VALUE other)
+{
   MPFR *ptr_self, *ptr_other;
   r_mpfr_get_struct(ptr_self, self);
   volatile VALUE tmp_other = r_mpfr_new_fr_obj(other);
   r_mpfr_get_struct(ptr_other, tmp_other);
-  return (mpfr_greater_p(ptr_self, ptr_other) != 0 ? Qtrue : Qnil);
+  return (mpfr_greater_p(ptr_self, ptr_other) != 0 ? Qtrue : Qfalse);
 }
 
 /* Return true if self >= other, nil otherwise. */
-static VALUE r_mpfr_greaterequal_p(VALUE self, VALUE other){
+static VALUE r_mpfr_greaterequal_p(VALUE self, VALUE other)
+{
   MPFR *ptr_self, *ptr_other;
   r_mpfr_get_struct(ptr_self, self);
   volatile VALUE tmp_other = r_mpfr_new_fr_obj(other);
   r_mpfr_get_struct(ptr_other, tmp_other);
-  return (mpfr_greaterequal_p(ptr_self, ptr_other) != 0 ? Qtrue : Qnil);
+  return (mpfr_greaterequal_p(ptr_self, ptr_other) != 0 ? Qtrue : Qfalse);
 }
 
 /* Return true if self < other, nil otherwise. */
-static VALUE r_mpfr_less_p(VALUE self, VALUE other){
+static VALUE r_mpfr_less_p(VALUE self, VALUE other)
+{
   MPFR *ptr_self, *ptr_other;
   r_mpfr_get_struct(ptr_self, self);
   volatile VALUE tmp_other = r_mpfr_new_fr_obj(other);
   r_mpfr_get_struct(ptr_other, tmp_other);
-  return (mpfr_less_p(ptr_self, ptr_other) != 0 ? Qtrue : Qnil);
+  return (mpfr_less_p(ptr_self, ptr_other) != 0 ? Qtrue : Qfalse);
 }
 
 /* Return true if self <= other, nil otherwise. */
-static VALUE r_mpfr_lessequal_p(VALUE self, VALUE other){
+static VALUE r_mpfr_lessequal_p(VALUE self, VALUE other)
+{
   MPFR *ptr_self, *ptr_other;
   r_mpfr_get_struct(ptr_self, self);
   volatile VALUE tmp_other = r_mpfr_new_fr_obj(other);
   r_mpfr_get_struct(ptr_other, tmp_other);
-  return (mpfr_lessequal_p(ptr_self, ptr_other) != 0 ? Qtrue : Qnil);
+  return (mpfr_lessequal_p(ptr_self, ptr_other) != 0 ? Qtrue : Qfalse);
 }
 
 /* Return true if self < other or self > other, nil otherwise. */
-static VALUE r_mpfr_lessgreater_p(VALUE self, VALUE other){
+static VALUE r_mpfr_lessgreater_p(VALUE self, VALUE other)
+{
   MPFR *ptr_self, *ptr_other;
   r_mpfr_get_struct(ptr_self, self);
   volatile VALUE tmp_other = r_mpfr_new_fr_obj(other);
   r_mpfr_get_struct(ptr_other, tmp_other);
-  return (mpfr_lessgreater_p(ptr_self, ptr_other) != 0 ? Qtrue : Qnil);
+  return (mpfr_lessgreater_p(ptr_self, ptr_other) != 0 ? Qtrue : Qfalse);
 }
 
 /* Return true if self == other, nil otherwise. */
-static VALUE r_mpfr_equal_p(VALUE self, VALUE other){
+static VALUE r_mpfr_equal_p(VALUE self, VALUE other)
+{
   MPFR *ptr_self, *ptr_other;
   r_mpfr_get_struct(ptr_self, self);
   volatile VALUE tmp_other = r_mpfr_new_fr_obj(other);
   r_mpfr_get_struct(ptr_other, tmp_other);
-  return (mpfr_equal_p(ptr_self, ptr_other) != 0 ? Qtrue : Qnil);
+  return (mpfr_equal_p(ptr_self, ptr_other) != 0 ? Qtrue : Qfalse);
 }
 
 /* Return true if self or other is a NaN, nil otherwise */
-static VALUE r_mpfr_unordered_p(VALUE self, VALUE other){
+static VALUE r_mpfr_unordered_p(VALUE self, VALUE other)
+{
   MPFR *ptr_self, *ptr_other;
   r_mpfr_get_struct(ptr_self, self);
   volatile VALUE tmp_other = r_mpfr_new_fr_obj(other);
   r_mpfr_get_struct(ptr_other, tmp_other);
-  return (mpfr_unordered_p(ptr_self, ptr_other) != 0 ? Qtrue : Qnil);
+  return (mpfr_unordered_p(ptr_self, ptr_other) != 0 ? Qtrue : Qfalse);
 }
 
 /* ------------------------------ Comparison Functions End ------------------------------ */
@@ -1083,7 +1265,8 @@ static VALUE r_mpfr_unordered_p(VALUE self, VALUE other){
 /* ------------------------------ Integer Related Functions Start  ------------------------------ */
 
 /* mpfr_rint(ret, self, rnd) */
-static VALUE r_mpfr_m_rint(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_m_rint(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -1096,7 +1279,8 @@ static VALUE r_mpfr_m_rint(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_ceil(ret, self) */
-static VALUE r_mpfr_m_ceil(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_m_ceil(int argc, VALUE *argv, VALUE self)
+{
   mp_prec_t prec = r_mpfr_prec_from_optional_argument(0, 1, argc, argv);
   MPFR *ptr_self, *ptr_return;
   VALUE val_ret;
@@ -1107,7 +1291,8 @@ static VALUE r_mpfr_m_ceil(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_floor(ret, self) */
-static VALUE r_mpfr_m_floor(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_m_floor(int argc, VALUE *argv, VALUE self)
+{
   mp_prec_t prec = r_mpfr_prec_from_optional_argument(0, 1, argc, argv);
   MPFR *ptr_self, *ptr_return;
   VALUE val_ret;
@@ -1118,7 +1303,8 @@ static VALUE r_mpfr_m_floor(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_round(ret, self) */
-static VALUE r_mpfr_m_round(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_m_round(int argc, VALUE *argv, VALUE self)
+{
   mp_prec_t prec = r_mpfr_prec_from_optional_argument(0, 1, argc, argv);
   MPFR *ptr_self, *ptr_return;
   VALUE val_ret;
@@ -1129,7 +1315,8 @@ static VALUE r_mpfr_m_round(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_trunc(ret, self) */
-static VALUE r_mpfr_m_trunc(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_m_trunc(int argc, VALUE *argv, VALUE self)
+{
   mp_prec_t prec = r_mpfr_prec_from_optional_argument(0, 1, argc, argv);
   MPFR *ptr_self, *ptr_return;
   VALUE val_ret;
@@ -1140,7 +1327,8 @@ static VALUE r_mpfr_m_trunc(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_rint_ceil(ret, self, rnd) */
-static VALUE r_mpfr_rint_ceil(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_rint_ceil(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -1153,7 +1341,8 @@ static VALUE r_mpfr_rint_ceil(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_rint_floor(ret, self, rnd) */
-static VALUE r_mpfr_rint_floor(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_rint_floor(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -1166,7 +1355,8 @@ static VALUE r_mpfr_rint_floor(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_rint_round(ret, self, rnd) */
-static VALUE r_mpfr_rint_round(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_rint_round(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -1179,7 +1369,8 @@ static VALUE r_mpfr_rint_round(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_rint_trunc(ret, self, rnd) */
-static VALUE r_mpfr_rint_trunc(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_rint_trunc(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -1192,7 +1383,8 @@ static VALUE r_mpfr_rint_trunc(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_frac(ret, self, rnd) */
-static VALUE r_mpfr_frac(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_frac(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -1205,7 +1397,8 @@ static VALUE r_mpfr_frac(int argc, VALUE *argv, VALUE self){
 }
 
 /* Return [ret1, ret2] such that mpfr_modf(ret1, ret2, self, rnd). */
-static VALUE r_mpfr_modf(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_modf(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -1219,7 +1412,8 @@ static VALUE r_mpfr_modf(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_fmod(ret, self, p1, rnd) */
-static VALUE r_mpfr_fmod(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_fmod(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1234,7 +1428,8 @@ static VALUE r_mpfr_fmod(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_remainder(ret, self, p1, rnd) */
-static VALUE r_mpfr_remainder(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_remainder(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1249,7 +1444,8 @@ static VALUE r_mpfr_remainder(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_remainder(ret, self, p1, mpfr_getdefault_rounding_mode()) */
-static VALUE r_mpfr_remainder2(VALUE self, VALUE other){
+static VALUE r_mpfr_remainder2(VALUE self, VALUE other)
+{
   MPFR *ptr_self, *ptr_other, *ptr_return;
   VALUE val_ret;
   r_mpfr_get_struct(ptr_self, self);
@@ -1261,7 +1457,8 @@ static VALUE r_mpfr_remainder2(VALUE self, VALUE other){
 }
 
 /* mpfr_remquo(ret1, ret2, self, p1, rnd) */
-static VALUE r_mpfr_remquo(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_remquo(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1277,7 +1474,8 @@ static VALUE r_mpfr_remquo(int argc, VALUE *argv, VALUE self){
 }
 
 /* If value of self is integer, return true. Otherwise, nil. */
-static VALUE r_mpfr_integer_p(VALUE self){
+static VALUE r_mpfr_integer_p(VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   return (mpfr_integer_p(ptr_self) != 0 ? Qtrue : Qnil);
@@ -1288,7 +1486,8 @@ static VALUE r_mpfr_integer_p(VALUE self){
 /* ------------------------------ Miscellaneous Functions Start ------------------------------ */
 
 /* mpfr_nexttoward(self, p1) */
-static VALUE r_mpfr_nexttoward(VALUE self, VALUE other){
+static VALUE r_mpfr_nexttoward(VALUE self, VALUE other)
+{
   MPFR *ptr_self, *ptr_other;
   r_mpfr_get_struct(ptr_self, self);
   volatile VALUE tmp_other = r_mpfr_new_fr_obj(other);
@@ -1298,7 +1497,8 @@ static VALUE r_mpfr_nexttoward(VALUE self, VALUE other){
 }
 
 /* mpfr_nextabove(self) */
-static VALUE r_mpfr_nextabove(VALUE self){
+static VALUE r_mpfr_nextabove(VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   mpfr_nextabove(ptr_self);
@@ -1306,7 +1506,8 @@ static VALUE r_mpfr_nextabove(VALUE self){
 }
 
 /* mpfr_nextbelow(self) */
-static VALUE r_mpfr_nextbelow(VALUE self){
+static VALUE r_mpfr_nextbelow(VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   mpfr_nextbelow(ptr_self);
@@ -1314,7 +1515,8 @@ static VALUE r_mpfr_nextbelow(VALUE self){
 }
 
 /* If self is not number, return nil. Otherwise return an integer mpfr_get_exp(self). */
-static VALUE r_mpfr_get_exp(VALUE self){
+static VALUE r_mpfr_get_exp(VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   if(mpfr_number_p(ptr_self) != 0){
@@ -1325,7 +1527,8 @@ static VALUE r_mpfr_get_exp(VALUE self){
 }
 
 /* arg_exp is integer and we execute mpfr_set_exp(self, arg_exp). */
-static VALUE r_mpfr_set_exp(VALUE self, VALUE arg_exp){
+static VALUE r_mpfr_set_exp(VALUE self, VALUE arg_exp)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   mp_exp_t exp = NUM2INT(arg_exp);
@@ -1334,14 +1537,16 @@ static VALUE r_mpfr_set_exp(VALUE self, VALUE arg_exp){
 }
 
 /* Return integer which is mpfr_signbit(self). */
-static VALUE r_mpfr_signbit(VALUE self){
+static VALUE r_mpfr_signbit(VALUE self)
+{
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   return INT2FIX(mpfr_signbit(ptr_self));
 }
 
 /* mpfr_setsign(ret, self, p1, rnd) */
-static VALUE r_mpfr_setsign(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_setsign(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
@@ -1355,7 +1560,8 @@ static VALUE r_mpfr_setsign(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_copysign(ret, self, p1, rnd) */
-static VALUE r_mpfr_copysign(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_copysign(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
@@ -1374,7 +1580,8 @@ static VALUE r_mpfr_copysign(int argc, VALUE *argv, VALUE self){
 /* ------------------------------ Rounding Mode Related Functions Start ------------------------------ */
 
 /* mpfr_prec_round(ret, prec, rnd) */
-static VALUE r_mpfr_prec_round(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_prec_round(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -1388,7 +1595,8 @@ static VALUE r_mpfr_prec_round(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_prec_round(ret, prec, rnd) */
-static VALUE r_mpfr_prec_round2(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_prec_round2(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -1408,12 +1616,19 @@ static VALUE r_mpfr_prec_round2(int argc, VALUE *argv, VALUE self){
   This method returns that class variable meaning the returned value of Special Functions in MPFR library.
   See the MPFR reference for the kind of Special Functions and the meaning of the returned value of Special Functions.
  */
-static VALUE r_mpfr_get_special_func_state(VALUE self){ return rb_cv_get(r_mpfr_class, SPECIAL_FUNC_STATE); }
+static VALUE r_mpfr_get_special_func_state(VALUE self)
+{
+  return rb_cv_get(r_mpfr_class, SPECIAL_FUNC_STATE);
+}
 
-static void r_mpfr_set_special_func_state(int num){ rb_cv_set(r_mpfr_class, SPECIAL_FUNC_STATE, INT2NUM(num)); }
+static void r_mpfr_set_special_func_state(int num)
+{
+  rb_cv_set(r_mpfr_class, SPECIAL_FUNC_STATE, INT2NUM(num));
+}
 
 /* mpfr_log(ret, p1, rnd). */
-static VALUE r_mpfr_math_log(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_log(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1427,7 +1642,8 @@ static VALUE r_mpfr_math_log(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_log2(ret, p1, rnd). */
-static VALUE r_mpfr_math_log2(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_log2(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1441,7 +1657,8 @@ static VALUE r_mpfr_math_log2(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_log10(ret, p1, rnd). */
-static VALUE r_mpfr_math_log10(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_log10(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1455,7 +1672,8 @@ static VALUE r_mpfr_math_log10(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_exp(ret, p1, rnd). */
-static VALUE r_mpfr_math_exp(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_exp(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1469,7 +1687,8 @@ static VALUE r_mpfr_math_exp(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_exp2(ret, p1, rnd). */
-static VALUE r_mpfr_math_exp2(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_exp2(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1483,7 +1702,8 @@ static VALUE r_mpfr_math_exp2(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_exp10(ret, p1, rnd). */
-static VALUE r_mpfr_math_exp10(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_exp10(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1497,7 +1717,8 @@ static VALUE r_mpfr_math_exp10(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_cos(ret, p1, rnd). */
-static VALUE r_mpfr_math_cos(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_cos(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1511,7 +1732,8 @@ static VALUE r_mpfr_math_cos(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_sin(ret, p1, rnd). */
-static VALUE r_mpfr_math_sin(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_sin(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1525,7 +1747,8 @@ static VALUE r_mpfr_math_sin(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_tan(ret, p1, rnd). */
-static VALUE r_mpfr_math_tan(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_tan(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1539,7 +1762,8 @@ static VALUE r_mpfr_math_tan(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_sec(ret, p1, rnd). */
-static VALUE r_mpfr_math_sec(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_sec(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1553,7 +1777,8 @@ static VALUE r_mpfr_math_sec(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_csc(ret, p1, rnd). */
-static VALUE r_mpfr_math_csc(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_csc(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1567,7 +1792,8 @@ static VALUE r_mpfr_math_csc(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_cot(ret, p1, rnd). */
-static VALUE r_mpfr_math_cot(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_cot(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1581,7 +1807,8 @@ static VALUE r_mpfr_math_cot(int argc, VALUE *argv, VALUE self){
 }
 
 /* Return [sin, cos] such as mpfr_sin_cos(sin, cos, p1, rnd). */
-static VALUE r_mpfr_math_sin_cos(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_sin_cos(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
@@ -1596,7 +1823,8 @@ static VALUE r_mpfr_math_sin_cos(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_acos(ret, p1, rnd). */
-static VALUE r_mpfr_math_acos(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_acos(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1610,7 +1838,8 @@ static VALUE r_mpfr_math_acos(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_asin(ret, p1, rnd). */
-static VALUE r_mpfr_math_asin(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_asin(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1624,7 +1853,8 @@ static VALUE r_mpfr_math_asin(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_atan(ret, p1, rnd). */
-static VALUE r_mpfr_math_atan(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_atan(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1638,7 +1868,8 @@ static VALUE r_mpfr_math_atan(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_atan2(ret, p1, rnd). */
-static VALUE r_mpfr_math_atan2(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_atan2(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
@@ -1654,7 +1885,8 @@ static VALUE r_mpfr_math_atan2(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_cosh(ret, p1, rnd). */
-static VALUE r_mpfr_math_cosh(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_cosh(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1668,7 +1900,8 @@ static VALUE r_mpfr_math_cosh(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_sinh(ret, p1, rnd). */
-static VALUE r_mpfr_math_sinh(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_sinh(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1682,7 +1915,8 @@ static VALUE r_mpfr_math_sinh(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_tanh(ret, p1, rnd). */
-static VALUE r_mpfr_math_tanh(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_tanh(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1696,7 +1930,8 @@ static VALUE r_mpfr_math_tanh(int argc, VALUE *argv, VALUE self){
 }
 
 /* Return array contaning hyperbolic sine and hyperbolic cosine by mpfr_sinh_cosh(ret1, ret2, arg1, rnd). */
-static VALUE r_mpfr_math_sinh_cosh(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_sinh_cosh(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1711,7 +1946,8 @@ static VALUE r_mpfr_math_sinh_cosh(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_acosh(ret, p1, rnd). */
-static VALUE r_mpfr_math_acosh(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_acosh(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1725,7 +1961,8 @@ static VALUE r_mpfr_math_acosh(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_asinh(ret, p1, rnd). */
-static VALUE r_mpfr_math_asinh(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_asinh(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1739,7 +1976,8 @@ static VALUE r_mpfr_math_asinh(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_atanh(ret, p1, rnd). */
-static VALUE r_mpfr_math_atanh(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_atanh(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1753,7 +1991,8 @@ static VALUE r_mpfr_math_atanh(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_fac_ui(ret, p1, rnd). */
-static VALUE r_mpfr_math_fac_ui(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_fac_ui(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1770,7 +2009,8 @@ static VALUE r_mpfr_math_fac_ui(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_log1p(ret, p1, rnd). */
-static VALUE r_mpfr_math_log1p(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_log1p(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1784,7 +2024,8 @@ static VALUE r_mpfr_math_log1p(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_expm1(ret, p1, rnd). */
-static VALUE r_mpfr_math_expm1(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_expm1(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1798,7 +2039,8 @@ static VALUE r_mpfr_math_expm1(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_eint(ret, p1, rnd). */
-static VALUE r_mpfr_math_eint(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_eint(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1812,7 +2054,8 @@ static VALUE r_mpfr_math_eint(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_li2(ret, p1, rnd). */
-static VALUE r_mpfr_math_li2(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_li2(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1826,7 +2069,8 @@ static VALUE r_mpfr_math_li2(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_gamma(ret, p1, rnd). */
-static VALUE r_mpfr_math_gamma(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_gamma(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1840,7 +2084,8 @@ static VALUE r_mpfr_math_gamma(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_lngamma(ret, p1, rnd). */
-static VALUE r_mpfr_math_lngamma(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_lngamma(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1854,7 +2099,8 @@ static VALUE r_mpfr_math_lngamma(int argc, VALUE *argv, VALUE self){
 }
 
 /* Execute mpfr_lgamma(ret1, ret2, p1, rnd) and return [ret1, ret2]. */
-static VALUE r_mpfr_math_lgamma(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_lgamma(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1869,7 +2115,8 @@ static VALUE r_mpfr_math_lgamma(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_zeta(ret, p1, rnd). */
-static VALUE r_mpfr_math_zeta(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_zeta(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1891,7 +2138,8 @@ static VALUE r_mpfr_math_zeta(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_erf(ret, p1, rnd). */
-static VALUE r_mpfr_math_erf(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_erf(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1905,7 +2153,8 @@ static VALUE r_mpfr_math_erf(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_erfc(ret, p1, rnd). */
-static VALUE r_mpfr_math_erfc(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_erfc(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1919,7 +2168,8 @@ static VALUE r_mpfr_math_erfc(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_j0(ret, p1, rnd). */
-static VALUE r_mpfr_math_j0(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_j0(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1933,7 +2183,8 @@ static VALUE r_mpfr_math_j0(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_j1(ret, p1, rnd). */
-static VALUE r_mpfr_math_j1(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_j1(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1947,7 +2198,8 @@ static VALUE r_mpfr_math_j1(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_jn(ret, p2, p1, rnd) */
-static VALUE r_mpfr_math_jn(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_jn(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
@@ -1962,7 +2214,8 @@ static VALUE r_mpfr_math_jn(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_y0(ret, p1, rnd). */
-static VALUE r_mpfr_math_y0(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_y0(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1976,7 +2229,8 @@ static VALUE r_mpfr_math_y0(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_y1(ret, p1, rnd). */
-static VALUE r_mpfr_math_y1(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_y1(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -1990,7 +2244,8 @@ static VALUE r_mpfr_math_y1(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_yn(ret, p2, p1, rnd) */
-static VALUE r_mpfr_math_yn(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_yn(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
@@ -2005,7 +2260,8 @@ static VALUE r_mpfr_math_yn(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_fma(ret, p1, p2, p3, rnd). */
-static VALUE r_mpfr_math_fma(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_fma(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 3, 5, argc, argv);
@@ -2023,7 +2279,8 @@ static VALUE r_mpfr_math_fma(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_fms(ret, p1, p2, p3, rnd). */
-static VALUE r_mpfr_math_fms(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_fms(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 3, 5, argc, argv);
@@ -2041,7 +2298,8 @@ static VALUE r_mpfr_math_fms(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_agm(ret, p1, p2, rnd). */
-static VALUE r_mpfr_math_agm(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_agm(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
@@ -2057,7 +2315,8 @@ static VALUE r_mpfr_math_agm(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_hypot(ret, p1, p2, rnd). */
-static VALUE r_mpfr_math_hypot(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_hypot(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
@@ -2073,7 +2332,8 @@ static VALUE r_mpfr_math_hypot(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_const_log2(ret, rnd). */
-static VALUE r_mpfr_math_const_log2(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_const_log2(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -2085,7 +2345,8 @@ static VALUE r_mpfr_math_const_log2(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_const_pi(ret, rnd). */
-static VALUE r_mpfr_math_const_pi(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_const_pi(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -2097,7 +2358,8 @@ static VALUE r_mpfr_math_const_pi(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_const_euler(ret, rnd). */
-static VALUE r_mpfr_math_const_euler(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_const_euler(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -2109,7 +2371,8 @@ static VALUE r_mpfr_math_const_euler(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_const_catalan(ret, rnd). */
-static VALUE r_mpfr_math_const_catalan(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_const_catalan(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -2121,7 +2384,8 @@ static VALUE r_mpfr_math_const_catalan(int argc, VALUE *argv, VALUE self){
 }
 
 /* Execute mpfr_free_cache(). */
-static VALUE r_mpfr_math_free_cache(VALUE self){
+static VALUE r_mpfr_math_free_cache(VALUE self)
+{
   mpfr_free_cache();
   return Qnil;
 }
@@ -2147,7 +2411,8 @@ static VALUE r_mpfr_math_free_cache(VALUE self){
 /* ------------------------------ MPFR::Math Miscellaneous Functions Start ------------------------------ */
 
 /* mpfr_min(ret, p1, p2, rnd). */
-static VALUE r_mpfr_math_min(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_min(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
@@ -2163,7 +2428,8 @@ static VALUE r_mpfr_math_min(int argc, VALUE *argv, VALUE self){
 }
 
 /* mpfr_max(ret, p1, p2, rnd). */
-static VALUE r_mpfr_math_max(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpfr_math_max(int argc, VALUE *argv, VALUE self)
+{
   mp_rnd_t rnd;
   mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
@@ -2178,9 +2444,10 @@ static VALUE r_mpfr_math_max(int argc, VALUE *argv, VALUE self){
   return val_ret;
 }
 
-/* ------------------------------ MPFR::Math Miscellaneous Functions End ------------------------------ */
 
-void Init_mpfr(){
+
+void Init_mpfr()
+{
   /* ------------------------------ Class MPFR Start ------------------------------ */
   
   /*
@@ -2241,6 +2508,8 @@ void Init_mpfr(){
 
   /* ------------------------------ Constants Start ------------------------------ */
 
+  /* Version of ruby-mpfr. */
+  rb_define_const(r_mpfr_class, "VERSION", rb_str_new2("0.0.3"));
   /* Version string which mpfr_get_version() returns. */
   rb_define_const(r_mpfr_class, "MPFR_VERSION", rb_str_new2(mpfr_get_version()));
   /* String which mpfr_get_patches() returns. */
