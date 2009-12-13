@@ -2508,8 +2508,6 @@ void Init_mpfr()
 
   /* ------------------------------ Constants Start ------------------------------ */
 
-  /* Version of ruby-mpfr. */
-  rb_define_const(r_mpfr_class, "VERSION", rb_str_new2("0.0.3"));
   /* Version string which mpfr_get_version() returns. */
   rb_define_const(r_mpfr_class, "MPFR_VERSION", rb_str_new2(mpfr_get_version()));
   /* String which mpfr_get_patches() returns. */

@@ -2,7 +2,7 @@ require 'rubygems'
 gem 'hoe', '>= 2.1.0'
 require 'hoe'
 require 'fileutils'
-# require './lib/ruby-mpfr'
+require './lib/ruby-mpfr/version.rb'
 
 Hoe.plugin :newgem
 # Hoe.plugin :website
@@ -17,14 +17,6 @@ $hoe = Hoe.spec 'ruby-mpfr' do
   # self.extra_deps         = [['activesupport','>= 2.0.2']]
   self.spec_extras[:extensions] = ["ext/mpfr/extconf.rb"]
   self.extra_rdoc_files << 'README.rdoc'
-  open('ext/mpfr/ruby_mpfr.c', 'r') do |f|
-    while l = f.gets
-      if /rb_define_const\(r_mpfr_class, "VERSION", rb_str_new2\("(.*?)"\)\);/ =~ l
-        self.version = Regexp.last_match[1]
-        break
-      end
-    end
-  end
 end
 
 # require 'newgem/tasks'

@@ -3,11 +3,15 @@ Manifest.txt
 PostInstall.txt
 README.rdoc
 Rakefile
-lib/ruby-mpc.rb
+ext/extconf.rb
+ext/make-const-src.rb
+ext/make-functions.rb
 ext/ruby_mpc.c
 ext/ruby_mpc.h
 ext/ruby_mpfr.h
-ext/extconf.rb
+ext/yasnippet_mpc.el
+lib/ruby-mpc/version.rb
+ruby-mpc.gemspec
 script/console
 script/destroy
 script/generate

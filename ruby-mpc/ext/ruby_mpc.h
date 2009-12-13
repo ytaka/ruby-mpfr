@@ -5,7 +5,7 @@
 #include <ruby.h>
 #include <mpfr.h>
 #include <mpc.h>
-#include "../../ruby-mpfr/ext/ruby_mpfr.h"
+#include "ruby_mpfr.h"
 
 typedef __mpc_struct MPC;
 
@@ -34,9 +34,10 @@ mpc_rnd_t r_mpc_prec_from_optional_argument(int min, int max, int argc, VALUE *a
 void r_mpc_get_rnd_prec_from_optional_arguments(mpc_rnd_t *rnd, mp_prec_t *prec, int min, int max,
 						int argc, VALUE *argv);
 
-void mpc_extended_set_default_rounding_mode (mpc_rnd_t rnd_mode);
-mpc_rnd_t mpc_extended_get_default_rounding_mode (void);
-mp_prec_t mpc_extended_get_max_prec (mpc_t x);
-void r_mpc_set_function_state(int num);
+void rb_mpc_extended_set_default_rounding_mode (mpc_rnd_t rnd_mode);
+mpc_rnd_t rb_mpc_extended_get_default_rounding_mode (void);
+mp_prec_t rb_mpc_extended_get_max_prec (mpc_t x);
+void r_mpc_set_c_function_state(int num);
+void r_mpc_set_fr_function_state(int num);
 
 #endif /* _RUBY_MPC_H_ */

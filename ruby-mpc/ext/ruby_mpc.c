@@ -6,32 +6,48 @@ static ID eqq, new,  object_id;
 static VALUE __mpc_class__, __mpfr_class__;
 
 /* Default rounding mode */
-mp_rnd_t __gmpc_extended_default_rounding_mode = MPC_RNDNN;
+mp_rnd_t __rb_mpc_default_rounding_mode = MPC_RNDNN;
 
-void mpc_extended_set_default_rounding_mode (mpc_rnd_t rnd_mode){
+void rb_mpc_extended_set_default_rounding_mode (mpc_rnd_t rnd_mode)
+{
   if (rnd_mode >= 0 && MPC_RND_RE(rnd_mode) < 4 && MPC_RND_IM(rnd_mode) < 4)
-    __gmpc_extended_default_rounding_mode = rnd_mode;
+    __rb_mpc_default_rounding_mode = rnd_mode;
 }
 
-mpc_rnd_t mpc_extended_get_default_rounding_mode (void){
-  return __gmpc_extended_default_rounding_mode;
+mpc_rnd_t rb_mpc_extended_get_default_rounding_mode (void)
+{
+  return __rb_mpc_default_rounding_mode;
 }
 
-mp_prec_t mpc_extended_get_max_prec (mpc_t x){
-  mp_prec_t precre = mpfr_get_prec(MPC_RE (x)), precim = mpfr_get_prec(MPC_IM (x));
+mp_prec_t rb_mpc_get_max_prec (mpc_t x)
+{
+  mp_prec_t precre = mpfr_get_prec(mpc_realref (x)), precim = mpfr_get_prec(mpc_imagref (x));
   return (precre > precim ? precre : precim);
+}
+
+/* State of function */
+
+void r_mpc_set_c_function_state(int num)
+{
+  rb_cv_set(r_mpc_class, CLASS_VAL_FUNCTION_STATE, rb_ary_new3(2, INT2NUM(MPC_INEX_RE(num)), INT2NUM(MPC_INEX_IM(num))));
+}
+
+void r_mpc_set_fr_function_state(int num)
+{
+  rb_cv_set(r_mpc_class, CLASS_VAL_FUNCTION_STATE, INT2NUM(num));
 }
 
 
 /* If argc equals max, convert last argument to rounding mode number. */
 /* Otherwise, return defoult rounding mode number. */
-mpc_rnd_t r_mpc_rnd_from_optional_argument(int min, int max, int argc, VALUE *argv){
+mpc_rnd_t r_mpc_rnd_from_optional_argument(int min, int max, int argc, VALUE *argv)
+{
   mp_rnd_t rnd;
   if(argc >= min && argc <= max){
     if(argc == max){
       rnd = r_mpc_rnd_from_value(argv[max-1]);
     }else{
-      rnd = mpc_extended_get_default_rounding_mode();
+      rnd = rb_mpc_extended_get_default_rounding_mode();
     }
   }else{
     rb_raise(rb_eArgError, "Invalid number of arguments.");
@@ -41,13 +57,14 @@ mpc_rnd_t r_mpc_rnd_from_optional_argument(int min, int max, int argc, VALUE *ar
 
 /* If argc equals max, convert last argument to precision number. */
 /* Otherwise, return defoult precision number. */
-mpc_rnd_t r_mpc_prec_from_optional_argument(int min, int max, int argc, VALUE *argv){
+mpc_rnd_t r_mpc_prec_from_optional_argument(int min, int max, int argc, VALUE *argv)
+{
   mp_prec_t prec;
   if(argc >= min && argc <= max){
     if(argc == max){
       prec = NUM2INT(argv[max - 1]);
     }else{
-      prec = mpc_get_default_prec();
+      prec = mpfr_get_default_prec();
     }
   }else{
     rb_raise(rb_eArgError, "Invalid number of arguments.");
@@ -58,64 +75,42 @@ mpc_rnd_t r_mpc_prec_from_optional_argument(int min, int max, int argc, VALUE *a
 /* min is a minimum number of arguments. */
 /* max is a maximum number of arguments. */
 void r_mpc_get_rnd_prec_from_optional_arguments(mpc_rnd_t *rnd, mp_prec_t *prec, int min, int max,
-						 int argc, VALUE *argv){
+						int argc, VALUE *argv)
+{
   if(argc >= min && argc <= max){
     if(argc >= max - 1){
       *rnd = r_mpc_rnd_from_value(argv[max - 2]);
     }else{
-      *rnd = mpc_extended_get_default_rounding_mode();
+      *rnd = rb_mpc_extended_get_default_rounding_mode();
     }
     if(argc == max){
       *prec = NUM2INT(argv[max - 1]);
     }else{
-      *prec = mpc_get_default_prec();
+      *prec = mpfr_get_default_prec();
     }
   }else{
     rb_raise(rb_eArgError, "Invalid number of arguments.");
   }
 }
 
-/* Set the default MPC precision in bits. See mpc_set_default_prec in MPC reference for detail. */
-static VALUE r_mpc_set_default_prec(VALUE self, VALUE prec){
-  int set_prec = NUM2INT(prec);
-  if(set_prec <= 0){
-    rb_raise(rb_eRangeError, "Argument must be positive.");
-  }
-  mpc_set_default_prec(set_prec);
-  return INT2FIX(mpf_get_default_prec());
-}
-
-/* Return the default MPC precision in bits. */
-static VALUE r_mpc_get_default_prec(VALUE self){
-  return INT2NUM((int)mpc_get_default_prec());
-}
-
-/* Set the default rounding mode. The default rounding mode is MPC::RNDN. */
-static VALUE r_mpc_set_default_rounding_mode(VALUE self, VALUE rnd){
+/* Set the default rounding mode. The default rounding mode is MPC::RNDNN. */
+static VALUE r_mpc_set_default_rounding_mode(VALUE self, VALUE rnd)
+{
   mp_rnd_t a = NUM2INT(rnd);
-  mpc_extended_set_default_rounding_mode(a);
-  return INT2FIX(mpc_extended_get_default_rounding_mode());
+  rb_mpc_extended_set_default_rounding_mode(a);
+  return INT2FIX(rb_mpc_extended_get_default_rounding_mode());
 }
 
 /* Get the default rounding mode. */
-static VALUE r_mpc_get_default_rounding_mode(VALUE self){
-  return INT2NUM(mpc_extended_get_default_rounding_mode());
+static VALUE r_mpc_get_default_rounding_mode(VALUE self)
+{
+  return INT2NUM(rb_mpc_extended_get_default_rounding_mode());
 }
 
-void r_mpc_set_function_state(int num){
-  rb_cv_set(r_mpc_class, CLASS_VAL_FUNCTION_STATE, INT2NUM(num));
-}
-
-static VALUE r_mpc_get_function_state(VALUE self){
+/* Return function state. */
+static VALUE r_mpc_get_function_state(VALUE self)
+{
   return rb_cv_get(r_mpc_class, CLASS_VAL_FUNCTION_STATE);
-}
-
-static VALUE r_mpc_inex_re (VALUE self, VALUE func_state){
-  return MPC_INEX_RE(NUM2INT(func_state));
-}
-
-static VALUE r_mpc_inex_im (VALUE self, VALUE func_state){
-  return MPC_INEX_IM(NUM2INT(func_state));
 }
 
 /* ---------- Allocation ---------- */
@@ -125,13 +120,15 @@ void r_mpc_free(void *ptr){
   free(ptr);
 }
 
-static VALUE r_mpc_alloc(VALUE self){
+static VALUE r_mpc_alloc(VALUE self)
+{
   MPC *ptr;
   r_mpc_make_struct(self, ptr);
   return self;
 }
 
-VALUE r_mpc_new_c_obj(VALUE obj){
+VALUE r_mpc_new_c_obj(VALUE obj)
+{
   if(RTEST(rb_funcall(__mpc_class__, eqq, 1, obj))){
     return obj;
   }else{
@@ -140,12 +137,14 @@ VALUE r_mpc_new_c_obj(VALUE obj){
 }
 
 
-static void r_mpc_set_from_two_objects(MPC *ptr, VALUE real, VALUE imag, mpc_rnd_t rnd){
-  r_mpfr_set_robj(MPC_RE(ptr), real, MPC_RND_RE(rnd));
-  r_mpfr_set_robj(MPC_IM(ptr), imag, MPC_RND_IM(rnd));
+static void r_mpc_set_from_two_objects(MPC *ptr, VALUE real, VALUE imag, mpc_rnd_t rnd)
+{
+  r_mpfr_set_robj(mpc_realref(ptr), real, MPC_RND_RE(rnd));
+  r_mpfr_set_robj(mpc_imagref(ptr), imag, MPC_RND_IM(rnd));
 }
 
-static void r_mpc_set_from_one_object(MPC *ptr, VALUE obj, mpc_rnd_t rnd){
+static void r_mpc_set_from_one_object(MPC *ptr, VALUE obj, mpc_rnd_t rnd)
+{
   if(RTEST(rb_funcall(__mpc_class__, eqq, 1, obj))){
     MPC *ptr_obj;
     r_mpc_get_struct(ptr_obj, obj);
@@ -163,8 +162,8 @@ static void r_mpc_set_from_one_object(MPC *ptr, VALUE obj, mpc_rnd_t rnd){
       mpc_set_si(ptr, FIX2LONG(obj), rnd);
       break;
     default:
-      r_mpfr_set_robj(MPC_RE(ptr), obj, MPC_RND_RE(rnd));
-      mpfr_set_si(MPC_IM(ptr), 0, MPC_RND_IM(rnd));
+      r_mpfr_set_robj(mpc_realref(ptr), obj, MPC_RND_RE(rnd));
+      mpfr_set_si(mpc_imagref(ptr), 0, MPC_RND_IM(rnd));
       break;
     }
   }
@@ -176,23 +175,24 @@ static void r_mpc_set_from_one_object(MPC *ptr, VALUE obj, mpc_rnd_t rnd){
 /* 2. real part and imaginary part*/
 /* 3. real part, imaginary part, and rounding mode */
 /* 4. real part, imaginary part, rounding mode and precision */
-static VALUE r_mpc_initialize(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_initialize(int argc, VALUE *argv, VALUE self)
+{
   MPC *ptr;
   r_mpc_get_struct(ptr, self);
   switch(argc){
   case 0:
-    mpc_init(ptr);
+    mpc_init2(ptr, mpfr_get_default_prec());
     break;
   case 1:
-    mpc_init(ptr);
-    r_mpc_set_from_one_object(ptr, argv[0], mpc_extended_get_default_rounding_mode());
+    mpc_init2(ptr, mpfr_get_default_prec());
+    r_mpc_set_from_one_object(ptr, argv[0], rb_mpc_extended_get_default_rounding_mode());
     break;
   case 2:
-    mpc_init(ptr);
-    r_mpc_set_from_two_objects(ptr, argv[0], argv[1], mpc_extended_get_default_rounding_mode());
+    mpc_init2(ptr, mpfr_get_default_prec());
+    r_mpc_set_from_two_objects(ptr, argv[0], argv[1], rb_mpc_extended_get_default_rounding_mode());
     break;
   case 3:
-    mpc_init(ptr);
+    mpc_init2(ptr, mpfr_get_default_prec());
     r_mpc_set_from_two_objects(ptr, argv[0], argv[1], r_mpc_rnd_from_value(argv[2]));
     break;
   case 4:
@@ -206,48 +206,53 @@ static VALUE r_mpc_initialize(int argc, VALUE *argv, VALUE self){
   return Qtrue;
 }
 
-static VALUE r_mpc_initialize_copy(VALUE self, VALUE other){
+static VALUE r_mpc_initialize_copy(VALUE self, VALUE other)
+{
   MPC *ptr_self, *ptr_other;
   r_mpc_get_struct(ptr_self, self);
   r_mpc_get_struct(ptr_other, other);
-  mpc_init2(ptr_self, mpc_extended_get_max_prec(ptr_other));
-  mpc_set(ptr_self, ptr_other, mpc_extended_get_default_rounding_mode());
+  mpc_init2(ptr_self, rb_mpc_get_max_prec(ptr_other));
+  mpc_set(ptr_self, ptr_other, rb_mpc_extended_get_default_rounding_mode());
   return Qtrue;
 }
 
 /* Return array which have MPC instance converted to from p1 and self. */
-static VALUE r_mpc_coerce(VALUE self, VALUE other){
+static VALUE r_mpc_coerce(VALUE self, VALUE other)
+{
   VALUE val_other;
   MPC *ptr_self, *ptr_other;
   r_mpc_get_struct(ptr_self, self);
-  r_mpc_make_struct_init2(val_other, ptr_other, mpc_extended_get_max_prec(ptr_self));
-  r_mpc_set_from_one_object(ptr_other, other, mpc_extended_get_default_rounding_mode());
+  r_mpc_make_struct_init2(val_other, ptr_other, rb_mpc_get_max_prec(ptr_self));
+  r_mpc_set_from_one_object(ptr_other, other, rb_mpc_extended_get_default_rounding_mode());
   return rb_ary_new3(2, val_other, self);
 }
 
 /* Projection and Decomposing Functions */
 
-static VALUE r_mpc_real (VALUE self){
+static VALUE r_mpc_real (VALUE self)
+{
   MPC *ptr_self;
   r_mpc_get_struct(ptr_self, self);
   VALUE ret_val;
   MPFR *ptr_ret;
-  r_mpfr_make_struct_init2(ret_val, ptr_ret, mpfr_get_prec(MPC_RE(ptr_self)));
-  r_mpc_set_function_state(mpc_real(ptr_ret, ptr_self, MPC_RNDNN));
+  r_mpfr_make_struct_init2(ret_val, ptr_ret, mpfr_get_prec(mpc_realref(ptr_self)));
+  r_mpc_set_fr_function_state(mpc_real(ptr_ret, ptr_self, MPC_RNDNN));
   return ret_val;
 }
 
-static VALUE r_mpc_imag (VALUE self){
+static VALUE r_mpc_imag (VALUE self)
+{
   MPC *ptr_self;
   r_mpc_get_struct(ptr_self, self);
   VALUE ret_val;
   MPFR *ptr_ret;
-  r_mpfr_make_struct_init2(ret_val, ptr_ret, mpfr_get_prec(MPC_IM(ptr_self)));
-  r_mpc_set_function_state(mpc_imag(ptr_ret, ptr_self, MPC_RNDNN));
+  r_mpfr_make_struct_init2(ret_val, ptr_ret, mpfr_get_prec(mpc_imagref(ptr_self)));
+  r_mpc_set_fr_function_state(mpc_imag(ptr_ret, ptr_self, MPC_RNDNN));
   return ret_val;
 }
 
-static VALUE r_mpc_arg (int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_arg (int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -256,11 +261,12 @@ static VALUE r_mpc_arg (int argc, VALUE *argv, VALUE self){
   VALUE ret_val;
   MPFR *ptr_ret;
   r_mpfr_make_struct_init2(ret_val, ptr_ret, prec);
-  r_mpc_set_function_state(mpc_arg(ptr_ret, ptr_self, rnd));
+  r_mpc_set_fr_function_state(mpc_arg(ptr_ret, ptr_self, rnd));
   return ret_val;
 }
 
-static VALUE r_mpc_proj (int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_proj (int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -269,24 +275,26 @@ static VALUE r_mpc_proj (int argc, VALUE *argv, VALUE self){
   VALUE ret_val;
   MPC *ptr_ret;
   r_mpc_make_struct_init2(ret_val, ptr_ret, prec);
-  r_mpc_set_function_state(mpc_proj(ptr_ret, ptr_self, rnd));
+  r_mpc_set_c_function_state(mpc_proj(ptr_ret, ptr_self, rnd));
   return ret_val;
 }
 
-static VALUE r_mpc_inspect(VALUE self){
+static VALUE r_mpc_inspect(VALUE self)
+{
   MPC *ptr_s;
   r_mpc_get_struct(ptr_s, self);
   char *ret_str;
   mpfr_asprintf(&ret_str, "#<MPC:%lx,['%.Re','%.Re'],[%d,%d]>",
-		NUM2LONG(rb_funcall(self, object_id, 0)), MPC_RE (ptr_s), MPC_IM (ptr_s),
-		mpfr_get_prec(MPC_RE (ptr_s)), mpfr_get_prec(MPC_IM (ptr_s)));
+		NUM2LONG(rb_funcall(self, object_id, 0)), mpc_realref (ptr_s), mpc_imagref (ptr_s),
+		mpfr_get_prec(mpc_realref (ptr_s)), mpfr_get_prec(mpc_imagref (ptr_s)));
   VALUE ret_val = rb_str_new2(ret_str);
   mpfr_free_str(ret_str);
   return ret_val;
 }
 
 /* Basic Arithmetic Functions */
-static VALUE r_mpc_add(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_add(int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -298,20 +306,21 @@ static VALUE r_mpc_add(int argc, VALUE *argv, VALUE self){
   if(RTEST(rb_funcall(__mpc_class__, eqq, 1, argv[0]))){
     MPC *ptr_other;
     r_mpc_get_struct(ptr_other, argv[0]);
-    r_mpc_set_function_state(mpc_add(ptr_return, ptr_self, ptr_other, rnd));
+    r_mpc_set_c_function_state(mpc_add(ptr_return, ptr_self, ptr_other, rnd));
   }else if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, argv[0]))){
     MPFR *ptr_other;
     r_mpfr_get_struct(ptr_other, argv[0]);
-    r_mpc_set_function_state(mpc_add_fr(ptr_return, ptr_self, ptr_other, rnd));
+    r_mpc_set_c_function_state(mpc_add_fr(ptr_return, ptr_self, ptr_other, rnd));
   }else{
     MPFR *ptr_other;
     r_mpfr_get_struct(ptr_other, rb_funcall(__mpc_class__, new, 1, argv[0]));
-    r_mpc_set_function_state(mpc_add_fr(ptr_return, ptr_self, ptr_other, rnd));
+    r_mpc_set_c_function_state(mpc_add_fr(ptr_return, ptr_self, ptr_other, rnd));
   }
   return val_ret;
 }
 
-static VALUE r_mpc_add2(VALUE self, VALUE other){
+static VALUE r_mpc_add2(VALUE self, VALUE other)
+{
   MPC *ptr_self, *ptr_return;
   VALUE val_ret;
   r_mpc_get_struct(ptr_self, self);
@@ -319,20 +328,21 @@ static VALUE r_mpc_add2(VALUE self, VALUE other){
   if(RTEST(rb_funcall(__mpc_class__, eqq, 1, other))){
     MPC *ptr_other;
     r_mpc_get_struct(ptr_other, other);
-    mpc_add(ptr_return, ptr_self, ptr_other, mpc_extended_get_default_rounding_mode());
+    mpc_add(ptr_return, ptr_self, ptr_other, rb_mpc_extended_get_default_rounding_mode());
   }else if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, other))){
     MPFR *ptr_other;
     r_mpfr_get_struct(ptr_other, other);
-    mpc_add_fr(ptr_return, ptr_self, ptr_other, mpc_extended_get_default_rounding_mode());
+    mpc_add_fr(ptr_return, ptr_self, ptr_other, rb_mpc_extended_get_default_rounding_mode());
   }else{
     MPFR *ptr_other;
     r_mpfr_get_struct(ptr_other, rb_funcall(__mpc_class__, new, 1, other));
-    mpc_add_fr(ptr_return, ptr_self, ptr_other, mpc_extended_get_default_rounding_mode());
+    mpc_add_fr(ptr_return, ptr_self, ptr_other, rb_mpc_extended_get_default_rounding_mode());
   }
   return val_ret;
 }
 
-static VALUE r_mpc_sub(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_sub(int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -344,20 +354,21 @@ static VALUE r_mpc_sub(int argc, VALUE *argv, VALUE self){
   if(RTEST(rb_funcall(__mpc_class__, eqq, 1, argv[0]))){
     MPC *ptr_other;
     r_mpc_get_struct(ptr_other, argv[0]);
-    r_mpc_set_function_state(mpc_sub(ptr_return, ptr_self, ptr_other, rnd));
+    r_mpc_set_c_function_state(mpc_sub(ptr_return, ptr_self, ptr_other, rnd));
   }else if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, argv[0]))){
     MPFR *ptr_other;
     r_mpfr_get_struct(ptr_other, argv[0]);
-    r_mpc_set_function_state(mpc_sub_fr(ptr_return, ptr_self, ptr_other, rnd));
+    r_mpc_set_c_function_state(mpc_sub_fr(ptr_return, ptr_self, ptr_other, rnd));
   }else{
     MPFR *ptr_other;
     r_mpfr_get_struct(ptr_other, rb_funcall(__mpc_class__, new, 1, argv[0]));
-    r_mpc_set_function_state(mpc_sub_fr(ptr_return, ptr_self, ptr_other, rnd));
+    r_mpc_set_c_function_state(mpc_sub_fr(ptr_return, ptr_self, ptr_other, rnd));
   }
   return val_ret;
 }
 
-static VALUE r_mpc_sub2(VALUE self, VALUE other){
+static VALUE r_mpc_sub2(VALUE self, VALUE other)
+{
   MPC *ptr_self, *ptr_return;
   VALUE val_ret;
   r_mpc_get_struct(ptr_self, self);
@@ -366,20 +377,21 @@ static VALUE r_mpc_sub2(VALUE self, VALUE other){
   if(RTEST(rb_funcall(__mpc_class__, eqq, 1, other))){
     MPC *ptr_other;
     r_mpc_get_struct(ptr_other, other);
-    mpc_sub(ptr_return, ptr_self, ptr_other, mpc_extended_get_default_rounding_mode());
+    mpc_sub(ptr_return, ptr_self, ptr_other, rb_mpc_extended_get_default_rounding_mode());
   }else if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, other))){
     MPFR *ptr_other;
     r_mpfr_get_struct(ptr_other, other);
-    mpc_sub_fr(ptr_return, ptr_self, ptr_other, mpc_extended_get_default_rounding_mode());
+    mpc_sub_fr(ptr_return, ptr_self, ptr_other, rb_mpc_extended_get_default_rounding_mode());
   }else{
     MPFR *ptr_other;
     r_mpfr_get_struct(ptr_other, rb_funcall(__mpc_class__, new, 1, other));
-    mpc_sub_fr(ptr_return, ptr_self, ptr_other, mpc_extended_get_default_rounding_mode());
+    mpc_sub_fr(ptr_return, ptr_self, ptr_other, rb_mpc_extended_get_default_rounding_mode());
   }
   return val_ret;
 }
 
-static VALUE r_mpc_mul(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_mul(int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -391,20 +403,21 @@ static VALUE r_mpc_mul(int argc, VALUE *argv, VALUE self){
   if(RTEST(rb_funcall(__mpc_class__, eqq, 1, argv[0]))){
     MPC *ptr_other;
     r_mpc_get_struct(ptr_other, argv[0]);
-    r_mpc_set_function_state(mpc_mul(ptr_return, ptr_self, ptr_other, rnd));
+    r_mpc_set_c_function_state(mpc_mul(ptr_return, ptr_self, ptr_other, rnd));
   }else if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, argv[0]))){
     MPFR *ptr_other;
     r_mpfr_get_struct(ptr_other, argv[0]);
-    r_mpc_set_function_state(mpc_mul_fr(ptr_return, ptr_self, ptr_other, rnd));
+    r_mpc_set_c_function_state(mpc_mul_fr(ptr_return, ptr_self, ptr_other, rnd));
   }else{
     MPFR *ptr_other;
     r_mpfr_get_struct(ptr_other, rb_funcall(__mpc_class__, new, 1, argv[0]));
-    r_mpc_set_function_state(mpc_mul_fr(ptr_return, ptr_self, ptr_other, rnd));
+    r_mpc_set_c_function_state(mpc_mul_fr(ptr_return, ptr_self, ptr_other, rnd));
   }
   return val_ret;
 }
 
-static VALUE r_mpc_mul2(VALUE self, VALUE other){
+static VALUE r_mpc_mul2(VALUE self, VALUE other)
+{
   MPC *ptr_self, *ptr_return;
   VALUE val_ret;
   r_mpc_get_struct(ptr_self, self);
@@ -413,20 +426,21 @@ static VALUE r_mpc_mul2(VALUE self, VALUE other){
   if(RTEST(rb_funcall(__mpc_class__, eqq, 1, other))){
     MPC *ptr_other;
     r_mpc_get_struct(ptr_other, other);
-    mpc_mul(ptr_return, ptr_self, ptr_other, mpc_extended_get_default_rounding_mode());
+    mpc_mul(ptr_return, ptr_self, ptr_other, rb_mpc_extended_get_default_rounding_mode());
   }else if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, other))){
     MPFR *ptr_other;
     r_mpfr_get_struct(ptr_other, other);
-    mpc_mul_fr(ptr_return, ptr_self, ptr_other, mpc_extended_get_default_rounding_mode());
+    mpc_mul_fr(ptr_return, ptr_self, ptr_other, rb_mpc_extended_get_default_rounding_mode());
   }else{
     MPFR *ptr_other;
     r_mpfr_get_struct(ptr_other, rb_funcall(__mpc_class__, new, 1, other));
-    mpc_mul_fr(ptr_return, ptr_self, ptr_other, mpc_extended_get_default_rounding_mode());
+    mpc_mul_fr(ptr_return, ptr_self, ptr_other, rb_mpc_extended_get_default_rounding_mode());
   }
   return val_ret;
 }
 
-static VALUE r_mpc_div(int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_div(int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -438,20 +452,21 @@ static VALUE r_mpc_div(int argc, VALUE *argv, VALUE self){
   if(RTEST(rb_funcall(__mpc_class__, eqq, 1, argv[0]))){
     MPC *ptr_other;
     r_mpc_get_struct(ptr_other, argv[0]);
-    r_mpc_set_function_state(mpc_div(ptr_return, ptr_self, ptr_other, rnd));
+    r_mpc_set_c_function_state(mpc_div(ptr_return, ptr_self, ptr_other, rnd));
   }else if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, argv[0]))){
     MPFR *ptr_other;
     r_mpfr_get_struct(ptr_other, argv[0]);
-    r_mpc_set_function_state(mpc_div_fr(ptr_return, ptr_self, ptr_other, rnd));
+    r_mpc_set_c_function_state(mpc_div_fr(ptr_return, ptr_self, ptr_other, rnd));
   }else{
     MPFR *ptr_other;
     r_mpfr_get_struct(ptr_other, rb_funcall(__mpc_class__, new, 1, argv[0]));
-    r_mpc_set_function_state(mpc_div_fr(ptr_return, ptr_self, ptr_other, rnd));
+    r_mpc_set_c_function_state(mpc_div_fr(ptr_return, ptr_self, ptr_other, rnd));
   }
   return val_ret;
 }
 
-static VALUE r_mpc_div2(VALUE self, VALUE other){
+static VALUE r_mpc_div2(VALUE self, VALUE other)
+{
   MPC *ptr_self, *ptr_return;
   VALUE val_ret;
   r_mpc_get_struct(ptr_self, self);
@@ -460,20 +475,21 @@ static VALUE r_mpc_div2(VALUE self, VALUE other){
   if(RTEST(rb_funcall(__mpc_class__, eqq, 1, other))){
     MPC *ptr_other;
     r_mpc_get_struct(ptr_other, other);
-    mpc_div(ptr_return, ptr_self, ptr_other, mpc_extended_get_default_rounding_mode());
+    mpc_div(ptr_return, ptr_self, ptr_other, rb_mpc_extended_get_default_rounding_mode());
   }else if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, other))){
     MPFR *ptr_other;
     r_mpfr_get_struct(ptr_other, other);
-    mpc_div_fr(ptr_return, ptr_self, ptr_other, mpc_extended_get_default_rounding_mode());
+    mpc_div_fr(ptr_return, ptr_self, ptr_other, rb_mpc_extended_get_default_rounding_mode());
   }else{
     MPFR *ptr_other;
     r_mpfr_get_struct(ptr_other, rb_funcall(__mpc_class__, new, 1, other));
-    mpc_div_fr(ptr_return, ptr_self, ptr_other, mpc_extended_get_default_rounding_mode());
+    mpc_div_fr(ptr_return, ptr_self, ptr_other, rb_mpc_extended_get_default_rounding_mode());
   }
   return val_ret;
 }
 
-static VALUE r_mpc_mul_i (int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_mul_i (int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -481,11 +497,12 @@ static VALUE r_mpc_mul_i (int argc, VALUE *argv, VALUE self){
   VALUE val_ret;
   r_mpc_get_struct(ptr_self, self);
   r_mpc_make_struct_init2(val_ret, ptr_return, prec);
-  r_mpc_set_function_state(mpc_mul_i(ptr_return, ptr_self, NUM2INT(argv[0]), rnd));
+  r_mpc_set_c_function_state(mpc_mul_i(ptr_return, ptr_self, NUM2INT(argv[0]), rnd));
   return val_ret;
 }
 
-static VALUE r_mpc_sqr (int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_sqr (int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -493,11 +510,12 @@ static VALUE r_mpc_sqr (int argc, VALUE *argv, VALUE self){
   VALUE val_ret;
   r_mpc_get_struct(ptr_self, self);
   r_mpc_make_struct_init2(val_ret, ptr_return, prec);
-  r_mpc_set_function_state(mpc_sqr(ptr_return, ptr_self, rnd));
+  r_mpc_set_c_function_state(mpc_sqr(ptr_return, ptr_self, rnd));
   return val_ret;
 }
 
-static VALUE r_mpc_neg (int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_neg (int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -505,11 +523,12 @@ static VALUE r_mpc_neg (int argc, VALUE *argv, VALUE self){
   VALUE val_ret;
   r_mpc_get_struct(ptr_self, self);
   r_mpc_make_struct_init2(val_ret, ptr_return, prec);
-  r_mpc_set_function_state(mpc_neg(ptr_return, ptr_self, rnd));
+  r_mpc_set_c_function_state(mpc_neg(ptr_return, ptr_self, rnd));
   return val_ret;
 }
 
-static VALUE r_mpc_conj (int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_conj (int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -517,11 +536,12 @@ static VALUE r_mpc_conj (int argc, VALUE *argv, VALUE self){
   VALUE val_ret;
   r_mpc_get_struct(ptr_self, self);
   r_mpc_make_struct_init2(val_ret, ptr_return, prec);
-  r_mpc_set_function_state(mpc_conj(ptr_return, ptr_self, rnd));
+  r_mpc_set_c_function_state(mpc_conj(ptr_return, ptr_self, rnd));
   return val_ret;
 }
 
-static VALUE r_mpc_abs (int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_abs (int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -530,11 +550,12 @@ static VALUE r_mpc_abs (int argc, VALUE *argv, VALUE self){
   VALUE val_ret;
   r_mpc_get_struct(ptr_self, self);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
-  r_mpc_set_function_state(mpc_abs(ptr_return, ptr_self, rnd));
+  r_mpc_set_fr_function_state(mpc_abs(ptr_return, ptr_self, rnd));
   return val_ret;
 }
 
-static VALUE r_mpc_norm (int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_norm (int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -543,11 +564,12 @@ static VALUE r_mpc_norm (int argc, VALUE *argv, VALUE self){
   VALUE val_ret;
   r_mpc_get_struct(ptr_self, self);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
-  r_mpc_set_function_state(mpc_norm(ptr_return, ptr_self, rnd));
+  r_mpc_set_fr_function_state(mpc_norm(ptr_return, ptr_self, rnd));
   return val_ret;
 }
 
-static VALUE r_mpc_mul_2exp (int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_mul_2exp (int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
@@ -555,11 +577,12 @@ static VALUE r_mpc_mul_2exp (int argc, VALUE *argv, VALUE self){
   VALUE val_ret;
   r_mpc_get_struct(ptr_self, self);
   r_mpc_make_struct_init2(val_ret, ptr_return, prec);
-  r_mpc_set_function_state(mpc_mul_2exp(ptr_return, ptr_self, NUM2LONG(argv[0]), rnd));
+  r_mpc_set_c_function_state(mpc_mul_2exp(ptr_return, ptr_self, NUM2LONG(argv[0]), rnd));
   return val_ret;
 }
 
-static VALUE r_mpc_div_2exp (int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_div_2exp (int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
@@ -567,134 +590,140 @@ static VALUE r_mpc_div_2exp (int argc, VALUE *argv, VALUE self){
   VALUE val_ret;
   r_mpc_get_struct(ptr_self, self);
   r_mpc_make_struct_init2(val_ret, ptr_return, prec);
-  r_mpc_set_function_state(mpc_div_2exp(ptr_return, ptr_self, NUM2LONG(argv[0]), rnd));
+  r_mpc_set_c_function_state(mpc_div_2exp(ptr_return, ptr_self, NUM2LONG(argv[0]), rnd));
   return val_ret;
 }
 
 
-static VALUE r_mpc_math_sqrt (int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_math_sqrt (int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPC *ptr_arg, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0;
+  volatile VALUE tmp_argv0 = r_mpc_new_c_obj(argv[0]);
   r_mpc_get_struct(ptr_arg, tmp_argv0);
   r_mpc_make_struct_init2(val_ret, ptr_return, prec);
-  r_mpc_set_function_state(mpc_sqrt(ptr_return, ptr_arg, rnd));
+  r_mpc_set_c_function_state(mpc_sqrt(ptr_return, ptr_arg, rnd));
   return val_ret;
 }
 
-static VALUE r_mpc_math_exp (int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_math_exp (int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPC *ptr_arg, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0;
+  volatile VALUE tmp_argv0 = r_mpc_new_c_obj(argv[0]);
   r_mpc_get_struct(ptr_arg, tmp_argv0);
   r_mpc_make_struct_init2(val_ret, ptr_return, prec);
-  mpc_exp(ptr_return, ptr_arg, rnd);
+  r_mpc_set_c_function_state(mpc_exp(ptr_return, ptr_arg, rnd));
   return val_ret;
 }
 
-static VALUE r_mpc_math_log (int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_math_log (int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPC *ptr_arg, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0;
+  volatile VALUE tmp_argv0 = r_mpc_new_c_obj(argv[0]);
   r_mpc_get_struct(ptr_arg, tmp_argv0);
   r_mpc_make_struct_init2(val_ret, ptr_return, prec);
-  mpc_log(ptr_return, ptr_arg, rnd);
+  r_mpc_set_c_function_state(mpc_log(ptr_return, ptr_arg, rnd));
   return val_ret;
 }
 
-static VALUE r_mpc_math_sin (int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_math_sin (int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPC *ptr_arg, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0;
+  volatile VALUE tmp_argv0 = r_mpc_new_c_obj(argv[0]);
   r_mpc_get_struct(ptr_arg, tmp_argv0);
   r_mpc_make_struct_init2(val_ret, ptr_return, prec);
-  mpc_sin(ptr_return, ptr_arg, rnd);
+  r_mpc_set_c_function_state(mpc_sin(ptr_return, ptr_arg, rnd));
   return val_ret;
 }
 
-static VALUE r_mpc_math_cos (int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_math_cos (int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPC *ptr_arg, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0;
+  volatile VALUE tmp_argv0 = r_mpc_new_c_obj(argv[0]);
   r_mpc_get_struct(ptr_arg, tmp_argv0);
   r_mpc_make_struct_init2(val_ret, ptr_return, prec);
-  mpc_cos(ptr_return, ptr_arg, rnd);
+  r_mpc_set_c_function_state(mpc_cos(ptr_return, ptr_arg, rnd));
   return val_ret;
 }
 
-static VALUE r_mpc_math_tan (int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_math_tan (int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPC *ptr_arg, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0;
+  volatile VALUE tmp_argv0 = r_mpc_new_c_obj(argv[0]);
   r_mpc_get_struct(ptr_arg, tmp_argv0);
   r_mpc_make_struct_init2(val_ret, ptr_return, prec);
-  mpc_tan(ptr_return, ptr_arg, rnd);
+  r_mpc_set_c_function_state(mpc_tan(ptr_return, ptr_arg, rnd));
   return val_ret;
 }
 
-static VALUE r_mpc_math_sinh (int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_math_sinh (int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPC *ptr_arg, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0;
+  volatile VALUE tmp_argv0 = r_mpc_new_c_obj(argv[0]);
   r_mpc_get_struct(ptr_arg, tmp_argv0);
   r_mpc_make_struct_init2(val_ret, ptr_return, prec);
-  mpc_sinh(ptr_return, ptr_arg, rnd);
+  r_mpc_set_c_function_state(mpc_sinh(ptr_return, ptr_arg, rnd));
   return val_ret;
 }
 
-static VALUE r_mpc_math_cosh (int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_math_cosh (int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPC *ptr_arg, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0;
+  volatile VALUE tmp_argv0 = r_mpc_new_c_obj(argv[0]);
   r_mpc_get_struct(ptr_arg, tmp_argv0);
   r_mpc_make_struct_init2(val_ret, ptr_return, prec);
-  mpc_cosh(ptr_return, ptr_arg, rnd);
+  r_mpc_set_c_function_state(mpc_cosh(ptr_return, ptr_arg, rnd));
   return val_ret;
 }
 
-static VALUE r_mpc_math_tanh (int argc, VALUE *argv, VALUE self){
+static VALUE r_mpc_math_tanh (int argc, VALUE *argv, VALUE self)
+{
   mpc_rnd_t rnd;
   mp_prec_t prec;
   r_mpc_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPC *ptr_arg, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0;
+  volatile VALUE tmp_argv0 = r_mpc_new_c_obj(argv[0]);
   r_mpc_get_struct(ptr_arg, tmp_argv0);
   r_mpc_make_struct_init2(val_ret, ptr_return, prec);
-  mpc_tanh(ptr_return, ptr_arg, rnd);
+  r_mpc_set_c_function_state(mpc_tanh(ptr_return, ptr_arg, rnd));
   return val_ret;
 }
 
 void Init_ruby_mpc(){
   r_mpc_class = rb_define_class("MPC", rb_cNumeric);
 
-  rb_define_singleton_method(r_mpc_class, "set_default_prec", r_mpc_set_default_prec, 1);
-  rb_define_singleton_method(r_mpc_class, "get_default_prec", r_mpc_get_default_prec, 0);
-  
   rb_define_singleton_method(r_mpc_class, "set_default_rounding_mode", r_mpc_set_default_rounding_mode, 1);
   rb_define_singleton_method(r_mpc_class, "get_default_rounding_mode", r_mpc_get_default_rounding_mode, 0);
 
@@ -723,9 +752,6 @@ void Init_ruby_mpc(){
 
 
   rb_define_singleton_method(r_mpc_class, "get_function_state", r_mpc_get_function_state, 0);
-  rb_define_singleton_method(r_mpc_class, "inex_re", r_mpc_inex_re, 1);
-  rb_define_singleton_method(r_mpc_class, "inex_im", r_mpc_inex_im, 1);
-    
 
 
   rb_define_alloc_func(r_mpc_class, r_mpc_alloc);
