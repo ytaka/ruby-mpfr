@@ -2,7 +2,7 @@ require 'rubygems'
 gem 'hoe', '>= 2.1.0'
 require 'hoe'
 require 'fileutils'
-require './lib/ruby-mpfr/version.rb'
+require './lib/mpfr/version.rb'
 
 Hoe.plugin :newgem
 # Hoe.plugin :website
@@ -15,12 +15,12 @@ $hoe = Hoe.spec 'ruby-mpfr' do
   self.post_install_message = 'PostInstall.txt' # TODO remove if post-install message not required
   self.rubyforge_name       = self.name # TODO this is default value
   # self.extra_deps         = [['activesupport','>= 2.0.2']]
-  self.spec_extras[:extensions] = ["ext/mpfr/extconf.rb"]
+  self.spec_extras[:extensions] = ["ext/mpfr/extconf.rb", "ext/mpfr_matrix/mpfr/extconf.rb"]
   self.extra_rdoc_files << 'README.rdoc'
 end
 
 # require 'newgem/tasks'
-# Dir['tasks/**/*.rake'].each { |t| load t }
+Dir['tasks/**/*.rake'].each { |t| load t }
 
 # TODO - want other tests/tasks run by default? Add them to the list
 # remove_task :default

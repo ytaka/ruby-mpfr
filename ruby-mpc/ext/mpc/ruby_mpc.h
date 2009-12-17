@@ -12,12 +12,12 @@ typedef __mpc_struct MPC;
 VALUE r_mpc_class, r_mpc_math;
 
 #define r_mpc_make_struct(ruby_var, c_var) { ruby_var = Data_Make_Struct(r_mpc_class, MPC, 0, r_mpc_free, c_var); }
-#define r_mpc_make_struct_init(ruby_var, c_var) { r_mpc_make_struct(ruby_var, c_var); mpc_init(c_var); }
+#define r_mpc_make_struct_init(ruby_var, c_var) { r_mpc_make_struct(ruby_var, c_var); mpc_init2(c_var, mpfr_get_default_prec()); }
 #define r_mpc_make_struct_init2(ruby_var, c_var, prec) { r_mpc_make_struct(ruby_var, c_var); mpc_init2(c_var, prec); }
 #define r_mpc_get_struct(c_var, ruby_var) { Data_Get_Struct(ruby_var, MPC, c_var); }
 
 #define r_mpc_temp_alloc(c_var) { c_var=ALLOC_N(MPC, 1); }
-#define r_mpc_temp_alloc_init(c_var) { r_mpc_temp_alloc(c_var); mpc_init(c_var); }
+#define r_mpc_temp_alloc_init(c_var) { r_mpc_temp_alloc(c_var); mpc_init2(c_var, mpfr_get_default_prec()); }
 #define r_mpc_temp_alloc_init2(c_var, prec) { r_mpc_temp_alloc(c_var); mpc_init2(c_var, prec); }
 #define r_mpc_temp_free(c_var) { mpc_clear(c_var); free(c_var); }
 

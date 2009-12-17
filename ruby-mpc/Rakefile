@@ -2,7 +2,7 @@ require 'rubygems'
 gem 'hoe', '>= 2.1.0'
 require 'hoe'
 require 'fileutils'
-require './lib/ruby-mpc/version.rb'
+require './lib/mpc/version.rb'
 
 Hoe.plugin :newgem
 # Hoe.plugin :website
@@ -15,7 +15,7 @@ $hoe = Hoe.spec 'ruby-mpc' do
   self.post_install_message = 'PostInstall.txt' # TODO remove if post-install message not required
   self.rubyforge_name       = self.name # TODO this is default value
   # self.extra_deps         = [['activesupport','>= 2.0.2']]
-  self.spec_extras[:extensions] = "ext/extconf.rb"
+  self.spec_extras[:extensions] = "ext/mpc/extconf.rb"
 end
 
 require 'newgem/tasks'
