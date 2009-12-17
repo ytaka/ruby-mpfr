@@ -2,17 +2,17 @@
 
 Gem::Specification.new do |s|
   s.name = %q{ruby-mpfr}
-  s.version = "0.0.3"
+  s.version = "0.0.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Takayuki YAMAGUCHI"]
-  s.date = %q{2009-12-13}
+  s.date = %q{2009-12-17}
   s.description = %q{ruby-mpfr is library to use MPFR[http://www.mpfr.org/] which is a C library for
 multiple-precision floating-point computations.}
   s.email = ["d@ytak.info"]
-  s.extensions = ["ext/mpfr/extconf.rb"]
+  s.extensions = ["ext/mpfr/extconf.rb", "ext/mpfr_matrix/mpfr/extconf.rb"]
   s.extra_rdoc_files = ["History.txt", "Manifest.txt", "PostInstall.txt", "README.rdoc"]
-  s.files = ["History.txt", "Manifest.txt", "PostInstall.txt", "README.rdoc", "Rakefile", "ext/mpfr/extconf.rb", "ext/mpfr/ruby_mpfr.c", "ext/mpfr/ruby_mpfr.h", "ext/mpfr_matrix/extconf.rb", "ext/mpfr_matrix/func_mpfr_matrix.c", "ext/mpfr_matrix/func_mpfr_matrix.h", "ext/mpfr_matrix/func_vector_2d.c", "ext/mpfr_matrix/func_vector_2d.h", "ext/mpfr_matrix/matrix_alloc.c", "ext/mpfr_matrix/matrix_arithmetic.c", "ext/mpfr_matrix/matrix_conversion.c", "ext/mpfr_matrix/matrix_element.c", "ext/mpfr_matrix/matrix_function.c", "ext/mpfr_matrix/matrix_string.c", "ext/mpfr_matrix/ruby_mpfr_matrix.c", "ext/mpfr_matrix/ruby_mpfr_matrix.h", "ext/mpfr_matrix/square_matrix_function.c", "ext/mpfr_matrix/vector_2d_function.c", "ext/mpfr_matrix/vector_function.c", "ext/mpfr_matrix/yasnippet_mpfr_matrix.el", "lib/ruby-mpfr/version.rb", "ruby-mpfr.gemspec", "script/console", "script/destroy", "script/generate", "spec/allocate_spec.rb", "spec/arithmetic_spec.rb", "spec/comparison_spec.rb", "spec/constant_spec.rb", "spec/conversion_spec.rb", "spec/exception_spec.rb", "spec/functions_spec.rb", "spec/generate_number_modulue.rb", "spec/precision_roundmode_spec.rb", "spec/rounding_spec.rb", "spec/set_value_spec.rb", "spec/spec.opts", "spec/spec_helper.rb", "spec/string_spec.rb", "tasks/rspec.rake"]
+  s.files = ["History.txt", "Manifest.txt", "PostInstall.txt", "README.rdoc", "Rakefile", "ext/mpfr/extconf.rb", "ext/mpfr/ruby_mpfr.c", "ext/mpfr/ruby_mpfr.h", "ext/mpfr_matrix/mpfr/extconf.rb", "ext/mpfr_matrix/mpfr/func_mpfr_matrix.c", "ext/mpfr_matrix/mpfr/func_mpfr_matrix.h", "ext/mpfr_matrix/mpfr/ruby_mpfr.h", "ext/mpfr_matrix/mpfr/ruby_mpfr_matrix.c", "ext/mpfr_matrix/mpfr/ruby_mpfr_matrix.h", "lib/mpfr/matrix.rb", "lib/mpfr/version.rb", "ruby-mpfr.gemspec", "script/console", "script/destroy", "script/generate", "spec/mpfr/allocate_spec.rb", "spec/mpfr/arithmetic_spec.rb", "spec/mpfr/comparison_spec.rb", "spec/mpfr/constant_spec.rb", "spec/mpfr/conversion_spec.rb", "spec/mpfr/exception_spec.rb", "spec/mpfr/functions_spec.rb", "spec/mpfr/generate_number_modulue.rb", "spec/mpfr/precision_roundmode_spec.rb", "spec/mpfr/rounding_spec.rb", "spec/mpfr/set_value_spec.rb", "spec/mpfr/spec_helper.rb", "spec/mpfr/string_spec.rb", "spec/mpfr_matrix/generate_matrix_arguments.rb", "spec/mpfr_matrix/mpfr_matrix_alloc_spec.rb", "spec/mpfr_matrix/mpfr_matrix_arithmetic_spec.rb", "spec/mpfr_matrix/mpfr_matrix_set_element_spec.rb", "spec/mpfr_matrix/mpfr_matrix_string_spec.rb", "spec/mpfr_matrix/mpfr_square_matrix_spec.rb", "spec/mpfr_matrix/spec_helper.rb", "spec/spec.opts", "tasks/extconf.rake"]
   s.homepage = %q{http://rubyforge.org/projects/ruby-mpfr/}
   s.post_install_message = %q{PostInstall.txt}
   s.rdoc_options = ["--main", "README.rdoc"]

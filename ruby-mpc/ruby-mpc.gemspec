@@ -2,16 +2,16 @@
 
 Gem::Specification.new do |s|
   s.name = %q{ruby-mpc}
-  s.version = "0.0.1"
+  s.version = "0.0.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Takayuki YAMAGUCHI"]
-  s.date = %q{2009-12-13}
+  s.date = %q{2009-12-17}
   s.description = %q{FIX (describe your package)}
   s.email = ["d@ytak.info"]
-  s.extensions = ["ext/extconf.rb"]
+  s.extensions = ["ext/mpc/extconf.rb"]
   s.extra_rdoc_files = ["History.txt", "Manifest.txt", "PostInstall.txt"]
-  s.files = ["History.txt", "Manifest.txt", "PostInstall.txt", "README.rdoc", "Rakefile", "ext/extconf.rb", "ext/make-const-src.rb", "ext/make-functions.rb", "ext/ruby_mpc.c", "ext/ruby_mpc.h", "ext/ruby_mpfr.h", "ext/yasnippet_mpc.el", "lib/ruby-mpc/version.rb", "ruby-mpc.gemspec", "script/console", "script/destroy", "script/generate", "spec/ruby-mpc_spec.rb", "spec/spec.opts", "spec/spec_helper.rb", "tasks/rspec.rake"]
+  s.files = ["History.txt", "Manifest.txt", "PostInstall.txt", "README.rdoc", "Rakefile", "ext/mpc/extconf.rb", "ext/mpc/ruby_mpc.c", "ext/mpc/ruby_mpc.h", "ext/mpc/ruby_mpfr.h", "lib/mpc/version.rb", "ruby-mpc.gemspec", "script/console", "script/destroy", "script/generate", "spec/mpc/arithmetic_op_spec.rb", "spec/mpc/const_spec.rb", "spec/mpc/functions_spec.rb", "spec/mpc/generate_complex_number.rb", "spec/mpc/spec_helper.rb", "spec/spec.opts", "tasks/extconf.rake"]
   s.homepage = %q{http://github.com/#{github_username}/#{project_name}}
   s.post_install_message = %q{PostInstall.txt}
   s.rdoc_options = ["--main", "README.rdoc"]
