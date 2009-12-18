@@ -5,7 +5,6 @@
 #include <mpfi_io.h>
 #include "ruby_mpfr_matrix.h"
 #include "ruby_mpfi.h"
-#include "ruby_mpfi_complex.h"
 
 typedef struct __MPFIMatrix{
   int row, column, size;
@@ -92,12 +91,7 @@ int mpfi_vector_set_length(MPFIMatrix *new, MPFIMatrix *x, MPFR *l);
 
 /* ----------------- square matrix ----------------- */
 int mpfi_square_matrix_lu_decomp (MPFIMatrix *ret, int *indx, MPFIMatrix *x);
-void mpfi_2d_square_matrix_determinant(MPFI *det, MPFIMatrix *x);
-void mpfi_3d_square_matrix_determinant(MPFI *det, MPFIMatrix *x);
 void mpfi_square_matrix_determinant(MPFI *det, MPFIMatrix *x);
 void mpfi_square_matrix_qr_decomp(MPFIMatrix *q, MPFIMatrix *r, MPFIMatrix *x);
-int mpfi_2d_square_matrix_inverse_matrix(MPFIMatrix *inv, MPFIMatrix *x);
-int mpfi_2d_square_matrix_eigenvalue(MPFI *val1, MPFI *val2, MPFIMatrix *x);
-void mpfi_2d_square_matrix_real_eigenvector(MPFIMatrix *vec, MPFIMatrix *x, MPFI *eigenval);
 void mpfi_square_matrix_identity(MPFIMatrix *id);
 

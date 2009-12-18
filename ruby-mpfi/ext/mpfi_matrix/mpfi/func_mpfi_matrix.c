@@ -582,7 +582,7 @@ int mpfi_square_matrix_lu_decomp (MPFIMatrix *ret, int *indx, MPFIMatrix *x){
   return ret_val;
 }
 
-void mpfi_2d_square_matrix_determinant(MPFI *det, MPFIMatrix *x){
+static void mpfi_2d_square_matrix_determinant(MPFI *det, MPFIMatrix *x){
   MPFI *tmp;
   r_mpfi_temp_alloc_init(tmp);
   mpfi_mul(det, x->data, x->data + 3);
@@ -591,7 +591,7 @@ void mpfi_2d_square_matrix_determinant(MPFI *det, MPFIMatrix *x){
   r_mpfi_temp_free(tmp);
 }
 
-void mpfi_3d_square_matrix_determinant(MPFI *det, MPFIMatrix *x){
+static void mpfi_3d_square_matrix_determinant(MPFI *det, MPFIMatrix *x){
   MPFI *tmp;
   r_mpfi_temp_alloc_init(tmp);
 
@@ -693,90 +693,6 @@ void mpfi_square_matrix_qr_decomp(MPFIMatrix *q, MPFIMatrix *r, MPFIMatrix *x){
   r_mpfi_matrix_temp_free(r_mat);
   r_mpfi_matrix_temp_free(ary);
   r_mpfi_temp_free(tmp);
-}
-
-/* If inverse matrix does not exist, return 1. Otherwise return 0. */
-int mpfi_2d_square_matrix_inverse_matrix(MPFIMatrix *inv, MPFIMatrix *x){
-  MPFIMatrix *t_mat;
-  r_mpfi_matrix_temp_alloc_init(t_mat, inv->row, inv->column);
-  MPFI *t_fi;
-  r_mpfi_temp_alloc_init(t_fi);
-  mpfi_2d_square_matrix_determinant(t_fi, x);
-  if(mpfi_has_zero(t_fi) > 0){
-    return 1;
-  }else{
-    mpfi_ui_div(t_fi, 1, t_fi);
-    mpfi_mul(t_mat->data, x->data + 3, t_fi);
-    mpfi_mul(t_mat->data + 3, x->data, t_fi);
-    mpfi_neg(t_fi, t_fi);
-    mpfi_mul(t_mat->data + 1, x->data + 1, t_fi);
-    mpfi_mul(t_mat->data + 2, x->data + 2, t_fi);
-  }
-  mpfi_matrix_set(inv, t_mat);
-  r_mpfi_matrix_temp_free(t_mat);
-  r_mpfi_temp_free(t_fi);
-  return 0;
-}
-
-/* x = -(sqrt(a11**2-2*a00*a11+4*a01*a10+a00**2)-a11-a00)/2.0E+0 */
-/* x = (sqrt(a11**2-2*a00*a11+4*a01*a10+a00**2)+a11+a00)/2.0E+0 */
-/* If there are two real eigenvalues, return positive number. */
-/* If only one eigenvalue exists, return 0. */
-/* If there are two complex eigenvalues, this functionreturn negative number and */
-/* first returned value is real part and second one is imaginary part. */
-int mpfi_2d_square_matrix_eigenvalue(MPFI *val1, MPFI *val2, MPFIMatrix *x){
-  int ret;
-  MPFI *d;
-  r_mpfi_temp_alloc_init(d);
-
-  mpfi_sub(val1, x->data, x->data + 3);
-  mpfi_mul(val1, val1, val1);
-  mpfi_mul(d, x->data + 1, x->data + 2);
-  mpfi_mul_ui(d, d, 4);
-  mpfi_add(d, d, val1);
-
-  mpfi_add(val1, x->data, x->data + 3);
-  mpfi_div_ui(val1, val1, 2);
-  if(mpfr_cmp_si(r_mpfi_right_ptr(d), 0) > 0){
-    ret = 1;
-    mpfi_sqrt(d, d);
-    mpfi_div_ui(d, d, 2);
-    mpfi_sub(val2, val1, d);
-    mpfi_add(val1, val1, d);
-  }else if(mpfr_cmp_si(r_mpfi_right_ptr(d), 0) < 0){
-    ret = -1;
-    mpfi_neg(d, d);
-    mpfi_sqrt(d, d);
-    mpfi_div_ui(val2, d, 2);
-  }else{
-    ret = 0;
-    mpfi_set(val2, val1);
-  }
-
-  r_mpfi_temp_free(d);
-  return ret;
-}
-
-void mpfi_2d_square_matrix_real_eigenvector(MPFIMatrix *vec, MPFIMatrix *x, MPFI *eigenval){
-  MPFIMatrix *tmp;
-  r_mpfi_matrix_temp_alloc_init(tmp, 2, 1);
-  MPFI *tmp_fi;
-  r_mpfi_temp_alloc_init(tmp_fi);
-  mpfi_sub(tmp_fi, x->data + 3, eigenval);
-  if(mpfi_has_zero(x->data + 1) > 0 && mpfi_has_zero(tmp_fi) > 0){
-    mpfi_set(tmp->data, x->data + 2);
-    mpfi_sub(tmp->data + 1, eigenval, x->data);
-  }else{
-    mpfi_sub(tmp->data, eigenval, x->data + 3);
-    mpfi_set(tmp->data + 1, x->data + 1);
-  }
-  if(mpfi_vector_normalize(vec, tmp) == 1){
-    gmp_printf("Argument matrix\n%.Ff\n%.Ff\n%.Ff\n%.Ff\n", x->data, x->data + 1, x->data + 2, x->data + 3);
-    gmp_printf("Argument eigenvalue\n%.Ff\n", eigenval);
-    rb_raise(rb_eArgError, "Invalid eigenvalue or eigenvector.");
-  }
-  r_mpfi_matrix_temp_free(tmp);
-  r_mpfi_temp_free(tmp_fi);
 }
 
 void mpfi_square_matrix_identity(MPFIMatrix *id){

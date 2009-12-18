@@ -1,9 +1,12 @@
 #  -*- rd -*-
+=== 0.0.4 2009-12-17
+* 1 major enhancements
+  * Add MPFR::Matrix
 
 === 0.0.2 2009-07-25
 * 2 minor enhancements:
-  * Add comments in a source file.
-  * Add method MPFR::Math.sum.
+  * Add comments in a source file
+  * Add method MPFR::Math.sum
 
 === 0.0.1 2009-07-11
 
