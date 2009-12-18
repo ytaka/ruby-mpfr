@@ -1,3 +1,1 @@
-module MPFR
-  VERSION = '0.0.4'
-end
+RUBY_MPFR_VERSION = '0.0.4'

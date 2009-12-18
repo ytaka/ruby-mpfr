@@ -1,3 +1,1 @@
-module MPC
-  VERSION = '0.0.2'
-end
+RUBY_MPC_VERSION = '0.0.2'
