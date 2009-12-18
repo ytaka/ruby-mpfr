@@ -120,6 +120,7 @@ void r_mpc_free(void *ptr){
   free(ptr);
 }
 
+/* Allocation function. */
 static VALUE r_mpc_alloc(VALUE self)
 {
   MPC *ptr;
@@ -169,12 +170,14 @@ static void r_mpc_set_from_one_object(MPC *ptr, VALUE obj, mpc_rnd_t rnd)
   }
 }
 
-/* Arguments may be the following types by number. */
-/* 0. none */
-/* 1. MPC or array having two elements */
-/* 2. real part and imaginary part*/
-/* 3. real part, imaginary part, and rounding mode */
-/* 4. real part, imaginary part, rounding mode and precision */
+/*
+  Arguments may be the following types by number.
+  0. none
+  1. MPC or array having two elements
+  2. real part and imaginary part
+  3. real part, imaginary part, and rounding mode
+  4. real part, imaginary part, rounding mode and precision
+*/
 static VALUE r_mpc_initialize(int argc, VALUE *argv, VALUE self)
 {
   MPC *ptr;
@@ -206,6 +209,7 @@ static VALUE r_mpc_initialize(int argc, VALUE *argv, VALUE self)
   return Qtrue;
 }
 
+/* initialize_copy */
 static VALUE r_mpc_initialize_copy(VALUE self, VALUE other)
 {
   MPC *ptr_self, *ptr_other;
@@ -229,6 +233,7 @@ static VALUE r_mpc_coerce(VALUE self, VALUE other)
 
 /* String */
 
+/* inspect */
 static VALUE r_mpc_inspect(VALUE self)
 {
   MPC *ptr_s;
@@ -300,6 +305,8 @@ static VALUE r_mpc_proj (int argc, VALUE *argv, VALUE self)
 }
 
 /* Basic Arithmetic Functions */
+
+/* Return self + p1. */
 static VALUE r_mpc_add(VALUE self, VALUE other)
 {
   MPC *ptr_self, *ptr_return;
@@ -322,6 +329,7 @@ static VALUE r_mpc_add(VALUE self, VALUE other)
   return val_ret;
 }
 
+/* Return self / p1. */
 static VALUE r_mpc_sub(VALUE self, VALUE other)
 {
   MPC *ptr_self, *ptr_return;
@@ -345,6 +353,7 @@ static VALUE r_mpc_sub(VALUE self, VALUE other)
   return val_ret;
 }
 
+/* Return self * p1. */
 static VALUE r_mpc_mul(VALUE self, VALUE other)
 {
   MPC *ptr_self, *ptr_return;
@@ -368,7 +377,7 @@ static VALUE r_mpc_mul(VALUE self, VALUE other)
   return val_ret;
 }
 
-
+/* Return self / p1. */
 static VALUE r_mpc_div(VALUE self, VALUE other)
 {
   MPC *ptr_self, *ptr_return;
@@ -392,6 +401,7 @@ static VALUE r_mpc_div(VALUE self, VALUE other)
   return val_ret;
 }
 
+/* Multiply self by _i_. */
 static VALUE r_mpc_mul_i (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -405,6 +415,7 @@ static VALUE r_mpc_mul_i (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* Multiply self by -1. */
 static VALUE r_mpc_neg (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -418,6 +429,7 @@ static VALUE r_mpc_neg (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* Return conjugate of self. */
 static VALUE r_mpc_conj (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -431,6 +443,7 @@ static VALUE r_mpc_conj (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* Return absolute value. */
 static VALUE r_mpc_abs (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -445,6 +458,7 @@ static VALUE r_mpc_abs (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* Return the norm (the square of absolute value). */
 static VALUE r_mpc_norm (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -460,6 +474,8 @@ static VALUE r_mpc_norm (int argc, VALUE *argv, VALUE self)
 }
 
 /* module function */
+
+/* Return self + p1. */
 static VALUE r_mpc_math_add(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
@@ -489,6 +505,7 @@ static VALUE r_mpc_math_add(int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* Return self - p1. */
 static VALUE r_mpc_math_sub(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
@@ -523,6 +540,7 @@ static VALUE r_mpc_math_sub(int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* Return self * p1. */
 static VALUE r_mpc_math_mul(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
@@ -552,6 +570,7 @@ static VALUE r_mpc_math_mul(int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* Return self / p1. */
 static VALUE r_mpc_math_div(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
@@ -578,6 +597,7 @@ static VALUE r_mpc_math_div(int argc, VALUE *argv, VALUE self)
   }
   return val_ret;
 }
+
 
 static VALUE r_mpc_math_mul_2exp (int argc, VALUE *argv, VALUE self)
 {

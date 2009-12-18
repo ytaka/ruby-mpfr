@@ -373,16 +373,8 @@ static VALUE r_mpfr_alloc(VALUE self)
   return self;
 }
 
-/*
-  This method returns MPFR instance.
-  If there is not an argument, it is set NaN.
-  Possible arguments are value, rounding mode, and precesion.
-  All arguments are optional.
-*/
-static VALUE r_mpfr_initialize(int argc, VALUE *argv, VALUE self)
+static void r_mpfr_set_initial_value(MPFR *ptr, int argc, VALUE *argv)
 {
-  MPFR *ptr;
-  r_mpfr_get_struct(ptr, self);
   switch(argc){
   case 0:
     mpfr_init(ptr);
@@ -405,6 +397,29 @@ static VALUE r_mpfr_initialize(int argc, VALUE *argv, VALUE self)
     rb_raise(rb_eArgError, "Invalid number of arguments.");
     break;
   }
+}
+
+/* Return new MPFR instance. The same arguments as MPFR.new is acceptable. */
+static VALUE r_mpfr_global_new(int argc, VALUE *argv, VALUE self)
+{
+  MPFR *ptr;
+  VALUE val;
+  r_mpfr_make_struct(val, ptr);
+  r_mpfr_set_initial_value(ptr, argc, argv);
+  return val;
+}
+
+/*
+  This method returns MPFR instance.
+  If there is not an argument, it is set NaN.
+  Possible arguments are value, rounding mode, and precesion.
+  All arguments are optional.
+*/
+static VALUE r_mpfr_initialize(int argc, VALUE *argv, VALUE self)
+{
+  MPFR *ptr;
+  r_mpfr_get_struct(ptr, self);
+  r_mpfr_set_initial_value(ptr, argc, argv);
   return Qtrue;
 }
 
@@ -2506,6 +2521,12 @@ void Init_mpfr()
 
     When method have argument of MPFR and we set instance of other class to the argument,
     the method tries to convert the argument to MPFR instance.
+
+    == Conversion to String
+
+    MPFR#to_s makes a string corresponding to mpfr_printf("%.Re", fr).
+    If you want to adjust format of string, you can MPFR#to_strf.
+    MPFR#to_strf(format) returns a string corresponding to mpfr_printf(format, fr).
   */
   r_mpfr_class = rb_define_class("MPFR", rb_cNumeric);
   rb_include_module(r_mpfr_class, rb_mComparable);
@@ -2591,6 +2612,7 @@ void Init_mpfr()
   /* ------------------------------ Exception Related Functions End ------------------------------ */
 
   /* ------------------------------ MPFR allocation Start ------------------------------ */
+  rb_define_global_function("MPFR", r_mpfr_global_new, -1);
 
   rb_define_alloc_func(r_mpfr_class, r_mpfr_alloc);
   rb_define_private_method(r_mpfr_class, "initialize", r_mpfr_initialize, -1);
@@ -2728,6 +2750,9 @@ void Init_mpfr()
   /* ------------------------------ Module MPFR::Math Start ------------------------------ */
 
   /*
+    = MPFR::Math methods
+
+    == Arguments and Behaivior
     Almost all class methods in this module is the functions in "Special Functions" item of MPFR reference manual.
     First arguments of these methods takes MPFR instance.
     If it is not MPFR instance, it is converted to MPFR instance in this method.

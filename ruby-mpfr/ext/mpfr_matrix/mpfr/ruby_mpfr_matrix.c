@@ -44,7 +44,7 @@ VALUE r_mpfr_matrix_robj(MPFRMatrix *x)
   return ret;
 }
 
-/* Allocation function for MPF::Matrix. */
+/* Allocation function for MPFR::Matrix. */
 static VALUE r_mpfr_matrix_alloc (VALUE self)
 {
   MPFRMatrix *ptr;
@@ -59,17 +59,8 @@ static VALUE r_mpfr_matrix_alloc (VALUE self)
 /*   mpfr_matrix_set(x, ptr_src); */
 /* } */
 
-/*
-  Initialization function for MPF::Matrix.
-  If this method gets one argument which is two dimensional Array,
-  it returns MPFR::Matrix instance of which size is same as the array.
-  Getting two argument integers (i, j), it returns MPFR::Matrix instance of which
-  size is (i x j).
-*/
-static VALUE r_mpfr_matrix_initialize (int argc, VALUE *argv, VALUE self)
+static void r_mpfr_matrix_set_initial_value(MPFRMatrix *ptr, int argc, VALUE *argv)
 {
-  MPFRMatrix *ptr;
-  r_mpfr_get_matrix_struct(ptr, self);
   int row, column, i, j;
   VALUE row_ary;
   switch (argc) {
@@ -80,7 +71,7 @@ static VALUE r_mpfr_matrix_initialize (int argc, VALUE *argv, VALUE self)
     for (i = 0; i < row; i++) {
       row_ary = rb_ary_entry(argv[0], i);
       if (column != RARRAY_LEN(row_ary)) {
-	rb_raise(rb_eArgError, "MPF::Matrix.new needs Array which has arrays of same sizes.");
+	rb_raise(rb_eArgError, "MPFR::Matrix.new needs Array which has arrays of same sizes.");
       }
       for (j = 0; j < column; j++) {
 	r_mpfr_set_robj(mpfr_matrix_get_element(ptr, i, j), rb_ary_entry(row_ary, j), GMP_RNDN);
@@ -92,13 +83,37 @@ static VALUE r_mpfr_matrix_initialize (int argc, VALUE *argv, VALUE self)
     mpfr_matrix_set_zeros(ptr);
     break;
   default:
-    rb_raise(rb_eArgError, "MPF::Matrix.new needs one or two arguments.");
+    rb_raise(rb_eArgError, "MPFR::Matrix.new needs one or two arguments.");
     break;
   }
+}
+
+/* Return new MPFR::Matrix instance. The same arguments as MPFR::Matrix.new is acceptable. */
+static VALUE r_mpfr_matrix_global_new(int argc, VALUE *argv, VALUE self)
+{
+  MPFRMatrix *ptr;
+  VALUE val;
+  r_mpfr_make_matrix_struct(val, ptr);
+  r_mpfr_matrix_set_initial_value(ptr, argc, argv);
+  return val;
+}
+
+/*
+  Initialization function for MPFR::Matrix.
+  If this method gets one argument which is two dimensional Array,
+  it returns MPFR::Matrix instance of which size is same as the array.
+  Getting two argument integers (i, j), it returns MPFR::Matrix instance of which
+  size is (i x j).
+*/
+static VALUE r_mpfr_matrix_initialize (int argc, VALUE *argv, VALUE self)
+{
+  MPFRMatrix *ptr;
+  r_mpfr_get_matrix_struct(ptr, self);
+  r_mpfr_matrix_set_initial_value(ptr, argc, argv);
   return Qtrue;
 }
 
-/* Allocation function for MPF::SquareMatrix. */
+/* Allocation function for MPFR::SquareMatrix. */
 static VALUE r_mpfr_square_matrix_alloc (VALUE self)
 {
   MPFRMatrix *ptr;
@@ -106,11 +121,8 @@ static VALUE r_mpfr_square_matrix_alloc (VALUE self)
   return self;
 }
 
-/* Initialization function for MPF::SquareMatrix. */
-static VALUE r_mpfr_square_matrix_initialize (VALUE self, VALUE arg)
+static void r_mpfr_square_matrix_set_initial_value(MPFRMatrix *ptr, VALUE arg)
 {
-  MPFRMatrix *ptr;
-  r_mpfr_get_matrix_struct(ptr, self);
   int row, column, i, j;
   VALUE row_ary;
   switch(TYPE(arg)){
@@ -122,14 +134,14 @@ static VALUE r_mpfr_square_matrix_initialize (VALUE self, VALUE arg)
       for (i = 0; i < row; i++) {
 	row_ary = rb_ary_entry(arg, i);
 	if (column != RARRAY_LEN(row_ary)) {
-	  rb_raise(rb_eArgError, "MPF::Matrix.new needs Array which has arrays of same sizes.");
+	  rb_raise(rb_eArgError, "MPFR::Matrix.new needs Array which has arrays of same sizes.");
 	}
 	for (j = 0; j < column; j++) {
 	  r_mpfr_set_robj(ptr->data + i + j * row, rb_ary_entry(row_ary, j), GMP_RNDN);
 	}
       }
     }else{
-      rb_raise(rb_eArgError, "MPF::SquareMatrix.new needs two dimensinal Array which has the same sizes of row and column.");
+      rb_raise(rb_eArgError, "MPFR::SquareMatrix.new needs two dimensinal Array which has the same sizes of row and column.");
     }
     break;
   case T_FIXNUM:
@@ -138,9 +150,27 @@ static VALUE r_mpfr_square_matrix_initialize (VALUE self, VALUE arg)
     mpfr_matrix_set_zeros(ptr);
     break;
   default:
-    rb_raise(rb_eArgError, "MPF::SquareMatrix.new needs Array or Fixnum.");
+    rb_raise(rb_eArgError, "MPFR::SquareMatrix.new needs Array or Fixnum.");
     break;
   }  
+}
+
+/* Return new MPFR::SquareMatrix instance. The same arguments as MPFR::SquareMatrix.new is acceptable. */
+static VALUE r_mpfr_square_matrix_global_new(int argc, VALUE arg)
+{
+  MPFRMatrix *ptr;
+  VALUE val;
+  r_mpfr_make_matrix_struct(val, ptr);
+  r_mpfr_square_matrix_set_initial_value(ptr, arg);
+  return val;
+}
+
+/* Initialization function for MPFR::SquareMatrix. */
+static VALUE r_mpfr_square_matrix_initialize (VALUE self, VALUE arg)
+{
+  MPFRMatrix *ptr;
+  r_mpfr_get_matrix_struct(ptr, self);
+  r_mpfr_square_matrix_set_initial_value(ptr, arg);
   return Qtrue;
 }
 
@@ -155,7 +185,7 @@ static VALUE r_mpfr_matrix_initialize_copy (VALUE self, VALUE other)
   return Qtrue;
 }
 
-/* Allocation function for MPF::ColumnVector. */
+/* Allocation function for MPFR::ColumnVector. */
 static VALUE r_mpfr_col_vector_alloc (VALUE self)
 {
   MPFRMatrix *ptr;
@@ -163,11 +193,8 @@ static VALUE r_mpfr_col_vector_alloc (VALUE self)
   return self;
 }
 
-/* Initialization function for MPF::ColumnVector. */
-static VALUE r_mpfr_col_vector_initialize (VALUE self, VALUE arg)
+static void r_mpfr_col_vector_set_initial_value(MPFRMatrix *ptr, VALUE arg)
 {
-  MPFRMatrix *ptr;
-  r_mpfr_get_matrix_struct(ptr, self);
   int row, i;
   switch(TYPE(arg)){
   case T_ARRAY:
@@ -185,13 +212,31 @@ static VALUE r_mpfr_col_vector_initialize (VALUE self, VALUE arg)
     }
     break;
   default:
-    rb_raise(rb_eArgError, "MPF::ColumnVector.new needs Array or Fixnum.");
+    rb_raise(rb_eArgError, "MPFR::ColumnVector.new needs Array or Fixnum.");
     break;
-  }  
+  }
+}
+
+/* Return new MPFR::ColumnVector instance. The same arguments as MPFR::ColumnVector.new is acceptable. */
+static VALUE r_mpfr_col_vector_global_new(VALUE self, VALUE arg)
+{
+  MPFRMatrix *ptr;
+  VALUE val;
+  r_mpfr_make_matrix_struct(val, ptr);
+  r_mpfr_col_vector_set_initial_value(ptr, arg);
+  return val;
+}
+
+/* Initialization function for MPFR::ColumnVector. */
+static VALUE r_mpfr_col_vector_initialize (VALUE self, VALUE arg)
+{
+  MPFRMatrix *ptr;
+  r_mpfr_get_matrix_struct(ptr, self);
+  r_mpfr_col_vector_set_initial_value(ptr, arg);
   return Qtrue;
 }
 
-/* Allocation function for MPF::RowVector. */
+/* Allocation function for MPFR::RowVector. */
 static VALUE r_mpfr_row_vector_alloc (VALUE self)
 {
   MPFRMatrix *ptr;
@@ -199,11 +244,8 @@ static VALUE r_mpfr_row_vector_alloc (VALUE self)
   return self;
 }
 
-/* Initialization function for MPF::RowVector. */
-static VALUE r_mpfr_row_vector_initialize (VALUE self, VALUE arg)
+static void r_mpfr_row_vector_set_initial_value(MPFRMatrix *ptr, VALUE arg)
 {
-  MPFRMatrix *ptr;
-  r_mpfr_get_matrix_struct(ptr, self);
   int column, i;
   switch(TYPE(arg)){
   case T_ARRAY:
@@ -221,9 +263,27 @@ static VALUE r_mpfr_row_vector_initialize (VALUE self, VALUE arg)
     }
     break;
   default:
-    rb_raise(rb_eArgError, "MPF::RowVector.new needs Array or Fixnum.");
+    rb_raise(rb_eArgError, "MPFR::RowVector.new needs Array or Fixnum.");
     break;
   }  
+}
+
+/* Return new MPFR::RowVector instance. The same arguments as MPFR::RowVector.new is acceptable. */
+static VALUE r_mpfr_row_vector_global_new(int argc, VALUE arg)
+{
+  MPFRMatrix *ptr;
+  VALUE val;
+  r_mpfr_make_matrix_struct(val, ptr);
+  r_mpfr_row_vector_set_initial_value(ptr, arg);
+  return val;
+}
+
+/* Initialization function for MPFR::RowVector. */
+static VALUE r_mpfr_row_vector_initialize (VALUE self, VALUE arg)
+{
+  MPFRMatrix *ptr;
+  r_mpfr_get_matrix_struct(ptr, self);
+  r_mpfr_row_vector_set_initial_value(ptr, arg);
   return Qtrue;
 }
 
@@ -281,7 +341,7 @@ static VALUE r_mpfr_matrix_element (VALUE self, VALUE row, VALUE column)
   }
 }
 
-/* Return element at _arg_.*/
+/* Return element at _p1_.*/
 static VALUE r_mpfr_matrix_at (VALUE self, VALUE arg)
 {
   MPFRMatrix *ptr_self;
@@ -343,7 +403,7 @@ static VALUE r_mpfr_matrix_each_element_with_index (VALUE self)
   return ret;
 }
 
-/* Return array which has strings converted elements to. */
+/* Return one dimensinal array including strings which elements of matrix is converted to by MPFR#to_strf. */
 static VALUE r_mpfr_matrix_str_ary(VALUE self, VALUE format_str)
 {
   MPFRMatrix *ptr_self;
@@ -359,6 +419,7 @@ static VALUE r_mpfr_matrix_str_ary(VALUE self, VALUE format_str)
   return rb_ary_new4(ptr_self->size, ret_val);
 }
 
+/* Return two dimensinal array including strings which elements of matrix is converted to by MPFR#to_strf. */
 static VALUE r_mpfr_matrix_str_ary2(VALUE self, VALUE format_str)
 {
   MPFRMatrix *ptr_self;
@@ -379,6 +440,7 @@ static VALUE r_mpfr_matrix_str_ary2(VALUE self, VALUE format_str)
   return rb_ary_new4(ptr_self->row, ary);
 }
 
+/* Retrn two dimensinal array including MPFR elements of matrix. */
 static VALUE r_mpfr_matrix_to_array(VALUE self)
 {
   MPFRMatrix *ptr_self;
@@ -391,6 +453,7 @@ static VALUE r_mpfr_matrix_to_array(VALUE self)
   return rb_ary_new4(ptr_self->size, ret_val);
 }
 
+/* Retrn one dimensinal array including MPFR elements of matrix. */
 static VALUE r_mpfr_matrix_to_array2(VALUE self)
 {
   MPFRMatrix *ptr_self;
@@ -408,6 +471,7 @@ static VALUE r_mpfr_matrix_to_array2(VALUE self)
   return rb_ary_new4(ptr_self->row, ary);
 }
 
+/* Return _p1_-th row vector. */
 static VALUE r_mpfr_matrix_row (VALUE self, VALUE arg)
 {
   MPFRMatrix *ptr_self, *ptr_ret;
@@ -423,6 +487,7 @@ static VALUE r_mpfr_matrix_row (VALUE self, VALUE arg)
   }
 }
 
+/* Return _p1_-th column vector. */
 static VALUE r_mpfr_matrix_column (VALUE self, VALUE arg)
 {
   MPFRMatrix *ptr_self, *ptr_ret;
@@ -449,7 +514,7 @@ static VALUE r_mpfr_matrix_transpose (VALUE self)
   return ret;
 }
 
-/* Transpose self. This method is destroy method. */
+/* Transpose self. This method is destructive method. */
 static VALUE r_mpfr_matrix_transpose2 (VALUE self)
 {
   MPFRMatrix *ptr_self, tmp;
@@ -467,6 +532,7 @@ static VALUE r_mpfr_matrix_transpose2 (VALUE self)
   return self;
 }
 
+/* Multiply all elements by -1. This method is non-destructive. */
 static VALUE r_mpfr_matrix_neg (VALUE self)
 {
   MPFRMatrix *ptr_self, *ptr_ret;
@@ -493,7 +559,7 @@ static VALUE r_mpfr_matrix_add (VALUE self, VALUE other)
   return ret;
 }
 
-/* Return _self_ + _other_ which is MPF::Matrix. */
+/* Return _self_ + _other_ which is MPFR::Matrix. */
 static VALUE r_mpfr_matrix_add2 (VALUE self, VALUE other)
 {
   MPFRMatrix *ptr_self, *ptr_other, *ptr_ret;
@@ -527,7 +593,7 @@ static VALUE r_mpfr_matrix_sub (VALUE self, VALUE other)
   return ret;
 }
 
-/* Return _self_ - _other_ which is MPF::Matrix. */
+/* Return _self_ - _other_ which is MPFR::Matrix. */
 static VALUE r_mpfr_matrix_sub2 (VALUE self, VALUE other)
 {
   MPFRMatrix *ptr_self, *ptr_other, *ptr_ret;
@@ -544,6 +610,7 @@ static VALUE r_mpfr_matrix_sub2 (VALUE self, VALUE other)
   return ret;
 }
 
+/* Regard matrix as vector and return the value of inner product. */
 static VALUE r_mpfr_vector_inner_product (VALUE self, VALUE arg)
 {
   MPFRMatrix *ptr_self, *ptr_arg;
@@ -581,7 +648,7 @@ static VALUE r_mpfr_matrix_mul_matrix (VALUE self, VALUE other)
   return ret;
 }
 
-/* Return _self_ * _other_ which is MPF::Matrix. */
+/* Return _self_ * _other_ which is MPFR::Matrix. */
 static VALUE r_mpfr_matrix_mul_matrix2 (VALUE self, VALUE other)
 {
   MPFRMatrix *ptr_self, *ptr_other, *ptr_ret;
@@ -638,7 +705,7 @@ static VALUE r_mpfr_matrix_div_scalar (VALUE self, VALUE scalar)
   return ret;
 }
 
-/* Take matrix for vector and return length of the vector. */
+/* Regard matrix as vector and return length of the vector. */
 static VALUE r_mpfr_matrix_vector_norm (VALUE self)
 {
   MPFRMatrix *ptr_self;
@@ -670,7 +737,7 @@ static VALUE r_mpfr_square_matrix_dim (VALUE self)
   return INT2FIX(ptr_self->row);
 }
 
-/* Return [matrix_l, matrix_r, indx]. */
+/* Perform LU decomposition and return [matrix_l, matrix_r, indx]. */
 static VALUE r_mpfr_square_matrix_lu_decomp (VALUE self)
 {
   MPFRMatrix *ptr_self, *ptr_ret_l, *ptr_ret_u;
@@ -705,6 +772,7 @@ static VALUE r_mpfr_square_matrix_lu_decomp (VALUE self)
   }
 }
 
+/* Return determinant of matrix. */
 static VALUE r_mpfr_square_matrix_determinant (VALUE self)
 {
   MPFRMatrix *ptr_self;
@@ -716,6 +784,7 @@ static VALUE r_mpfr_square_matrix_determinant (VALUE self)
   return ret;
 }
 
+/* Perform QR decomposition and return [matrix_q, matrix_r]. */
 static VALUE r_mpfr_square_matrix_qr_decomp (VALUE self)
 {
   MPFRMatrix *ptr_self, *ptr_q, *ptr_r;
@@ -727,6 +796,7 @@ static VALUE r_mpfr_square_matrix_qr_decomp (VALUE self)
   return rb_ary_new3(2, q, r);
 }
 
+/* Return identity matrix. */
 static VALUE r_mpfr_square_matrix_identity (VALUE self, VALUE size)
 {
   VALUE ret;
@@ -745,7 +815,7 @@ static VALUE r_mpfr_vector_dim (VALUE self)
   return INT2FIX(ptr_self->size);
 }
 
-/* Take matrix for vector and return length of the vector. */
+/* Regard matrix as vector and return length of the vector. */
 static VALUE r_mpfr_vector_abs (VALUE self)
 {
   MPFRMatrix *ptr_self;
@@ -757,7 +827,7 @@ static VALUE r_mpfr_vector_abs (VALUE self)
   return ret;
 }
 
-/* Return element at _arg_.*/
+/* Return element at _p1_.*/
 static VALUE r_mpfr_vector_element (VALUE self, VALUE arg)
 {
   MPFRMatrix *ptr_self;
@@ -774,7 +844,7 @@ static VALUE r_mpfr_vector_element (VALUE self, VALUE arg)
   }
 }
 
-/* Set _robj_ to _arg_ th element. */
+/* Set _p2_ to _p1_ th element. */
 static VALUE r_mpfr_vector_set_element (VALUE self, VALUE arg, VALUE robj)
 {
   MPFRMatrix *ptr_self;
@@ -818,6 +888,7 @@ static VALUE r_mpfr_vector_each_element_with_index (VALUE self)
   return ret;
 }
 
+/* Return distance from _p1_, i.e. sqrt((x1 - x2)^2 + (y1 - y2)^2). */
 static VALUE r_mpfr_vector_distance_from (VALUE self, VALUE arg)
 {
   MPFRMatrix *ptr_self, *ptr_arg;
@@ -834,6 +905,7 @@ static VALUE r_mpfr_vector_distance_from (VALUE self, VALUE arg)
   return ret;
 }
 
+/* Return midpoint between _self_ and _p1_. */
 static VALUE r_mpfr_vector_midpoint (VALUE self, VALUE arg)
 {
   MPFRMatrix *ptr_self, *ptr_arg, *ptr_ret;
@@ -845,6 +917,7 @@ static VALUE r_mpfr_vector_midpoint (VALUE self, VALUE arg)
   return ret;
 }
 
+/* Return dividing point of _self_ and _p1_ by _p2_. */
 static VALUE r_mpfr_vector_dividing_point (VALUE self, VALUE arg, VALUE div)
 {
   MPFRMatrix *ptr_self, *ptr_arg, *ptr_ret;
@@ -858,6 +931,7 @@ static VALUE r_mpfr_vector_dividing_point (VALUE self, VALUE arg, VALUE div)
   return ret;
 }
 
+/* Return normalized vector of _self_. */
 static VALUE r_mpfr_vector_normalize (VALUE self)
 {
   MPFRMatrix *ptr_self, *ptr_ret;
@@ -871,7 +945,7 @@ static VALUE r_mpfr_vector_normalize (VALUE self)
   }
 }
 
-/* Return normalized vector of _self_. This method is destroy method. */
+/* Return normalized vector of _self_. This method is destructive method. */
 static VALUE r_mpfr_vector_normalize2 (VALUE self)
 {
   MPFRMatrix *ptr_self, tmp;
@@ -887,6 +961,7 @@ static VALUE r_mpfr_vector_normalize2 (VALUE self)
   return ret;
 }
 
+/* Return new vector whose length is _p1_.  */
 static VALUE r_mpfr_vector_set_length (VALUE self, VALUE arg)
 {
   MPFRMatrix *ptr_self, *ptr_ret;
@@ -910,6 +985,7 @@ static VALUE r_mpfr_vector_set_length (VALUE self, VALUE arg)
   return returned_value;
 }
 
+/* Return new vector whose length is _p1_. This method is destructive. */
 static VALUE r_mpfr_vector_set_length2 (VALUE self, VALUE arg)
 {
   MPFRMatrix *ptr_self, *ptr_ret;
@@ -938,29 +1014,32 @@ static VALUE r_mpfr_vector_set_length2 (VALUE self, VALUE arg)
 void Init_matrix()
 {
   
-  VALUE tmp_mpfr_class = rb_define_class("MPFR", rb_cNumeric);
-  
+  VALUE tmp_r_mpfr_class = rb_define_class("MPFR", rb_cNumeric);
+
   /*
     MPFR::Matrix is class in which instances means matrix and
     have MPFR instances as elements.
+    MPFR::SquareMatrix, MPFR::ColumnVector, and MPFR::RowVector are subclass of MPFR::Matrix.
   */
+  r_mpfr_matrix = rb_define_class_under(tmp_r_mpfr_class, "Matrix", rb_cObject);
+  r_mpfr_square_matrix = rb_define_class_under(tmp_r_mpfr_class, "SquareMatrix", r_mpfr_matrix);
+  r_mpfr_col_vector = rb_define_class_under(tmp_r_mpfr_class, "ColumnVector", r_mpfr_matrix);
+  r_mpfr_row_vector = rb_define_class_under(tmp_r_mpfr_class, "RowVector", r_mpfr_matrix);
 
-  /* Initialization of MPFR::Matrix, MPFR::SquareMatrix, MPFR::ColumnVector and MPFR::RowVector */
-  r_mpfr_matrix = rb_define_class_under(tmp_mpfr_class, "Matrix", rb_cObject);
-  r_mpfr_square_matrix = rb_define_class_under(tmp_mpfr_class, "SquareMatrix", r_mpfr_matrix);
-  r_mpfr_col_vector = rb_define_class_under(tmp_mpfr_class, "ColumnVector", r_mpfr_matrix);
-  r_mpfr_row_vector = rb_define_class_under(tmp_mpfr_class, "RowVector", r_mpfr_matrix);
-
+  rb_define_singleton_method(tmp_r_mpfr_class, "Matrix", r_mpfr_matrix_global_new, -1);
   rb_define_alloc_func(r_mpfr_matrix, r_mpfr_matrix_alloc);
   rb_define_private_method(r_mpfr_matrix, "initialize", r_mpfr_matrix_initialize, -1);
   rb_define_private_method(r_mpfr_matrix, "initialize_copy", r_mpfr_matrix_initialize_copy, 1);
 
+  rb_define_singleton_method(tmp_r_mpfr_class, "SquareMatrix", r_mpfr_square_matrix_global_new, 1);
   rb_define_alloc_func(r_mpfr_square_matrix, r_mpfr_square_matrix_alloc);
   rb_define_private_method(r_mpfr_square_matrix, "initialize", r_mpfr_square_matrix_initialize, 1);
 
+  rb_define_singleton_method(tmp_r_mpfr_class, "ColumnVector", r_mpfr_col_vector_global_new, 1);
   rb_define_alloc_func(r_mpfr_col_vector, r_mpfr_col_vector_alloc);
   rb_define_private_method(r_mpfr_col_vector, "initialize", r_mpfr_col_vector_initialize, 1);
 
+  rb_define_singleton_method(tmp_r_mpfr_class, "RowVector", r_mpfr_row_vector_global_new, 1);
   rb_define_alloc_func(r_mpfr_row_vector, r_mpfr_row_vector_alloc);
   rb_define_private_method(r_mpfr_row_vector, "initialize", r_mpfr_row_vector_initialize, 1);
 
@@ -1021,8 +1100,11 @@ void Init_matrix()
 
   rb_define_singleton_method(r_mpfr_square_matrix, "identity", r_mpfr_square_matrix_identity, 1);
 
-  /* Initialization of MPFR::Vector module */
-  r_mpfr_vector_module = rb_define_module_under(tmp_mpfr_class, "Vector");
+  /*
+    This module add the functionality as vector.
+    MPFR::ColumnVector and MPFR::RowVector include MPFR::Vector module.
+  */
+  r_mpfr_vector_module = rb_define_module_under(tmp_r_mpfr_class, "Vector");
 
   rb_define_method(r_mpfr_vector_module, "[]=", r_mpfr_vector_set_element, 2);
   rb_define_method(r_mpfr_vector_module, "[]", r_mpfr_vector_element, 1);

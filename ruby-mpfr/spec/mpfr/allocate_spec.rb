@@ -10,6 +10,19 @@ describe MPFR, 'when allocating objects from integer' do
     end
   end
 
+  it "should equal bignum" do
+    MPFR.set_default_prec(120)
+    GenerateNumber.float(100) do |f|
+      MPFR.new(f).should == MPFR(f)
+    end
+
+    GenerateNumber.float(100) do |f|
+      str = f.to_s
+      MPFR.new(str).should == MPFR(str)
+    end
+
+  end
+
   it "should allocate from string" do
     MPFR.set_default_prec(53)
     for i in 0..1000

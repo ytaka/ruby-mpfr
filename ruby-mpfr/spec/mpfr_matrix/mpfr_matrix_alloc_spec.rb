@@ -7,6 +7,12 @@ describe "initialization of matrix" do
     @matrixes = @sizes.map{ |a| MPFR::Matrix.new(*a) }
   end
 
+  it "should be same as MPFR::Matrix method" do
+    @matrixes.each_with_index do |a, i|
+      MPFR::Matrix(*@sizes[i]).should == a
+    end
+  end
+  
   it "should has size which equals size of array." do
     @matrixes.each_with_index do |a, i|
       a.size.should == (@sizes[i][0] * @sizes[i][1])
