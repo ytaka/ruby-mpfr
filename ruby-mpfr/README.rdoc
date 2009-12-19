@@ -1,7 +1,7 @@
 = ruby-mpfr
 
-[URL] http://rubyforge.org/projects/ruby-mpfr/
-[Download] http://gemcutter.org/gems/ruby-mpfr/
+* http://rubyforge.org/projects/ruby-mpfr/
+* http://gemcutter.org/gems/ruby-mpfr/
 
 == Description:
 

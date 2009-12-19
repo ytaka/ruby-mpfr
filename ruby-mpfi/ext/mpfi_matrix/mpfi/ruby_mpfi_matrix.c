@@ -42,7 +42,7 @@ VALUE r_mpfi_matrix_robj(MPFIMatrix *x){
   return ret;
 }
 
-/* Allocation function for MPF::Matrix. */
+/* Allocation function for MPFI::Matrix. */
 static VALUE r_mpfi_matrix_alloc (VALUE self){
   MPFIMatrix *ptr;
   r_mpfi_make_matrix_struct(self, ptr);
@@ -56,10 +56,8 @@ static VALUE r_mpfi_matrix_alloc (VALUE self){
 /*   mpfi_matrix_set(x, ptr_src); */
 /* } */
 
-/* Initialization function for MPF::Matrix. */
-static VALUE r_mpfi_matrix_initialize (int argc, VALUE *argv, VALUE self){
-  MPFIMatrix *ptr;
-  r_mpfi_get_matrix_struct(ptr, self);
+static void r_mpfi_matrix_set_initial_value(MPFIMatrix *ptr, int argc, VALUE *argv)
+{
   int row, column, i, j;
   VALUE row_ary;
   switch (argc) {
@@ -70,7 +68,7 @@ static VALUE r_mpfi_matrix_initialize (int argc, VALUE *argv, VALUE self){
     for (i = 0; i < row; i++) {
       row_ary = rb_ary_entry(argv[0], i);
       if (column != RARRAY_LEN(row_ary)) {
-	rb_raise(rb_eArgError, "MPF::Matrix.new needs Array which has arrays of same sizes.");
+	rb_raise(rb_eArgError, "MPFI::Matrix.new needs Array which has arrays of same sizes.");
       }
       for (j = 0; j < column; j++) {
 	r_mpfi_set_robj(mpfi_matrix_get_element(ptr, i, j), rb_ary_entry(row_ary, j));
@@ -82,23 +80,38 @@ static VALUE r_mpfi_matrix_initialize (int argc, VALUE *argv, VALUE self){
     mpfi_matrix_set_zeros(ptr);
     break;
   default:
-    rb_raise(rb_eArgError, "MPF::Matrix.new needs one or two arguments.");
+    rb_raise(rb_eArgError, "MPFI::Matrix.new needs one or two arguments.");
     break;
   }
+}
+
+/* Return new MPFI::Matrix instance. The same arguments as MPFI::Matrix.new is acceptable. */
+static VALUE r_mpfi_matrix_global_new(int argc, VALUE *argv, VALUE self)
+{
+  MPFIMatrix *ptr;
+  VALUE val;
+  r_mpfi_make_matrix_struct(val, ptr);
+  r_mpfi_matrix_set_initial_value(ptr, argc, argv);
+  return val;
+}
+
+/* Initialization function for MPFI::Matrix. */
+static VALUE r_mpfi_matrix_initialize (int argc, VALUE *argv, VALUE self){
+  MPFIMatrix *ptr;
+  r_mpfi_get_matrix_struct(ptr, self);
+  r_mpfi_matrix_set_initial_value(ptr, argc, argv);
   return Qtrue;
 }
 
-/* Allocation function for MPF::SquareMatrix. */
+/* Allocation function for MPFI::SquareMatrix. */
 static VALUE r_mpfi_square_matrix_alloc (VALUE self){
   MPFIMatrix *ptr;
   r_mpfi_make_square_matrix_struct(self, ptr);
   return self;
 }
 
-/* Initialization function for MPF::SquareMatrix. */
-static VALUE r_mpfi_square_matrix_initialize (VALUE self, VALUE arg){
-  MPFIMatrix *ptr;
-  r_mpfi_get_matrix_struct(ptr, self);
+static void r_mpfi_square_matrix_set_initial_value(MPFIMatrix *ptr, VALUE arg)
+{
   int row, column, i, j;
   VALUE row_ary;
   switch(TYPE(arg)){
@@ -110,14 +123,14 @@ static VALUE r_mpfi_square_matrix_initialize (VALUE self, VALUE arg){
       for (i = 0; i < row; i++) {
 	row_ary = rb_ary_entry(arg, i);
 	if (column != RARRAY_LEN(row_ary)) {
-	  rb_raise(rb_eArgError, "MPF::Matrix.new needs Array which has arrays of same sizes.");
+	  rb_raise(rb_eArgError, "MPFI::Matrix.new needs Array which has arrays of same sizes.");
 	}
 	for (j = 0; j < column; j++) {
 	  r_mpfi_set_robj(mpfi_matrix_get_element(ptr, i, j), rb_ary_entry(row_ary, j));
 	}
       }
     }else{
-      rb_raise(rb_eArgError, "MPF::SquareMatrix.new needs two dimensinal Array which has the same sizes of row and column.");
+      rb_raise(rb_eArgError, "MPFI::SquareMatrix.new needs two dimensinal Array which has the same sizes of row and column.");
     }
     break;
   case T_FIXNUM:
@@ -126,9 +139,26 @@ static VALUE r_mpfi_square_matrix_initialize (VALUE self, VALUE arg){
     mpfi_matrix_set_zeros(ptr);
     break;
   default:
-    rb_raise(rb_eArgError, "MPF::SquareMatrix.new needs Array or Fixnum.");
+    rb_raise(rb_eArgError, "MPFI::SquareMatrix.new needs Array or Fixnum.");
     break;
   }  
+}
+
+/* Return new MPFI::SquareMatrix instance. The same arguments as MPFI::SquareMatrix.new is acceptable. */
+static VALUE r_mpfi_square_matrix_global_new(int argc, VALUE arg)
+{
+  MPFIMatrix *ptr;
+  VALUE val;
+  r_mpfi_make_matrix_struct(val, ptr);
+  r_mpfi_square_matrix_set_initial_value(ptr, arg);
+  return val;
+}
+
+/* Initialization function for MPFI::SquareMatrix. */
+static VALUE r_mpfi_square_matrix_initialize (VALUE self, VALUE arg){
+  MPFIMatrix *ptr;
+  r_mpfi_get_matrix_struct(ptr, self);
+  r_mpfi_square_matrix_set_initial_value(ptr, arg);
   return Qtrue;
 }
 
@@ -142,17 +172,15 @@ static VALUE r_mpfi_matrix_initialize_copy (VALUE self, VALUE other){
   return Qtrue;
 }
 
-/* Allocation function for MPF::ColumnVector. */
+/* Allocation function for MPFI::ColumnVector. */
 static VALUE r_mpfi_col_vector_alloc (VALUE self){
   MPFIMatrix *ptr;
   r_mpfi_make_col_vector_struct(self, ptr);
   return self;
 }
 
-/* Initialization function for MPF::ColumnVector. */
-static VALUE r_mpfi_col_vector_initialize (VALUE self, VALUE arg){
-  MPFIMatrix *ptr;
-  r_mpfi_get_matrix_struct(ptr, self);
+static void r_mpfi_col_vector_set_initial_value(MPFIMatrix *ptr, VALUE arg)
+{
   int row, i;
   switch(TYPE(arg)){
   case T_ARRAY:
@@ -170,23 +198,38 @@ static VALUE r_mpfi_col_vector_initialize (VALUE self, VALUE arg){
     }
     break;
   default:
-    rb_raise(rb_eArgError, "MPF::ColumnVector.new needs Array or Fixnum.");
+    rb_raise(rb_eArgError, "MPFI::ColumnVector.new needs Array or Fixnum.");
     break;
   }  
+}
+
+/* Return new MPFI::ColumnVector instance. The same arguments as MPFI::ColumnVector.new is acceptable. */
+static VALUE r_mpfi_col_vector_global_new(int argc, VALUE arg)
+{
+  MPFIMatrix *ptr;
+  VALUE val;
+  r_mpfi_make_matrix_struct(val, ptr);
+  r_mpfi_col_vector_set_initial_value(ptr, arg);
+  return val;
+}
+
+/* Initialization function for MPFI::ColumnVector. */
+static VALUE r_mpfi_col_vector_initialize (VALUE self, VALUE arg){
+  MPFIMatrix *ptr;
+  r_mpfi_get_matrix_struct(ptr, self);
+  r_mpfi_col_vector_set_initial_value(ptr, arg);
   return Qtrue;
 }
 
-/* Allocation function for MPF::RowVector. */
+/* Allocation function for MPFI::RowVector. */
 static VALUE r_mpfi_row_vector_alloc (VALUE self){
   MPFIMatrix *ptr;
   r_mpfi_make_row_vector_struct(self, ptr);
   return self;
 }
 
-/* Initialization function for MPF::RowVector. */
-static VALUE r_mpfi_row_vector_initialize (VALUE self, VALUE arg){
-  MPFIMatrix *ptr;
-  r_mpfi_get_matrix_struct(ptr, self);
+static void r_mpfi_row_vector_set_initial_value(MPFIMatrix *ptr, VALUE arg)
+{
   int column, i;
   switch(TYPE(arg)){
   case T_ARRAY:
@@ -204,9 +247,26 @@ static VALUE r_mpfi_row_vector_initialize (VALUE self, VALUE arg){
     }
     break;
   default:
-    rb_raise(rb_eArgError, "MPF::RowVector.new needs Array or Fixnum.");
+    rb_raise(rb_eArgError, "MPFI::RowVector.new needs Array or Fixnum.");
     break;
-  }  
+  }
+}
+
+/* Return new MPFI::RowVector instance. The same arguments as MPFI::RowVector.new is acceptable. */
+static VALUE r_mpfi_row_vector_global_new(int argc, VALUE arg)
+{
+  MPFIMatrix *ptr;
+  VALUE val;
+  r_mpfi_make_matrix_struct(val, ptr);
+  r_mpfi_row_vector_set_initial_value(ptr, arg);
+  return val;
+}
+
+/* Initialization function for MPFI::RowVector. */
+static VALUE r_mpfi_row_vector_initialize (VALUE self, VALUE arg){
+  MPFIMatrix *ptr;
+  r_mpfi_get_matrix_struct(ptr, self);
+  r_mpfi_row_vector_set_initial_value(ptr, arg);
   return Qtrue;
 }
 
@@ -1079,22 +1139,26 @@ static VALUE r_mpfr_matrix_to_fi_matrix(VALUE self){
 void Init_matrix(){
 
   /* Initialization of MPFI::Matrix, MPFI::SquareMatrix, MPFI::ColumnVector and MPFI::RowVector */
-  VALUE tmp_mpfi_class = rb_define_class("MPFI", rb_cNumeric);
-  r_mpfi_matrix = rb_define_class_under(tmp_mpfi_class, "Matrix", rb_cObject);
-  r_mpfi_square_matrix = rb_define_class_under(tmp_mpfi_class, "SquareMatrix", r_mpfi_matrix);
-  r_mpfi_col_vector = rb_define_class_under(tmp_mpfi_class, "ColumnVector", r_mpfi_matrix);
-  r_mpfi_row_vector = rb_define_class_under(tmp_mpfi_class, "RowVector", r_mpfi_matrix);
+  VALUE tmp_r_mpfi_class = rb_define_class("MPFI", rb_cNumeric);
+  r_mpfi_matrix = rb_define_class_under(tmp_r_mpfi_class, "Matrix", rb_cObject);
+  r_mpfi_square_matrix = rb_define_class_under(tmp_r_mpfi_class, "SquareMatrix", r_mpfi_matrix);
+  r_mpfi_col_vector = rb_define_class_under(tmp_r_mpfi_class, "ColumnVector", r_mpfi_matrix);
+  r_mpfi_row_vector = rb_define_class_under(tmp_r_mpfi_class, "RowVector", r_mpfi_matrix);
 
+  rb_define_singleton_method(r_mpfi_matrix, "Matrix", r_mpfi_matrix_global_new, -1);
   rb_define_alloc_func(r_mpfi_matrix, r_mpfi_matrix_alloc);
   rb_define_private_method(r_mpfi_matrix, "initialize", r_mpfi_matrix_initialize, -1);
   rb_define_private_method(r_mpfi_matrix, "initialize_copy", r_mpfi_matrix_initialize_copy, 1);
 
+  rb_define_singleton_method(tmp_r_mpfi_class, "SquareMatrix", r_mpfi_square_matrix_global_new, 1);
   rb_define_alloc_func(r_mpfi_square_matrix, r_mpfi_square_matrix_alloc);
   rb_define_private_method(r_mpfi_square_matrix, "initialize", r_mpfi_square_matrix_initialize, 1);
-  
+
+  rb_define_singleton_method(tmp_r_mpfi_class, "ColumnVector", r_mpfi_col_vector_global_new, 1);
   rb_define_alloc_func(r_mpfi_col_vector, r_mpfi_col_vector_alloc);
   rb_define_private_method(r_mpfi_col_vector, "initialize", r_mpfi_col_vector_initialize, 1);
 
+  rb_define_singleton_method(tmp_r_mpfi_class, "RowVector", r_mpfi_row_vector_global_new, 1);
   rb_define_alloc_func(r_mpfi_row_vector, r_mpfi_row_vector_alloc);
   rb_define_private_method(r_mpfi_row_vector, "initialize", r_mpfi_row_vector_initialize, 1);
 
@@ -1161,7 +1225,7 @@ void Init_matrix(){
   rb_define_singleton_method(r_mpfi_square_matrix, "identity", r_mpfi_square_matrix_identity, 1);
   
   /* Initialization of MPFI::Vector module */
-  r_mpfi_vector_module = rb_define_module_under(tmp_mpfi_class, "Vector");
+  r_mpfi_vector_module = rb_define_module_under(tmp_r_mpfi_class, "Vector");
 
   rb_include_module(r_mpfi_col_vector, r_mpfi_vector_module);
   rb_include_module(r_mpfi_row_vector, r_mpfi_vector_module);

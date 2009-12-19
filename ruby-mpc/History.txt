@@ -1,3 +1,9 @@
+=== 0.0.3 2009-12-18
+* 1 major enhancement:
+  * Add methods MPC.
+* 1 minor enhancement:
+  * Maintenance of docments.
+
 === 0.0.2 2009-12-15
 
 * 1 major enhancement:

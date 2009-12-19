@@ -1,3 +1,7 @@
+=== 0.0.3 2009-12-19
+* 1 major enhancement:
+  * Add methods MPFI, MPFI::Complex, MPFI::Matrix, MPFI::SquareMatrix, MPFI::ColumnVector, and MPFI::RowVector.
+
 === 0.0.1 2009-12-13
 
 * 1 major enhancement:

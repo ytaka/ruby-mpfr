@@ -170,18 +170,8 @@ static void r_mpc_set_from_one_object(MPC *ptr, VALUE obj, mpc_rnd_t rnd)
   }
 }
 
-/*
-  Arguments may be the following types by number.
-  0. none
-  1. MPC or array having two elements
-  2. real part and imaginary part
-  3. real part, imaginary part, and rounding mode
-  4. real part, imaginary part, rounding mode and precision
-*/
-static VALUE r_mpc_initialize(int argc, VALUE *argv, VALUE self)
+static void r_mpc_set_initial_value(MPC *ptr, int argc, VALUE *argv)
 {
-  MPC *ptr;
-  r_mpc_get_struct(ptr, self);
   switch(argc){
   case 0:
     mpc_init2(ptr, mpfr_get_default_prec());
@@ -205,7 +195,33 @@ static VALUE r_mpc_initialize(int argc, VALUE *argv, VALUE self)
   default:
     rb_raise(rb_eArgError, "Invalid number of arguments.");
     break;
-  }
+  }  
+}
+
+/* Return new MPC instance. The same arguments as MPC.new is acceptable. */
+static VALUE r_mpc_global_new(int argc, VALUE *argv, VALUE self)
+{
+  MPC *ptr;
+  VALUE val;
+  r_mpc_make_struct(val, ptr);
+  r_mpc_set_initial_value(ptr, argc, argv);
+  return val;
+}
+
+
+/*
+  Arguments may be the following types by number.
+  0. none
+  1. MPC or array having two elements
+  2. real part and imaginary part
+  3. real part, imaginary part, and rounding mode
+  4. real part, imaginary part, rounding mode and precision
+*/
+static VALUE r_mpc_initialize(int argc, VALUE *argv, VALUE self)
+{
+  MPC *ptr;
+  r_mpc_get_struct(ptr, self);
+  r_mpc_set_initial_value(ptr, argc, argv);
   return Qtrue;
 }
 
@@ -599,6 +615,7 @@ static VALUE r_mpc_math_div(int argc, VALUE *argv, VALUE self)
 }
 
 
+/* mpc_mul_2exp(ret, p1, p2, rnd) */
 static VALUE r_mpc_math_mul_2exp (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -613,6 +630,7 @@ static VALUE r_mpc_math_mul_2exp (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpc_div_2exp(ret, p1, p2, rnd) */
 static VALUE r_mpc_math_div_2exp (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -628,6 +646,7 @@ static VALUE r_mpc_math_div_2exp (int argc, VALUE *argv, VALUE self)
 }
 
 
+/* mpc_sqr(ret, p1, rnd) */
 static VALUE r_mpc_math_sqr (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -642,6 +661,7 @@ static VALUE r_mpc_math_sqr (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpc_sqrt(ret, p1, rnd) */
 static VALUE r_mpc_math_sqrt (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -656,6 +676,7 @@ static VALUE r_mpc_math_sqrt (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpc_pow(ret, p1, p2, rnd), mpc_pow_fr(ret, p1, p2, rnd) etc. */
 static VALUE r_mpc_math_pow(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
@@ -688,7 +709,7 @@ static VALUE r_mpc_math_pow(int argc, VALUE *argv, VALUE self)
 }
 
 
-
+/* mpc_exp(ret, p1, rnd) */
 static VALUE r_mpc_math_exp (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -703,6 +724,7 @@ static VALUE r_mpc_math_exp (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpc_log(ret, p1, rnd) */
 static VALUE r_mpc_math_log (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -717,6 +739,7 @@ static VALUE r_mpc_math_log (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpc_sin(ret, p1, rnd) */
 static VALUE r_mpc_math_sin (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -731,6 +754,7 @@ static VALUE r_mpc_math_sin (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpc_cos(ret, p1, rnd) */
 static VALUE r_mpc_math_cos (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -745,6 +769,7 @@ static VALUE r_mpc_math_cos (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpc_tan(ret, p1, rnd) */
 static VALUE r_mpc_math_tan (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -759,6 +784,7 @@ static VALUE r_mpc_math_tan (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpc_sinh(ret, p1, rnd) */
 static VALUE r_mpc_math_sinh (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -773,6 +799,7 @@ static VALUE r_mpc_math_sinh (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpc_cosh(ret, p1, rnd) */
 static VALUE r_mpc_math_cosh (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -787,6 +814,7 @@ static VALUE r_mpc_math_cosh (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpc_tanh(ret, p1, rnd) */
 static VALUE r_mpc_math_tanh (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -801,6 +829,7 @@ static VALUE r_mpc_math_tanh (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpc_asin(ret, p1, rnd) */
 static VALUE r_mpc_math_asin (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -815,6 +844,7 @@ static VALUE r_mpc_math_asin (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpc_acos(ret, p1, rnd) */
 static VALUE r_mpc_math_acos (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -829,6 +859,7 @@ static VALUE r_mpc_math_acos (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpc_atan(ret, p1, rnd) */
 static VALUE r_mpc_math_atan (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -843,6 +874,7 @@ static VALUE r_mpc_math_atan (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpc_asinh(ret, p1, rnd) */
 static VALUE r_mpc_math_asinh (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -857,6 +889,7 @@ static VALUE r_mpc_math_asinh (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpc_acosh(ret, p1, rnd) */
 static VALUE r_mpc_math_acosh (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -871,6 +904,7 @@ static VALUE r_mpc_math_acosh (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpc_atanh(ret, p1, rnd) */
 static VALUE r_mpc_math_atanh (int argc, VALUE *argv, VALUE self)
 {
   mpc_rnd_t rnd;
@@ -892,35 +926,53 @@ void Init_mpc(){
   rb_define_singleton_method(r_mpc_class, "set_default_rounding_mode", r_mpc_set_default_rounding_mode, 1);
   rb_define_singleton_method(r_mpc_class, "get_default_rounding_mode", r_mpc_get_default_rounding_mode, 0);
 
+  /* Integer which is macro MPC_RNDNN. */
   rb_define_const(r_mpc_class, "RNDNN", INT2NUM(MPC_RNDNN));
+  /* Integer which is macro MPC_RNDNZ. */
   rb_define_const(r_mpc_class, "RNDNZ", INT2NUM(MPC_RNDNZ));
+  /* Integer which is macro MPC_RNDNU. */
   rb_define_const(r_mpc_class, "RNDNU", INT2NUM(MPC_RNDNU));
+  /* Integer which is macro MPC_RNDND. */
   rb_define_const(r_mpc_class, "RNDND", INT2NUM(MPC_RNDND));
+  /* Integer which is macro MPC_RNDZN. */
   rb_define_const(r_mpc_class, "RNDZN", INT2NUM(MPC_RNDZN));
+  /* Integer which is macro MPC_RNDZZ. */
   rb_define_const(r_mpc_class, "RNDZZ", INT2NUM(MPC_RNDZZ));
+  /* Integer which is macro MPC_RNDZU. */
   rb_define_const(r_mpc_class, "RNDZU", INT2NUM(MPC_RNDZU));
+  /* Integer which is macro MPC_RNDZD. */
   rb_define_const(r_mpc_class, "RNDZD", INT2NUM(MPC_RNDZD));
+  /* Integer which is macro MPC_RNDUN */
   rb_define_const(r_mpc_class, "RNDUN", INT2NUM(MPC_RNDUN));
+  /* Integer which is macro MPC_RNDUZ. */
   rb_define_const(r_mpc_class, "RNDUZ", INT2NUM(MPC_RNDUZ));
+  /* Integer which is macro MPC_RNDUU. */
   rb_define_const(r_mpc_class, "RNDUU", INT2NUM(MPC_RNDUU));
+  /* Integer which is macro MPC_RNDUD. */
   rb_define_const(r_mpc_class, "RNDUD", INT2NUM(MPC_RNDUD));
+  /* Integer which is macro MPC_RNDDN. */
   rb_define_const(r_mpc_class, "RNDDN", INT2NUM(MPC_RNDDN));
+  /* Integer which is macro MPC_RNDDZ. */
   rb_define_const(r_mpc_class, "RNDDZ", INT2NUM(MPC_RNDDZ));
+  /* Integer which is macro MPC_RNDDU. */
   rb_define_const(r_mpc_class, "RNDDU", INT2NUM(MPC_RNDDU));
+  /* Integer which is macro MPC_RNDDD. */
   rb_define_const(r_mpc_class, "RNDDD", INT2NUM(MPC_RNDDD));
 
+  /* Integer which is macro MPC_VERSION_MAJOR. */
   rb_define_const(r_mpc_class, "VERSION_MAJOR", INT2NUM(MPC_VERSION_MAJOR));
+  /* Integer which is macro MPC_VERSION_MINOR. */
   rb_define_const(r_mpc_class, "VERSION_MINOR", INT2NUM(MPC_VERSION_MINOR));
+  /* Integer which is macro MPC_VERSION_PATCHLEVEL. */
   rb_define_const(r_mpc_class, "VERSION_PATCHLEVEL", INT2NUM(MPC_VERSION_PATCHLEVEL));
+  /* Stirng which is macro MPC_VERSION_STRING. */
   rb_define_const(r_mpc_class, "VERSION_STRING", rb_str_new2(MPC_VERSION_STRING));
   
 
-
   rb_define_singleton_method(r_mpc_class, "get_function_state", r_mpc_get_function_state, 0);
 
-
+  rb_define_global_function("MPC", r_mpc_global_new, -1);
   rb_define_alloc_func(r_mpc_class, r_mpc_alloc);
-
   rb_define_private_method(r_mpc_class, "initialize", r_mpc_initialize, -1);
   rb_define_private_method(r_mpc_class, "initialize_copy", r_mpc_initialize_copy, 1);
 
@@ -982,7 +1034,6 @@ void Init_mpc(){
   object_id = rb_intern("object_id");
   __mpc_class__ = rb_eval_string("MPC");
   __mpfr_class__ = rb_eval_string("MPFR");
-
 
 }
 
