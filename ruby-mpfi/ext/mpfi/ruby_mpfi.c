@@ -87,6 +87,8 @@ VALUE r_mpfi_new_fi_obj(VALUE obj)
 }
 
 /* Initializing and Assigning Intervals */
+
+/* Allocation function. */
 static VALUE r_mpfi_alloc(VALUE self)
 {
   MPFI *ptr;
@@ -124,6 +126,7 @@ static VALUE r_mpfi_global_new(int argc, VALUE *argv, VALUE self)
   return val;
 }
 
+/* Two optional arguments are acceptable. First argument is value and second is precision. */
 static VALUE r_mpfi_initialize(int argc, VALUE *argv, VALUE self)
 {
   MPFI *ptr;
@@ -132,6 +135,7 @@ static VALUE r_mpfi_initialize(int argc, VALUE *argv, VALUE self)
   return Qtrue;
 }
 
+/* initialize_copy. */
 static VALUE r_mpfi_initialize_copy(VALUE self, VALUE other)
 {
   MPFI *ptr_self, *ptr_other;
@@ -153,6 +157,7 @@ static VALUE r_mpfi_coerce(VALUE self, VALUE other)
   return rb_ary_new3(2, val_other, self);
 }
 
+/* Set the value. */
 static VALUE r_mpfi_set (VALUE self, VALUE arg)
 {
   MPFI *ptr_self;
@@ -161,6 +166,7 @@ static VALUE r_mpfi_set (VALUE self, VALUE arg)
   return self;
 }
 
+/* Swap value for other MPFI instance. */
 static VALUE r_mpfi_swap (VALUE self, VALUE other)
 {
   MPFI *ptr_self, *ptr_other;
@@ -175,7 +181,10 @@ static VALUE r_mpfi_swap (VALUE self, VALUE other)
 /* ------------------------------ Rounding Modes and Precision Handling start ------------------------------*/
 
 /* Need to consider returned value later. */
-/* mpfi_set_prec is different from reference manual. This is strange. */
+/*
+  Set the precision of self.
+  Notice that mpfi_set_prec is different from reference manual. This is strange.
+*/
 static VALUE r_mpfi_set_prec (VALUE self, VALUE prec)
 {
   MPFI *ptr_self;
@@ -188,6 +197,7 @@ static VALUE r_mpfi_set_prec (VALUE self, VALUE prec)
 }
 
 /* Need to consider returned value later. */
+/* Return precision of self. */
 static VALUE r_mpfi_get_prec (VALUE self)
 {
   MPFI *ptr_self;
@@ -196,6 +206,7 @@ static VALUE r_mpfi_get_prec (VALUE self)
 }
 
 /* Need to consider returned value later. */
+/* mpfi_round_prec(self, prec) */
 static VALUE r_mpfi_round_prec (VALUE self, VALUE prec)
 {
   MPFI *ptr_self;
@@ -207,6 +218,7 @@ static VALUE r_mpfi_round_prec (VALUE self, VALUE prec)
 
 /* ------------------------------ string start ------------------------------ */
 
+/* String for inspect. */
 static VALUE r_mpfi_inspect(VALUE self)
 {
   MPFI *ptr_s;
@@ -219,6 +231,7 @@ static VALUE r_mpfi_inspect(VALUE self)
   return ret_val;
 }
 
+/* Return array having two strings to which endpoints is converted. */
 static VALUE r_mpfi_to_str_ary(VALUE self)
 {
   MPFI *ptr_self;
@@ -232,7 +245,7 @@ static VALUE r_mpfi_to_str_ary(VALUE self)
   return rb_ary_new3(2, str1, str2);
 }
 
-/* Output self by sprintf. */
+/* Return array having two strings to which endpoints are converted by mpfr_asprintf with format_str. */
 static VALUE r_mpfi_to_strf_ary(VALUE self, VALUE format_str)
 {
   MPFI *ptr_self;
@@ -251,6 +264,7 @@ static VALUE r_mpfi_to_strf_ary(VALUE self, VALUE format_str)
 
 /* ------------------------------ Basic Arithmetic Functions start ------------------------------ */
 
+/* Return self + p1. */
 static VALUE r_mpfi_add (VALUE self, VALUE other)
 {
   VALUE val_ret;
@@ -279,6 +293,7 @@ static VALUE r_mpfi_add (VALUE self, VALUE other)
   return val_ret;
 }
 
+/* Return self - p1. */
 static VALUE r_mpfi_sub (VALUE self, VALUE other)
 {
   VALUE val_ret;
@@ -307,6 +322,7 @@ static VALUE r_mpfi_sub (VALUE self, VALUE other)
   return val_ret;
 }
 
+/* Return self * p1. */
 static VALUE r_mpfi_mul (VALUE self, VALUE other)
 {
   VALUE val_ret;
@@ -335,6 +351,7 @@ static VALUE r_mpfi_mul (VALUE self, VALUE other)
   return val_ret;
 }
 
+/* Return self / p1. */
 static VALUE r_mpfi_div (VALUE self, VALUE other)
 {
   VALUE val_ret;
@@ -363,6 +380,7 @@ static VALUE r_mpfi_div (VALUE self, VALUE other)
   return val_ret;
 }
 
+/* mpfi_mul_2si(ret, self, p1) */
 static VALUE r_mpfi_mul_2si (int argc, VALUE *argv, VALUE self)
 {
   MPFI *ptr_self, *ptr_ret;
@@ -373,6 +391,7 @@ static VALUE r_mpfi_mul_2si (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpfi_div_2si(ret, self, p1) */
 static VALUE r_mpfi_div_2si (int argc, VALUE *argv, VALUE self)
 {
   MPFI *ptr_self, *ptr_ret;
@@ -383,6 +402,7 @@ static VALUE r_mpfi_div_2si (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpfi_neg(ret, self) */
 static VALUE r_mpfi_neg(int argc, VALUE *argv, VALUE self)
 {
   MPFI *ptr_self, *ptr_ret;
@@ -393,6 +413,7 @@ static VALUE r_mpfi_neg(int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpfi_inv(ret, self) */
 static VALUE r_mpfi_inv(int argc, VALUE *argv, VALUE self)
 {
   MPFI *ptr_self, *ptr_ret;
@@ -403,6 +424,7 @@ static VALUE r_mpfi_inv(int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpfi_abs(ret, self) */
 static VALUE r_mpfi_abs(int argc, VALUE *argv, VALUE self)
 {
   MPFI *ptr_self, *ptr_ret;
@@ -417,6 +439,7 @@ static VALUE r_mpfi_abs(int argc, VALUE *argv, VALUE self)
 
 /* ------------------------------ Comparison Functions start ------------------------------ */
 
+/* For MPFI instance, use mpfi_cmp. */
 static VALUE r_mpfi_cmp (VALUE self, VALUE other)
 {
   MPFI *ptr_self;
@@ -444,6 +467,7 @@ static VALUE r_mpfi_cmp (VALUE self, VALUE other)
   return NUM2INT(ret);
 }
 
+/* Return true if mpfi_is_pos(self) > 0. Otherwise, nil. */
 static VALUE r_mpfi_is_pos (VALUE self)
 {
   MPFI *ptr_self;
@@ -455,6 +479,7 @@ static VALUE r_mpfi_is_pos (VALUE self)
   }
 }
 
+/* Return true if mpfi_is_strictly_pos(self) > 0. Otherwise, nil. */
 static VALUE r_mpfi_is_strictly_pos (VALUE self)
 {
   MPFI *ptr_self;
@@ -466,6 +491,7 @@ static VALUE r_mpfi_is_strictly_pos (VALUE self)
   }
 }
 
+/* Return true if mpfi_is_nonneg(self) > 0. Otherwise, nil. */
 static VALUE r_mpfi_is_nonneg (VALUE self)
 {
   MPFI *ptr_self;
@@ -477,6 +503,7 @@ static VALUE r_mpfi_is_nonneg (VALUE self)
   }
 }
 
+/* Return true if mpfi_is_neg(self) > 0. Otherwise, nil. */
 static VALUE r_mpfi_is_neg (VALUE self)
 {
   MPFI *ptr_self;
@@ -488,6 +515,7 @@ static VALUE r_mpfi_is_neg (VALUE self)
   }
 }
 
+/* Return true if mpfi_is_strictly_neg(self) > 0. Otherwise, nil. */
 static VALUE r_mpfi_is_strictly_neg (VALUE self)
 {
   MPFI *ptr_self;
@@ -499,6 +527,7 @@ static VALUE r_mpfi_is_strictly_neg (VALUE self)
   }
 }
 
+/* Return true if mpfi_is_nonpos(self) > 0. Otherwise, nil. */
 static VALUE r_mpfi_is_nonpos (VALUE self)
 {
   MPFI *ptr_self;
@@ -510,6 +539,7 @@ static VALUE r_mpfi_is_nonpos (VALUE self)
   }
 }
 
+/* Return true if mpfi_is_zero(self) > 0. Otherwise, nil. */
 static VALUE r_mpfi_is_zero (VALUE self)
 {
   MPFI *ptr_self;
@@ -521,6 +551,7 @@ static VALUE r_mpfi_is_zero (VALUE self)
   }
 }
 
+/* Return true if mpfi_has_zero(self) > 0. Otherwise, nil. */
 static VALUE r_mpfi_has_zero (VALUE self)
 {
   MPFI *ptr_self;
@@ -532,6 +563,7 @@ static VALUE r_mpfi_has_zero (VALUE self)
   }
 }
 
+/* Return true if mpfi_nan_p(self) != 0. Otherwise, nil. */
 static VALUE r_mpfi_nan_p (VALUE self)
 {
   MPFI *ptr_self;
@@ -543,6 +575,7 @@ static VALUE r_mpfi_nan_p (VALUE self)
   }
 }
 
+/* Return true if mpfi_inf_p(self) != 0. Otherwise, nil. */
 static VALUE r_mpfi_inf_p (VALUE self)
 {
   MPFI *ptr_self;
@@ -554,6 +587,7 @@ static VALUE r_mpfi_inf_p (VALUE self)
   }
 }
 
+/* Return true if mpfi_bounded_p(self) != 0. Otherwise, nil. */
 static VALUE r_mpfi_bounded_p (VALUE self)
 {
   MPFI *ptr_self;
@@ -586,6 +620,7 @@ static VALUE r_mpfi_equal_p (VALUE self, VALUE other)
 
 /* ------------------------------ Interval Functions with Floating-point Results start ------------------------------ */
 
+/* mpfi_diam_abs(ret, self) */
 static VALUE r_mpfi_diam_abs (int argc, VALUE *argv, VALUE self)
 {
   MPFI *ptr_self;
@@ -597,6 +632,7 @@ static VALUE r_mpfi_diam_abs (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpfi_diam_rel(ret, self) */
 static VALUE r_mpfi_diam_rel (int argc, VALUE *argv, VALUE self)
 {
   MPFI *ptr_self;
@@ -608,6 +644,7 @@ static VALUE r_mpfi_diam_rel (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpfi_diam(ret, self) */
 static VALUE r_mpfi_diam (int argc, VALUE *argv, VALUE self)
 {
   MPFI *ptr_self;
@@ -619,6 +656,7 @@ static VALUE r_mpfi_diam (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpfi_mag(ret, self) */
 static VALUE r_mpfi_mag (int argc, VALUE *argv, VALUE self)
 {
   MPFI *ptr_self;
@@ -630,6 +668,7 @@ static VALUE r_mpfi_mag (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpfi_mig(ret, self) */
 static VALUE r_mpfi_mig (int argc, VALUE *argv, VALUE self)
 {
   MPFI *ptr_self;
@@ -641,6 +680,7 @@ static VALUE r_mpfi_mig (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpfi_mid(ret, self) */
 static VALUE r_mpfi_mid (int argc, VALUE *argv, VALUE self)
 {
   MPFI *ptr_self;
@@ -652,6 +692,7 @@ static VALUE r_mpfi_mid (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* Return MPFI instance of which value is middle of self. */
 static VALUE r_mpfi_mid_interval (int argc, VALUE *argv, VALUE self)
 {
   MPFI *ptr_self, *ptr_ret;
@@ -662,6 +703,7 @@ static VALUE r_mpfi_mid_interval (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpfi_alea(ret, self) */
 static VALUE r_mpfi_alea (int argc, VALUE *argv, VALUE self)
 {
   MPFI *ptr_self;
@@ -677,6 +719,7 @@ static VALUE r_mpfi_alea (int argc, VALUE *argv, VALUE self)
 
 /* ------------------------------ Conversion Functions start ------------------------------ */
 
+/* Return float by mpfi_get_d(self). */
 static VALUE r_mpfi_get_d(VALUE self)
 {
   MPFI *ptr_self;
@@ -684,6 +727,7 @@ static VALUE r_mpfi_get_d(VALUE self)
   return rb_float_new(mpfi_get_d(ptr_self));
 }
 
+/* Return MPFR by mpfi_get_fr(ret, self). */
 static VALUE r_mpfi_get_fr(VALUE self)
 {
   MPFI *ptr_self;
@@ -698,6 +742,7 @@ static VALUE r_mpfi_get_fr(VALUE self)
 
 /* ------------------------------ Functions Operating on Endpoints start ------------------------------ */
 
+/* mpfi_get_left(ret, self) */
 static VALUE r_mpfi_get_left (VALUE self)
 {
   VALUE val_ret;
@@ -709,6 +754,7 @@ static VALUE r_mpfi_get_left (VALUE self)
   return val_ret;
 }
 
+/* mpfi_get_right(ret, self) */
 static VALUE r_mpfi_get_right (VALUE self)
 {
   VALUE val_ret;
@@ -720,6 +766,7 @@ static VALUE r_mpfi_get_right (VALUE self)
   return val_ret;
 }
 
+/* Return true if mpfi_revert_if_needed(self) != 0. Otherwise, nil. */
 static VALUE r_mpfi_revert_if_needed (VALUE self)
 {
   MPFI *ptr_self;
@@ -731,6 +778,7 @@ static VALUE r_mpfi_revert_if_needed (VALUE self)
   };
 }
 
+/* Extend the interval so that it contains other. */
 static VALUE r_mpfi_put (VALUE self, VALUE other)
 {
   MPFI *ptr_self;
@@ -757,6 +805,7 @@ static VALUE r_mpfi_put (VALUE self, VALUE other)
   return self;
 }
 
+/* Change two endpoints so that it are the same as a1 and a2. */
 static VALUE r_mpfi_interv (VALUE self, VALUE a1, VALUE a2)
 {
   MPFI *ptr_self;
@@ -782,6 +831,7 @@ static VALUE r_mpfi_interv (VALUE self, VALUE a1, VALUE a2)
   return self;  
 }
 
+/* Return new MPFI of which endpoints are the same as p1 and p2. */
 static VALUE r_mpfi_interval (int argc, VALUE *argv, VALUE self)
 {
   VALUE val_ret;
@@ -813,6 +863,7 @@ static VALUE r_mpfi_interval (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* Return array having two MPFR numbers which are endpoints. */
 static VALUE r_mpfi_endpoints (VALUE self)
 {
   VALUE val_left, val_right;
@@ -874,6 +925,7 @@ static VALUE r_mpfi_include (VALUE self, VALUE other)
   }
 }
 
+/* Return true if mpfi_is_empty(self) > 0. Otherwise, nil. */
 static VALUE r_mpfi_is_empty (VALUE self)
 {
   MPFI *ptr_self;
@@ -885,8 +937,10 @@ static VALUE r_mpfi_is_empty (VALUE self)
   }
 }
 
-/* If the intersection of two intervals is empty, this method returns nil.
-   Otherwise, it returns the intersection. */
+/*
+  If the intersection of two intervals is empty, this method returns nil.
+  Otherwise, it returns the intersection.
+*/
 static VALUE r_mpfi_intersect (int argc, VALUE *argv, VALUE self)
 {
   MPFI *ptr_self, *ptr_a0, *ptr_ret;
@@ -902,8 +956,10 @@ static VALUE r_mpfi_intersect (int argc, VALUE *argv, VALUE self)
   }
 }
 
-/* This method returns the intersection of two intervals.
-   The returned value may be empty interval. */
+/*
+  This method returns the intersection of two intervals.
+  The returned value may be empty interval.
+*/
 static VALUE r_mpfi_intersect2 (int argc, VALUE *argv, VALUE self)
 {
   MPFI *ptr_self, *ptr_a0, *ptr_ret;
@@ -915,6 +971,7 @@ static VALUE r_mpfi_intersect2 (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* mpfi_union(ret, self, p1) */
 static VALUE r_mpfi_union (int argc, VALUE *argv, VALUE self)
 {
   MPFI *ptr_self, *ptr_a0, *ptr_ret;
@@ -930,6 +987,7 @@ static VALUE r_mpfi_union (int argc, VALUE *argv, VALUE self)
 
 /* ------------------------------ Miscellaneous Interval Functions start ------------------------------ */
 
+/* mpfi_increase(self, p1) */
 static VALUE r_mpfi_increase (VALUE self, VALUE a0)
 {
   MPFI *ptr_self;
@@ -941,6 +999,7 @@ static VALUE r_mpfi_increase (VALUE self, VALUE a0)
   return self;
 }
 
+/* mpfi_blow(ret, self, p1) */
 static VALUE r_mpfi_blow (int argc, VALUE *argv, VALUE self)
 {
   MPFI *ptr_self, *ptr_ret;
@@ -951,6 +1010,7 @@ static VALUE r_mpfi_blow (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* Return array [ret1, ret2] by mpfi_bisect(ret1, ret2, self). */
 static VALUE r_mpfi_bisect (int argc, VALUE *argv, VALUE self)
 {
   MPFI *ptr_self, *ptr_ret1, *ptr_ret2;
@@ -994,6 +1054,7 @@ void r_mpfi_subdivision_func(int num, MPFI *ret[], mpfi_t x)
   mpfr_clear(l);
 }
 
+/* Return array having MPFI instances by subdividing. */
 static VALUE r_mpfi_subdivision (int argc, VALUE *argv, VALUE self)
 {
   MPFI *ptr_self;
@@ -1012,6 +1073,7 @@ static VALUE r_mpfi_subdivision (int argc, VALUE *argv, VALUE self)
 
 /* ------------------------------ Mathematical Basic Arithmetic Functions start ------------------------------ */
 
+/* Addition. */
 static VALUE r_mpfi_math_add (int argc, VALUE *argv, VALUE self)
 {
   VALUE val_ret;
@@ -1040,6 +1102,7 @@ static VALUE r_mpfi_math_add (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* Subtraction. */
 static VALUE r_mpfi_math_sub (int argc, VALUE *argv, VALUE self)
 {
   VALUE val_ret;
@@ -1068,6 +1131,7 @@ static VALUE r_mpfi_math_sub (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* Multiplication. */
 static VALUE r_mpfi_math_mul (int argc, VALUE *argv, VALUE self)
 {
   VALUE val_ret;
@@ -1096,6 +1160,7 @@ static VALUE r_mpfi_math_mul (int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* Division. */
 static VALUE r_mpfi_math_div (int argc, VALUE *argv, VALUE self)
 {
   VALUE val_ret;

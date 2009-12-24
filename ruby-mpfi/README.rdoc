@@ -3,26 +3,28 @@
 * http://rubyforge.org/projects/ruby-mpfr/
 * http://gemcutter.org/gems/ruby-mpfi/
 
-== DESCRIPTION:
+== Description:
 
-FIX (describe your package)
+ruby-mpfi is an extended C library to use MPFI[http://gforge.inria.fr/projects/mpfi/]
+which is the library of the interval arithmetic with multiprecision.
 
-== FEATURES/PROBLEMS:
+== Notice:
 
-* FIX (list of features or problems)
-
-== SYNOPSIS:
-
-  FIX (code sample of usage)
+* Many methods have not been tested sufficiently.
+* Documentation is not complete.
 
 == Requirements:
 
-* MPFR
-* MPFI
+* Ruby[http://www.ruby-lang.org/] 1.9.1 or later
+* MPFR[http://www.mpfr.org/] 2.4.1 or later
+* MPFI[http://gforge.inria.fr/projects/mpfi/] 1.3.4 or later
 * ruby-mpfr
 
 == Install:
-
+The package of rubygems of ruby-mpfr is provided.
+You can install ruby-mpfr with the following command
+in the system satisfying the above requirements.
+ 
  $ sudo gem install ruby-mpfi
 
 == License:

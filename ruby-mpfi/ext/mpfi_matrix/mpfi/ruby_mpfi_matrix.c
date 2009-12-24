@@ -365,7 +365,7 @@ static VALUE r_mpfi_matrix_each_element_with_index (VALUE self){
   return ret;
 }
 
-/* Return array which has strings converted elements to. */
+/* Return one dimensinal array which has strings converted elements to. */
 static VALUE r_mpfi_matrix_str_ary_for_inspect(VALUE self){
   MPFIMatrix *ptr_self;
   r_mpfi_get_matrix_struct(ptr_self, self);
@@ -381,6 +381,7 @@ static VALUE r_mpfi_matrix_str_ary_for_inspect(VALUE self){
   return rb_ary_new4(ptr_self->size, ret_val);
 }
 
+/* Return two dimensinal array which has strings converted elements to. */
 static VALUE r_mpfi_matrix_str_ary_for_inspect2(VALUE self){
   MPFIMatrix *ptr_self;
   r_mpfi_get_matrix_struct(ptr_self, self);

@@ -5,7 +5,7 @@
 
 == Description:
 
-ruby-mpfr is library to use MPFR[http://www.mpfr.org/] which is a C library for
+ruby-mpfr is a library to use MPFR[http://www.mpfr.org/] which is a C library for
 multiple-precision floating-point computations.
 ruby-mpfr also includes Matrix class of MPFR; MPFR::Matrix, MPFR::SquareMatrix,
 MPFR::ColumnVector, and MPFR::RowVector.
@@ -25,6 +25,7 @@ MPFR::ColumnVector, and MPFR::RowVector.
 
 == Requirements:
 
+* Ruby[http://www.ruby-lang.org/] 1.9.1 or later
 * MPFR[http://www.mpfr.org/] 2.4.1 or later
 
 For Ubuntu 9.10, we can install MPFR with the following command.

@@ -34,6 +34,7 @@ describe MPFR, 'when getting rounding mode' do
         check_set_rnd(rnds[i], rnds[j])
       end
     end
+    MPFR.set_default_rounding_mode(MPFR::RNDN)
   end
 end
 

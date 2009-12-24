@@ -37,9 +37,9 @@ describe MPFR::Matrix, "when arithmetic operator applies to 2x3 matrixies" do
   it "should be subtracted" do
     @args.each_index do |i|
       if i > 0
-        res = @args[i-1] + @args[i]
+        res = @args[i-1] - @args[i]
         (0...@row).each do |j|
-          (0...@column).each { |k| res[j, k].should eql(@args[i-1][j, k] + @args[i][j, k]) }
+          (0...@column).each { |k| res[j, k].should eql(@args[i-1][j, k] - @args[i][j, k]) }
         end
       end
     end
