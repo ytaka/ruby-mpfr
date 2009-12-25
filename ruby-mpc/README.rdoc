@@ -13,6 +13,18 @@ which is the library of the arithmetic of complex numbers with multiprecision.
 * Many methods have not been tested sufficiently.
 * Documentation is not complete.
 
+== Example:
+You must require 'mpfr' to use 'mpc'.
+
+ require "mpfr"
+ require "mpc"
+ MPFR.get_default_prec(100)
+ a = MPC(-8, -2)
+ b = MPC(0.3, 4.2)
+ c = a / b
+ puts c.imag.to_strf("%.30Re")
+ puts c.real.to_strf("%.30Re")
+
 == Requirements:
 
 * Ruby[http://www.ruby-lang.org/] 1.9.1 or later

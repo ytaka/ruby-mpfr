@@ -13,6 +13,17 @@ which is the library of the interval arithmetic with multiprecision.
 * Many methods have not been tested sufficiently.
 * Documentation is not complete.
 
+== Example:
+You must require 'mpfr' to use 'mpfi'.
+
+ require "mpfr"
+ require "mpfi"
+ MPFR.set_default_prec(100)
+ a = MPFI(-5)
+ b = MPFI(3.4)
+ c = a - b
+
+
 == Requirements:
 
 * Ruby[http://www.ruby-lang.org/] 1.9.1 or later
