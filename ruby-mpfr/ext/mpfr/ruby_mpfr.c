@@ -55,7 +55,7 @@ mp_rnd_t r_mpfr_prec_from_optional_argument(int min, int max, int argc, VALUE *a
 /* min is a minimum number of arguments. */
 /* max is a maximum number of arguments. */
 void r_mpfr_get_rnd_prec_from_optional_arguments(mp_rnd_t *rnd, mp_prec_t *prec, int min, int max,
-							int argc, VALUE *argv)
+						 int argc, VALUE *argv)
 {
   if(argc >= min && argc <= max){
     if(argc >= max - 1){
@@ -1630,7 +1630,7 @@ static VALUE r_mpfr_prec_round2(int argc, VALUE *argv, VALUE self)
   in MPFR library to class variable of class MPFR.
   This method returns that class variable meaning the returned value of Special Functions in MPFR library.
   See the MPFR reference for the kind of Special Functions and the meaning of the returned value of Special Functions.
- */
+*/
 static VALUE r_mpfr_get_special_func_state(VALUE self)
 {
   return rb_cv_get(r_mpfr_class, SPECIAL_FUNC_STATE);
@@ -2760,10 +2760,10 @@ void Init_mpfr()
     That is, You may call MPFR::Math.some_method(some_required_args, rnd, prec) and
     last two arguments rnd and prec could be omitted.
     The methods collected in this module works as the following imitational C code.
-     mpfr_t returned_val;
-     mpfr_init2(returned_val, prec);
-     mpfr_some_func(returned_val, p1, ..., pn, rnd);
-     return returned_val;
+    mpfr_t returned_val;
+    mpfr_init2(returned_val, prec);
+    mpfr_some_func(returned_val, p1, ..., pn, rnd);
+    return returned_val;
     The returned value of mpfr_some_func is saved and if you want to get this value
     then you may use MPFR.get_special_func_state.
   */
