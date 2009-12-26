@@ -10,18 +10,13 @@ multiple-precision floating-point computations.
 ruby-mpfr also includes Matrix class of MPFR; MPFR::Matrix, MPFR::SquareMatrix,
 MPFR::ColumnVector, and MPFR::RowVector.
 
+* History[link:History_txt.html]
+* {Examples of Usage}[link:Example_rdoc.html]
+
 == Notice:
 
 * Many methods have not been tested sufficiently.
 * Documentation is not complete.
-
-== Example:
-
- require "mpfr"
- MPFR.set_default_prec(100)
- a = MPFR(3)
- b = MPFR('2.2')
- puts (a * b).to_strf("%.30Re")
 
 == Requirements:
 

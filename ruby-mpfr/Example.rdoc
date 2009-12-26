@@ -1,0 +1,63 @@
+= Examples
+
+== Example 1: Initialization
+You must require 'mpfr' to use MPFR.
+And you set the default precision by MPFR.set_default_prec.
+To make an instance of MPFR, you can use MPFR.new or MPFR methods.
+MPFR.new and MPFR have the same arguments.
+First argument is a number which is Fixnum, Bignum, Float, String, or MPFR.
+The following two optional arguments are rounding mode and precision.
+
+ require "mpfr"
+ MPFR.set_default_prec(100)
+ 
+ a = MPFR(3.3)       # or MPFR.new(3.3)
+ b = MPFR('2.2')     # or MPFR.new('2.2')
+ puts (a + b).to_s   # => 5.4999999999999998223643160599724e+00
+ puts (a - b).to_s   # => 1.0999999999999998223643160599743e+00
+ puts (a * b).to_s   # => 7.2599999999999996092014953319487e+00
+ puts (a / b).to_s   # => 1.4999999999999999192565072999879e+00
+ 
+ c = MPFR('4.321', MPFR::RNDU)
+ d = MPFR('4.321', MPFR::RNDD)
+ c > d    # => true
+ 
+ e = MPFR('4.321', MPFR::RNDN, 256)
+ e.prec   # => 256
+ d.prec   # => 100
+
+== Example 2: Convertion to String
+You can use MPFR#to_s and MPFR#to_strf to convert
+an instance of MPFR to String.
+These methods use function mpfr_asprintf.
+MPFR#to_s convert an instance to string by mpfr_asprintf(str, "%.Re", self);
+If you execute MPFR#to_strf(format), you get string converted
+by mpfr_asprintf(str, format, self);
+
+ require "mpfr"
+ MPFR.set_default_prec(128)
+ 
+ a = MPFR('0.3')
+ puts a.to_s              # => 3.000000000000000000000000000000000000006e-01
+ puts a.to_strf("%.20Re") # => 3.00000000000000000000e-01
+ puts a.to_strf("%.20RE") # => 3.00000000000000000000E-01
+ puts a.to_strf("%.20Rf") # => 0.30000000000000000000
+
+== Example 3: Special Functions
+Special functions of MPFR is collected in MPFR::Math.
+MPFR::Math.func corresponds to mpfr_func in C language.
+For example, you can use MPFR::Math.log to use mpfr_log.
+Method of MPFR::Math is two optional arguments; rounding mode and percision.
+
+ require "mpfr"
+ MPFR.set_default_prec(128)
+ 
+ MPFR::Math.log('0.3') # => -1.203972804325935992622746217761838502954e+00
+ MPFR::Math.sin(1.23)  # => 9.424888019316975040865688397571963882576e-01
+ 
+ a = MPFR::Math.sin(1.23, MPFR::RNDU) # => 9.424888019316975040865688397571963882576e-01
+ b = MPFR::Math.sin(1.23, MPFR::RNDD) # => 9.424888019316975040865688397571963882547e-01
+ a > b   # => true
+ 
+ e = MPFR::Math.sin(1.23, MPFR::RNDD, 256)
+ e.get_prec   # => 256

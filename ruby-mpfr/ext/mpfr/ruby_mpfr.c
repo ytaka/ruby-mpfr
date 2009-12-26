@@ -82,7 +82,7 @@ static VALUE r_mpfr_set_default_prec(VALUE self, VALUE prec)
     rb_raise(rb_eRangeError, "Argument must be positive.");
   }
   mpfr_set_default_prec(set_prec);
-  return INT2FIX(mpf_get_default_prec());
+  return INT2FIX(mpfr_get_default_prec());
 }
 
 /* Return the default MPFR precision in bits. */
