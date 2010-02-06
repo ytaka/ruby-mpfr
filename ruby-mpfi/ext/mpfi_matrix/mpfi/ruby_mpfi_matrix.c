@@ -90,7 +90,7 @@ static VALUE r_mpfi_matrix_global_new(int argc, VALUE *argv, VALUE self)
 {
   MPFIMatrix *ptr;
   VALUE val;
-  r_mpfi_make_matrix_struct(val, ptr);
+  r_mpfi_make_col_vector_struct(val, ptr);
   r_mpfi_matrix_set_initial_value(ptr, argc, argv);
   return val;
 }
@@ -149,7 +149,7 @@ static VALUE r_mpfi_square_matrix_global_new(int argc, VALUE arg)
 {
   MPFIMatrix *ptr;
   VALUE val;
-  r_mpfi_make_matrix_struct(val, ptr);
+  r_mpfi_make_square_matrix_struct(val, ptr);
   r_mpfi_square_matrix_set_initial_value(ptr, arg);
   return val;
 }
@@ -257,7 +257,7 @@ static VALUE r_mpfi_row_vector_global_new(int argc, VALUE arg)
 {
   MPFIMatrix *ptr;
   VALUE val;
-  r_mpfi_make_matrix_struct(val, ptr);
+  r_mpfi_make_row_vector_struct(val, ptr);
   r_mpfi_row_vector_set_initial_value(ptr, arg);
   return val;
 }

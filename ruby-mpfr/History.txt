@@ -1,3 +1,7 @@
+=== 0.0.7
+* 1 bug fix:
+  * Fix bugs of Methods MPFR::SquareMatrix, MPFR::ColumnVector, and MPFR::RowVector.
+
 === 0.0.6 2009-12-26
 * 1 minor enhancement:
   * Add documents of MPFR.

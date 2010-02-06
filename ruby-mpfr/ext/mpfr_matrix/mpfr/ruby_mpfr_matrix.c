@@ -101,7 +101,7 @@ static VALUE r_mpfr_matrix_global_new(int argc, VALUE *argv, VALUE self)
 /*
   Initialization function for MPFR::Matrix.
   If this method gets one argument which is two dimensional Array,
-  it returns MPFR::Matrix instance of which size is same as the array.
+  it returns MPFR::Matrix instance of which size is the same as the two dimensional array.
   Getting two argument integers (i, j), it returns MPFR::Matrix instance of which
   size is (i x j).
 */
@@ -160,7 +160,7 @@ static VALUE r_mpfr_square_matrix_global_new(int argc, VALUE arg)
 {
   MPFRMatrix *ptr;
   VALUE val;
-  r_mpfr_make_matrix_struct(val, ptr);
+  r_mpfr_make_square_matrix_struct(val, ptr);
   r_mpfr_square_matrix_set_initial_value(ptr, arg);
   return val;
 }
@@ -222,7 +222,7 @@ static VALUE r_mpfr_col_vector_global_new(VALUE self, VALUE arg)
 {
   MPFRMatrix *ptr;
   VALUE val;
-  r_mpfr_make_matrix_struct(val, ptr);
+  r_mpfr_make_col_vector_struct(val, ptr);
   r_mpfr_col_vector_set_initial_value(ptr, arg);
   return val;
 }
@@ -273,7 +273,7 @@ static VALUE r_mpfr_row_vector_global_new(int argc, VALUE arg)
 {
   MPFRMatrix *ptr;
   VALUE val;
-  r_mpfr_make_matrix_struct(val, ptr);
+  r_mpfr_make_row_struct(val, ptr);
   r_mpfr_row_vector_set_initial_value(ptr, arg);
   return val;
 }
