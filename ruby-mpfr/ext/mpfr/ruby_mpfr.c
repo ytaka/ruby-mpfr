@@ -456,6 +456,21 @@ static VALUE r_mpfr_nan(int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* Return zero. This method takes one optional argument meaning precision. */
+static VALUE r_mpfr_zero(int argc, VALUE *argv, VALUE self)
+{
+  mp_prec_t prec = r_mpfr_prec_from_optional_argument(0, 2, argc, argv);
+  MPFR *ptr_return;
+  VALUE val_ret;
+  int sign = 1;
+  if (argc >= 1) {
+    sign = NUM2INT(argv[0]);
+  }
+  r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
+  mpfr_set_zero(ptr_return, sign);
+  return val_ret;
+}
+
 /* Return plus infinity. This method takes one optional argument meaning precision. */
 static VALUE r_mpfr_pinf(int argc, VALUE *argv, VALUE self)
 {
@@ -540,6 +555,21 @@ static VALUE r_mpfr_set_nan(VALUE self)
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   mpfr_set_nan(ptr_self);
+  return self;
+}
+
+/* Set the value of self to zero. */
+static VALUE r_mpfr_set_zero(int argc, VALUE *argv, VALUE self)
+{
+  int sign = 1;
+  MPFR *ptr_self;
+  r_mpfr_get_struct(ptr_self, self);
+  if (argc == 1) {
+    sign = NUM2INT(argv[0]);
+  } else if (argc > 1) {
+    rb_raise(rb_eArgError, "Invalid number of arguments.");
+  }
+  mpfr_set_zero(ptr_self, sign);
   return self;
 }
 
@@ -2666,6 +2696,7 @@ void Init_mpfr()
   rb_define_method(r_mpfr_class, "coerce", r_mpfr_coerce, 1);
 
   rb_define_singleton_method(r_mpfr_class, "nan", r_mpfr_nan, -1);
+  rb_define_singleton_method(r_mpfr_class, "zero", r_mpfr_zero, -1);
   rb_define_singleton_method(r_mpfr_class, "pinf", r_mpfr_pinf, -1);
   rb_define_singleton_method(r_mpfr_class, "minf", r_mpfr_minf, -1);
 
@@ -2679,6 +2710,7 @@ void Init_mpfr()
   rb_define_method(r_mpfr_class, "set_fixnum_2exp", r_mpfr_set_fixnum_2exp, -1);
   rb_define_method(r_mpfr_class, "set_inf", r_mpfr_set_inf, 1);
   rb_define_method(r_mpfr_class, "set_nan", r_mpfr_set_nan, 0);
+  rb_define_method(r_mpfr_class, "set_zero", r_mpfr_set_zero, -1);
   rb_define_method(r_mpfr_class, "swap", r_mpfr_swap, 1);
 
   /* ------------------------------ Assignment Functions End ------------------------------ */
@@ -2915,3 +2947,4 @@ void Init_mpfr()
   __sym_to_str__ = rb_eval_string(":to_str");
 
 }
+
