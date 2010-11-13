@@ -2010,6 +2010,51 @@ static VALUE r_mpfr_math_sinh_cosh(int argc, VALUE *argv, VALUE self)
   return rb_ary_new3(2, val_ret1, val_ret2);
 }
 
+/* mpfr_sech(ret, p1, rnd). */
+static VALUE r_mpfr_math_sech(int argc, VALUE *argv, VALUE self)
+{
+  mp_rnd_t rnd;
+  mp_prec_t prec;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  MPFR *ptr_arg1, *ptr_return;
+  VALUE val_ret;
+  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  r_mpfr_get_struct(ptr_arg1, tmp_argv0);
+  r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
+  r_mpfr_set_special_func_state(mpfr_sech(ptr_return, ptr_arg1, rnd));
+  return val_ret;
+}
+
+/* mpfr_csch(ret, p1, rnd). */
+static VALUE r_mpfr_math_csch(int argc, VALUE *argv, VALUE self)
+{
+  mp_rnd_t rnd;
+  mp_prec_t prec;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  MPFR *ptr_arg1, *ptr_return;
+  VALUE val_ret;
+  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  r_mpfr_get_struct(ptr_arg1, tmp_argv0);
+  r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
+  r_mpfr_set_special_func_state(mpfr_csch(ptr_return, ptr_arg1, rnd));
+  return val_ret;
+}
+
+/* mpfr_coth(ret, p1, rnd). */
+static VALUE r_mpfr_math_coth(int argc, VALUE *argv, VALUE self)
+{
+  mp_rnd_t rnd;
+  mp_prec_t prec;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  MPFR *ptr_arg1, *ptr_return;
+  VALUE val_ret;
+  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  r_mpfr_get_struct(ptr_arg1, tmp_argv0);
+  r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
+  r_mpfr_set_special_func_state(mpfr_coth(ptr_return, ptr_arg1, rnd));
+  return val_ret;
+}
+
 /* mpfr_acosh(ret, p1, rnd). */
 static VALUE r_mpfr_math_acosh(int argc, VALUE *argv, VALUE self)
 {
@@ -2893,6 +2938,9 @@ void Init_mpfr()
   rb_define_module_function(r_mpfr_math, "sinh", r_mpfr_math_sinh, -1);
   rb_define_module_function(r_mpfr_math, "tanh", r_mpfr_math_tanh, -1);
   rb_define_module_function(r_mpfr_math, "sinh_cosh", r_mpfr_math_sinh_cosh, -1);
+  rb_define_module_function(r_mpfr_math, "sech", r_mpfr_math_sech, -1);
+  rb_define_module_function(r_mpfr_math, "csch", r_mpfr_math_csch, -1);
+  rb_define_module_function(r_mpfr_math, "coth", r_mpfr_math_coth, -1);
   rb_define_module_function(r_mpfr_math, "acosh", r_mpfr_math_acosh, -1);
   rb_define_module_function(r_mpfr_math, "asinh", r_mpfr_math_asinh, -1);
   rb_define_module_function(r_mpfr_math, "atanh", r_mpfr_math_atanh, -1);
