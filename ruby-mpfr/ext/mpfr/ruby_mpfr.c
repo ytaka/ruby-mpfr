@@ -4,7 +4,7 @@ static ID eqq, to_s, new, class, method_defined, object_id;
 static VALUE __mpfr_class__, __sym_to_s__, __sym_to_str__;
 
 /* ------------------------------ Precision and Rounding Mode Start ------------------------------ */
-#define VALID_RND(rnd) (rnd >= 0 && rnd <= 3)
+#define VALID_RND(rnd_mode) (rnd_mode >= MPFR_RNDN && rnd_mode < ((MPFR_RNDA)+1))
 #define SPECIAL_FUNC_STATE "@@special_func_state"
 
 /* Convert VALUE rnd (rounding mode number) to C integer and */
@@ -2465,6 +2465,29 @@ static VALUE r_mpfr_math_max(int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
+/* Version string which mpfr_get_version() returns. */
+static VALUE r_mpfr_get_version(VALUE self)
+{
+  return rb_str_new2(mpfr_get_version());
+}
+
+/* String which mpfr_get_patches() returns. */
+static VALUE r_mpfr_get_patches(VALUE self)
+{
+  return rb_str_new2(mpfr_get_patches());
+}
+
+/* Return true if MPFR was compiled as thread safe using compiler-level Thread Local Storage. Otherwise, nil. */
+static VALUE r_mpfr_buildopt_tls_p(VALUE self)
+{
+  return mpfr_buildopt_tls_p() == 0 ? Qnil : Qtrue;
+}
+
+/* Return true if MPFR was compiled with decimal float support. Otherwise, nil. */
+static VALUE r_mpfr_buildopt_decimal_p(VALUE self)
+{
+  return mpfr_buildopt_decimal_p() == 0 ? Qnil : Qtrue;
+}
 
 
 void Init_mpfr()
@@ -2535,12 +2558,8 @@ void Init_mpfr()
 
   /* ------------------------------ Constants Start ------------------------------ */
 
-  /* Version string which mpfr_get_version() returns. */
-  rb_define_const(r_mpfr_class, "MPFR_VERSION", rb_str_new2(mpfr_get_version()));
-  /* String which mpfr_get_patches() returns. */
-  rb_define_const(r_mpfr_class, "MPFR_PATCHES", rb_str_new2(mpfr_get_patches()));
   /* Integer that is macro MPFR_VERSION. */
-  rb_define_const(r_mpfr_class, "MPFR_VERSION2", INT2NUM(MPFR_VERSION));
+  rb_define_const(r_mpfr_class, "MPFR_VERSION", INT2NUM(MPFR_VERSION));
   /* Integer that is macro MPFR_VERSION_MAJOR. */
   rb_define_const(r_mpfr_class, "MPFR_VERSION_MAJOR", INT2NUM(MPFR_VERSION_MAJOR));
   /* Integer that is macro MPFR_VERSION_MINOR. */
@@ -2571,6 +2590,11 @@ void Init_mpfr()
   rb_define_const(r_mpfr_class, "RNDA", INT2NUM(MPFR_RNDA));
 
   /* ------------------------------ Constants End ------------------------------ */
+
+  rb_define_singleton_method(r_mpfr_class, "get_version", r_mpfr_get_version, 0);
+  rb_define_singleton_method(r_mpfr_class, "get_patches", r_mpfr_get_patches, 0);
+  rb_define_singleton_method(r_mpfr_class, "buildopt_tls?", r_mpfr_buildopt_tls_p, 0);
+  rb_define_singleton_method(r_mpfr_class, "buildopt_decimal?", r_mpfr_buildopt_decimal_p, 0);
 
   /* ------------------------------ Precision and Rounding Mode Start ------------------------------ */
 
