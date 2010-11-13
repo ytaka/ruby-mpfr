@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/spec_helper.rb'
+require File.expand_path(File.dirname(__FILE__)) + '/spec_helper.rb'
 
 describe MPFR::Matrix, "when setting number to particular element" do
   before(:all) do

@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/spec_helper.rb'
+require File.expand_path(File.dirname(__FILE__)) + '/spec_helper.rb'
 
 describe MPFR::Matrix, "when MPFR instance is converted to string by some methods." do
   
