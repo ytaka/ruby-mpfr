@@ -2539,34 +2539,36 @@ void Init_mpfr()
   rb_define_const(r_mpfr_class, "MPFR_VERSION", rb_str_new2(mpfr_get_version()));
   /* String which mpfr_get_patches() returns. */
   rb_define_const(r_mpfr_class, "MPFR_PATCHES", rb_str_new2(mpfr_get_patches()));
-  /* Integer which is macro MPFR_VERSION. */
+  /* Integer that is macro MPFR_VERSION. */
   rb_define_const(r_mpfr_class, "MPFR_VERSION2", INT2NUM(MPFR_VERSION));
-  /* Integer which is macro MPFR_VERSION_MAJOR. */
+  /* Integer that is macro MPFR_VERSION_MAJOR. */
   rb_define_const(r_mpfr_class, "MPFR_VERSION_MAJOR", INT2NUM(MPFR_VERSION_MAJOR));
-  /* Integer which is macro MPFR_VERSION_MINOR. */
+  /* Integer that is macro MPFR_VERSION_MINOR. */
   rb_define_const(r_mpfr_class, "MPFR_VERSION_MINOR", INT2NUM(MPFR_VERSION_MINOR));
-  /* Integer which is macro MPFR_VERSION_PATCHLEVEL. */
+  /* Integer that is macro MPFR_VERSION_PATCHLEVEL. */
   rb_define_const(r_mpfr_class, "MPFR_VERSION_PATCHLEVEL", INT2NUM(MPFR_VERSION_PATCHLEVEL));
-  /* String whichi is macro MPFR_VERSION_STRING. */
+  /* String that is macro MPFR_VERSION_STRING. */
   rb_define_const(r_mpfr_class, "MPFR_VERSION_STRING", rb_str_new2(MPFR_VERSION_STRING));
 
-  /* Integer which is macro MPFR_PREC_MAX. */
+  /* Integer that is macro MPFR_PREC_MAX. */
   rb_define_const(r_mpfr_class, "PREC_MAX", INT2NUM(MPFR_PREC_MAX));
-  /* Integer which is macro MPFR_PREC_MIN. */
+  /* Integer that is macro MPFR_PREC_MIN. */
   rb_define_const(r_mpfr_class, "PREC_MIN", INT2NUM(MPFR_PREC_MIN));
-  /* Integer which is macro MPFR_EMAX_DEFAULT. */
+  /* Integer that is macro MPFR_EMAX_DEFAULT. */
   rb_define_const(r_mpfr_class, "EMAX_DEFAULT", INT2NUM(MPFR_EMAX_DEFAULT));
   /* Integer whichi is MPFR_EMIN_DEFAULT. */
   rb_define_const(r_mpfr_class, "EMIN_DEFAULT", INT2NUM(MPFR_EMIN_DEFAULT));
 
-  /* Integer which is macro GMP_RNDN. */
-  rb_define_const(r_mpfr_class, "RNDN", INT2NUM(GMP_RNDN));
-  /* Integer which is macro GMP_RNDZ. */
-  rb_define_const(r_mpfr_class, "RNDZ", INT2NUM(GMP_RNDZ));
-  /* Integer which is macro GMP_RNDU. */
-  rb_define_const(r_mpfr_class, "RNDU", INT2NUM(GMP_RNDU));
-  /* Integer which is macro GMP_RNDD. */
-  rb_define_const(r_mpfr_class, "RNDD", INT2NUM(GMP_RNDD));
+  /* Integer that is macro MPFR_RNDN. */
+  rb_define_const(r_mpfr_class, "RNDN", INT2NUM(MPFR_RNDN));
+  /* Integer that is macro MPFR_RNDZ. */
+  rb_define_const(r_mpfr_class, "RNDZ", INT2NUM(MPFR_RNDZ));
+  /* Integer that is macro MPFR_RNDU. */
+  rb_define_const(r_mpfr_class, "RNDU", INT2NUM(MPFR_RNDU));
+  /* Integer that is macro MPFR_RNDD. */
+  rb_define_const(r_mpfr_class, "RNDD", INT2NUM(MPFR_RNDD));
+  /* Integer that is macro MPFR_RNDD. */
+  rb_define_const(r_mpfr_class, "RNDA", INT2NUM(MPFR_RNDA));
 
   /* ------------------------------ Constants End ------------------------------ */
 
