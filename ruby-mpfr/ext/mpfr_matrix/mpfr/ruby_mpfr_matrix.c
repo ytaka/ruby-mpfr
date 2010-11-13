@@ -273,7 +273,7 @@ static VALUE r_mpfr_row_vector_global_new(int argc, VALUE arg)
 {
   MPFRMatrix *ptr;
   VALUE val;
-  r_mpfr_make_row_struct(val, ptr);
+  r_mpfr_make_row_vector_struct(val, ptr);
   r_mpfr_row_vector_set_initial_value(ptr, arg);
   return val;
 }
