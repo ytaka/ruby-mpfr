@@ -1227,6 +1227,14 @@ static VALUE r_mpfr_nonzero_p(VALUE self)
   return (mpfr_zero_p(ptr_self) == 0 ? Qtrue : Qfalse);
 }
 
+/* Return true if self is regular number, nil otherwise. */
+static VALUE r_mpfr_regular_p(VALUE self)
+{
+  MPFR *ptr_self;
+  r_mpfr_get_struct(ptr_self, self);
+  return (mpfr_regular_p(ptr_self) != 0 ? Qtrue : Qfalse);
+}
+
 /* mpfr_sgn(self). */
 static VALUE r_mpfr_sgn(VALUE self)
 {
@@ -2852,6 +2860,7 @@ void Init_mpfr()
   rb_define_alias(r_mpfr_class, "finite?", "number_p");
   rb_define_alias(r_mpfr_class, "zero?", "zero_p");
   rb_define_method(r_mpfr_class, "nonzero?", r_mpfr_nonzero_p, 1);
+  rb_define_method(r_mpfr_class, "regular?", r_mpfr_regular_p, 1);
 
   /* ------------------------------ Comparison Functions Start ------------------------------ */
 
