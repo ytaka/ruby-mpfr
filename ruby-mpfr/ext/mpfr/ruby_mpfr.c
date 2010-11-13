@@ -1609,7 +1609,7 @@ static VALUE r_mpfr_prec_round(int argc, VALUE *argv, VALUE self)
   return val_ret;
 }
 
-/* mpfr_prec_round(ret, prec, rnd) */
+/* mpfr_prec_round(self, prec, rnd) */
 static VALUE r_mpfr_prec_round2(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
@@ -1620,6 +1620,26 @@ static VALUE r_mpfr_prec_round2(int argc, VALUE *argv, VALUE self)
   mpfr_prec_round(ptr_self, prec, rnd);
   return self;
 }
+
+/* mpfr_can_round(self, err, rnd1, rnd2, prec) */
+static VALUE r_mpfr_can_round(VALUE self, VALUE err, VALUE rnd1, VALUE rnd2, VALUE prec)
+{
+  MPFR *ptr_self;
+  r_mpfr_get_struct(ptr_self, self);
+  if (mpfr_can_round(ptr_self, NUM2INT(err), NUM2INT(rnd1), NUM2INT(rnd2), NUM2INT(prec))) {
+    return Qtrue;
+  }
+  return Qnil;
+}
+
+/* mpfr_min_prec(self) */
+static VALUE r_mpfr_min_prec(VALUE self)
+{
+  MPFR *ptr_self;
+  r_mpfr_get_struct(ptr_self, self);
+  return INT2NUM(mpfr_min_prec(ptr_self));
+}
+
 
 /* ------------------------------ Rounding Mode Related Functions End ------------------------------ */
 
@@ -2769,6 +2789,8 @@ void Init_mpfr()
 
   rb_define_method(r_mpfr_class, "prec_round", r_mpfr_prec_round, -1);
   rb_define_method(r_mpfr_class, "prec_round!", r_mpfr_prec_round2, -1);
+  rb_define_method(r_mpfr_class, "can_round", r_mpfr_can_round, 4);
+  rb_define_method(r_mpfr_class, "min_prec", r_mpfr_min_prec, 0);
 
   /* ------------------------------ Rounding Mode Related Functions End ------------------------------ */
 
