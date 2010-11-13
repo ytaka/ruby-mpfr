@@ -2224,6 +2224,21 @@ static VALUE r_mpfr_math_lgamma(int argc, VALUE *argv, VALUE self)
   return rb_ary_new3(2, val_ret, INT2FIX(singp));
 }
 
+/* mpfr_digamma(ret, p1, rnd). */
+static VALUE r_mpfr_math_digamma(int argc, VALUE *argv, VALUE self)
+{
+  mp_rnd_t rnd;
+  mp_prec_t prec;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  MPFR *ptr_arg1, *ptr_return;
+  VALUE val_ret;
+  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  r_mpfr_get_struct(ptr_arg1, tmp_argv0);
+  r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
+  r_mpfr_set_special_func_state(mpfr_digamma(ptr_return, ptr_arg1, rnd));
+  return val_ret;
+}
+
 /* mpfr_zeta(ret, p1, rnd). */
 static VALUE r_mpfr_math_zeta(int argc, VALUE *argv, VALUE self)
 {
@@ -2438,6 +2453,21 @@ static VALUE r_mpfr_math_hypot(int argc, VALUE *argv, VALUE self)
   r_mpfr_get_struct(ptr_arg2, tmp_argv1);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_hypot(ptr_return, ptr_arg1, ptr_arg2, rnd));
+  return val_ret;
+}
+
+/* mpfr_ai(ret, p1, rnd). */
+static VALUE r_mpfr_math_ai(int argc, VALUE *argv, VALUE self)
+{
+  mp_rnd_t rnd;
+  mp_prec_t prec;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  MPFR *ptr_arg1, *ptr_return;
+  VALUE val_ret;
+  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  r_mpfr_get_struct(ptr_arg1, tmp_argv0);
+  r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
+  r_mpfr_set_special_func_state(mpfr_ai(ptr_return, ptr_arg1, rnd));
   return val_ret;
 }
 
@@ -2952,6 +2982,7 @@ void Init_mpfr()
   rb_define_module_function(r_mpfr_math, "gamma", r_mpfr_math_gamma, -1);
   rb_define_module_function(r_mpfr_math, "lngamma", r_mpfr_math_lngamma, -1);
   rb_define_module_function(r_mpfr_math, "lgamma", r_mpfr_math_lgamma, -1);
+  rb_define_module_function(r_mpfr_math, "digamma", r_mpfr_math_digamma, -1);
   rb_define_module_function(r_mpfr_math, "zeta", r_mpfr_math_zeta, -1);
   rb_define_module_function(r_mpfr_math, "erf", r_mpfr_math_erf, -1);
   rb_define_module_function(r_mpfr_math, "erfc", r_mpfr_math_erfc, -1);
@@ -2965,6 +2996,7 @@ void Init_mpfr()
   rb_define_module_function(r_mpfr_math, "fms", r_mpfr_math_fms, -1);
   rb_define_module_function(r_mpfr_math, "agm", r_mpfr_math_agm, -1);
   rb_define_module_function(r_mpfr_math, "hypot", r_mpfr_math_hypot, -1);
+  rb_define_module_function(r_mpfr_math, "ai", r_mpfr_math_ai, -1);
   rb_define_module_function(r_mpfr_math, "const_log2", r_mpfr_math_const_log2, -1);
   rb_define_module_function(r_mpfr_math, "const_pi", r_mpfr_math_const_pi, -1);
   rb_define_module_function(r_mpfr_math, "const_euler", r_mpfr_math_const_euler, -1);
