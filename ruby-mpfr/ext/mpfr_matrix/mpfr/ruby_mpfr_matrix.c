@@ -1,5 +1,12 @@
 #include "ruby_mpfr_matrix.h"
 
+#define MPFR_DUMP_NUMBER 'A'
+#define MPFR_DUMP_PZERO  'B'
+#define MPFR_DUMP_MZERO  'C'
+#define MPFR_DUMP_PINF   'D'
+#define MPFR_DUMP_MINF   'E'
+#define MPFR_DUMP_NAN    'F'
+
 static ID eqq;
 
 void r_mpfr_matrix_free(void *ptr)
@@ -183,6 +190,108 @@ static VALUE r_mpfr_matrix_initialize_copy (VALUE self, VALUE other)
   mpfr_matrix_init(ptr_self, ptr_other->row, ptr_other->column);
   mpfr_matrix_set(ptr_self, ptr_other);
   return Qtrue;
+}
+
+static VALUE r_mpfr_matrix_marshal_dump(VALUE self)
+{
+  MPFRMatrix *ptr;
+  r_mpfr_get_matrix_struct(ptr, self);
+  mpz_t m;
+  mp_exp_t e;
+  mpz_init(m);
+  int i;
+  MPFR *ptr_el;
+  char *tmp_str, type;
+  VALUE ret_ary;
+  ret_ary = rb_ary_new();
+  rb_ary_push(ret_ary, INT2FIX(ptr->row));
+  rb_ary_push(ret_ary, INT2FIX(ptr->column));
+
+  for (i = 0; i < ptr->size; i++) {
+    ptr_el = ptr->data + i;
+    if (mpfr_regular_p(ptr_el)) {
+      e = mpfr_get_z_2exp(m, ptr_el);
+      mpfr_asprintf(&tmp_str, "%c%ld\t%ld\t%Zd", MPFR_DUMP_NUMBER, mpfr_get_prec(ptr_el), (long int)e, m);
+    } else {
+      if (mpfr_zero_p(ptr_el)) {
+	if (mpfr_sgn(ptr_el) >= 0) {
+	  type = MPFR_DUMP_PZERO;
+	} else {
+	  type = MPFR_DUMP_MZERO;
+	}
+      } else if (mpfr_nan_p(ptr_el)) {
+	type = MPFR_DUMP_NAN;
+      } else if (mpfr_sgn(ptr_el) >= 0) {
+	type = MPFR_DUMP_PINF;
+      } else {
+	type = MPFR_DUMP_MINF;
+      }
+      mpfr_asprintf(&tmp_str, "%c%ld", type, mpfr_get_prec(ptr_el));
+    }
+    rb_ary_push(ret_ary, rb_str_new2(tmp_str));
+    mpfr_free_str(tmp_str);
+  }
+
+  mpz_clear(m);
+  return ret_ary;
+}
+
+static VALUE r_mpfr_matrix_marshal_load(VALUE self, VALUE dump_ary)
+{
+  MPFRMatrix *ptr;
+  r_mpfr_get_matrix_struct(ptr, self);
+
+  ptr->row = NUM2INT(rb_ary_entry(dump_ary, 0));
+  ptr->column = NUM2INT(rb_ary_entry(dump_ary, 1));
+  ptr->size = ptr->row * ptr->column;
+  ptr->data = ALLOC_N(MPFR, ptr->size);
+  int i, j;
+  long int prec, e;
+  MPFR *ptr_el;
+  char *dump, type;
+  VALUE dump_element;
+  mpz_t m;
+
+  for(i = 0; i < ptr->size; i++){
+    dump_element = rb_ary_entry(dump_ary, i + 2);
+    ptr_el = ptr->data + i;
+    Check_Type(dump_element, T_STRING);
+    dump = RSTRING_PTR(dump_element);
+    type = dump[0];
+    dump++;
+    if (type == MPFR_DUMP_NUMBER) {
+      mpz_init(m);
+      sscanf(dump, "%ld\t%ld\t", &prec, &e);
+      j = 0;
+      while (j < 2) {
+	if (dump[0] == '\t') {
+	  j++;
+	}
+	dump++;
+      }
+      mpz_set_str(m, dump, 10);
+      mpfr_init2(ptr_el, prec);
+      mpfr_set_z_2exp(ptr_el, m, e, MPFR_RNDN);
+      mpz_clear(m);
+    } else {
+      sscanf(dump, "%ld", &prec);
+      mpfr_init2(ptr_el, prec);
+      if (type == MPFR_DUMP_PZERO) {
+	mpfr_set_zero(ptr_el, +1);
+      } else if (type == MPFR_DUMP_MZERO){
+	mpfr_set_zero(ptr_el, -1);
+      } else if (type == MPFR_DUMP_NAN) {
+	mpfr_set_nan(ptr_el);
+      } else if (type == MPFR_DUMP_PINF) {
+	mpfr_set_inf(ptr_el, +1);
+      } else if (type == MPFR_DUMP_MINF) {
+	mpfr_set_inf(ptr_el, -1);
+      } else {
+	rb_raise(rb_eArgError, "Invalid dumped data for marshal_load.");
+      }
+    }
+  }
+  return self;
 }
 
 /* Allocation function for MPFR::ColumnVector. */
@@ -1030,6 +1139,9 @@ void Init_matrix()
   rb_define_alloc_func(r_mpfr_matrix, r_mpfr_matrix_alloc);
   rb_define_private_method(r_mpfr_matrix, "initialize", r_mpfr_matrix_initialize, -1);
   rb_define_private_method(r_mpfr_matrix, "initialize_copy", r_mpfr_matrix_initialize_copy, 1);
+
+  rb_define_method(r_mpfr_matrix, "marshal_dump", r_mpfr_matrix_marshal_dump, 0);
+  rb_define_method(r_mpfr_matrix, "marshal_load", r_mpfr_matrix_marshal_load, 1);
 
   rb_define_singleton_method(tmp_r_mpfr_class, "SquareMatrix", r_mpfr_square_matrix_global_new, 1);
   rb_define_alloc_func(r_mpfr_square_matrix, r_mpfr_square_matrix_alloc);
