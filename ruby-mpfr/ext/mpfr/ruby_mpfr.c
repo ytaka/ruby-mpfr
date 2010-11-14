@@ -1,5 +1,12 @@
 #include "ruby_mpfr.h"
 
+#define MPFR_DUMP_NUMBER 'A'
+#define MPFR_DUMP_PZERO  'B'
+#define MPFR_DUMP_MZERO  'C'
+#define MPFR_DUMP_PINF   'D'
+#define MPFR_DUMP_MINF   'E'
+#define MPFR_DUMP_NAN    'F'
+
 static ID eqq, to_s, new, class, method_defined, object_id;
 static VALUE __mpfr_class__, __sym_to_s__, __sym_to_str__;
 
@@ -2622,6 +2629,86 @@ static VALUE r_mpfr_buildopt_decimal_p(VALUE self)
   return mpfr_buildopt_decimal_p() == 0 ? Qnil : Qtrue;
 }
 
+static VALUE r_mpfr_marshal_dump(VALUE self)
+{
+  MPFR *ptr_s;
+  r_mpfr_get_struct(ptr_s, self);
+  char *ret_str;
+  if (mpfr_regular_p(ptr_s)) {
+    mpz_t m;
+    mp_exp_t e;
+    mpz_init(m);
+    e = mpfr_get_z_2exp(m, ptr_s);
+    mpfr_asprintf(&ret_str, "%c%ld\t%ld\t%Zd", MPFR_DUMP_NUMBER, mpfr_get_prec(ptr_s), (long int)e, m);
+    mpz_clear(m);
+  } else {
+    char type;
+    if (mpfr_zero_p(ptr_s)) {
+      if (mpfr_sgn(ptr_s) >= 0) {
+	type = MPFR_DUMP_PZERO;
+      } else {
+	type = MPFR_DUMP_MZERO;
+      }
+    } else if (mpfr_nan_p(ptr_s)) {
+      type = MPFR_DUMP_NAN;
+    } else if (mpfr_sgn(ptr_s) >= 0) {
+      type = MPFR_DUMP_PINF;
+    } else {
+      type = MPFR_DUMP_MINF;
+    }
+    mpfr_asprintf(&ret_str, "%c%ld", type, mpfr_get_prec(ptr_s));
+  }
+  VALUE ret_val = rb_str_new2(ret_str);
+  mpfr_free_str(ret_str);
+  return ret_val;
+}
+
+static VALUE r_mpfr_marshal_load(VALUE self, VALUE dump_string)
+{
+  long int prec;
+  MPFR *ptr_s;
+  r_mpfr_get_struct(ptr_s, self);
+  Check_Type(dump_string, T_STRING);
+  char *dump, type;
+  dump = RSTRING_PTR(dump_string);
+  type = dump[0];
+  dump++;
+  if (type == MPFR_DUMP_NUMBER) {
+    mpz_t m;
+    long int e;
+    mpz_init(m);
+    sscanf(dump, "%ld\t%ld\t", &prec, &e);
+    int i;
+    i = 0;
+    while (i < 2) {
+      if (dump[0] == '\t') {
+	i++;
+      }
+      dump++;
+    }
+    mpz_set_str(m, dump, 10);
+    mpfr_init2(ptr_s, prec);
+    mpfr_set_z_2exp(ptr_s, m, e, MPFR_RNDN);
+    mpz_clear(m);
+  } else {
+    sscanf(dump, "%ld", &prec);
+    mpfr_init2(ptr_s, prec);
+    if (type == MPFR_DUMP_PZERO) {
+      mpfr_set_zero(ptr_s, +1);
+    } else if (type == MPFR_DUMP_MZERO){
+      mpfr_set_zero(ptr_s, -1);
+    } else if (type == MPFR_DUMP_NAN) {
+      mpfr_set_nan(ptr_s);
+    } else if (type == MPFR_DUMP_PINF) {
+      mpfr_set_inf(ptr_s, +1);
+    } else if (type == MPFR_DUMP_MINF) {
+      mpfr_set_inf(ptr_s, -1);
+    } else {
+      rb_raise(rb_eArgError, "Invalid dumped data for marshal_load.");
+    }
+  }
+  return self;
+}
 
 void Init_mpfr()
 {
@@ -2803,6 +2890,9 @@ void Init_mpfr()
   rb_define_method(r_mpfr_class, "to_strf", r_mpfr_to_strf, 1);
   rb_define_method(r_mpfr_class, "to_s", r_mpfr_to_s, 0);
   rb_define_method(r_mpfr_class, "inspect", r_mpfr_inspect, 0);
+
+  rb_define_method(r_mpfr_class, "marshal_dump", r_mpfr_marshal_dump, 0);
+  rb_define_method(r_mpfr_class, "marshal_load", r_mpfr_marshal_load, 1);
   /* ------------------------------ Methods related to string End ------------------------------ */
 
   /* ------------------------------ Conversion functions Start ------------------------------ */

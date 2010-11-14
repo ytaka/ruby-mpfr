@@ -6,8 +6,8 @@ rescue LoadError
   require 'rspec'
 end
 
-$:.unshift(File.dirname(__FILE__) + '/../../lib')
-$:.unshift(File.dirname(__FILE__) + '/../../ext')
-$:.unshift(File.dirname(__FILE__))
-require 'mpfr'
+$:.unshift(File.expand_path(File.dirname(__FILE__)) + '/../../lib')
+$:.unshift(File.expand_path(File.dirname(__FILE__)) + '/../../ext')
+$:.unshift(File.expand_path(File.dirname(__FILE__)))
+require 'mpfr/mpfr'
 require "generate_number_modulue"
