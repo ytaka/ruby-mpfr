@@ -1325,7 +1325,7 @@ static VALUE r_mpfr_unordered_p(VALUE self, VALUE other)
 /* ------------------------------ Integer Related Functions Start  ------------------------------ */
 
 /* mpfr_rint(ret, self, rnd) */
-static VALUE r_mpfr_m_rint(int argc, VALUE *argv, VALUE self)
+static VALUE r_mpfr_fr_rint(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
@@ -1339,7 +1339,7 @@ static VALUE r_mpfr_m_rint(int argc, VALUE *argv, VALUE self)
 }
 
 /* mpfr_ceil(ret, self) */
-static VALUE r_mpfr_m_ceil(int argc, VALUE *argv, VALUE self)
+static VALUE r_mpfr_fr_ceil(int argc, VALUE *argv, VALUE self)
 {
   mp_prec_t prec = r_mpfr_prec_from_optional_argument(0, 1, argc, argv);
   MPFR *ptr_self, *ptr_return;
@@ -1351,7 +1351,7 @@ static VALUE r_mpfr_m_ceil(int argc, VALUE *argv, VALUE self)
 }
 
 /* mpfr_floor(ret, self) */
-static VALUE r_mpfr_m_floor(int argc, VALUE *argv, VALUE self)
+static VALUE r_mpfr_fr_floor(int argc, VALUE *argv, VALUE self)
 {
   mp_prec_t prec = r_mpfr_prec_from_optional_argument(0, 1, argc, argv);
   MPFR *ptr_self, *ptr_return;
@@ -1363,7 +1363,7 @@ static VALUE r_mpfr_m_floor(int argc, VALUE *argv, VALUE self)
 }
 
 /* mpfr_round(ret, self) */
-static VALUE r_mpfr_m_round(int argc, VALUE *argv, VALUE self)
+static VALUE r_mpfr_fr_round(int argc, VALUE *argv, VALUE self)
 {
   mp_prec_t prec = r_mpfr_prec_from_optional_argument(0, 1, argc, argv);
   MPFR *ptr_self, *ptr_return;
@@ -1375,7 +1375,7 @@ static VALUE r_mpfr_m_round(int argc, VALUE *argv, VALUE self)
 }
 
 /* mpfr_trunc(ret, self) */
-static VALUE r_mpfr_m_trunc(int argc, VALUE *argv, VALUE self)
+static VALUE r_mpfr_fr_trunc(int argc, VALUE *argv, VALUE self)
 {
   mp_prec_t prec = r_mpfr_prec_from_optional_argument(0, 1, argc, argv);
   MPFR *ptr_self, *ptr_return;
@@ -2737,7 +2737,7 @@ void Init_mpfr()
     Except for some methods,
     the names of methods inherit that of MPFR functions in C language and
     each name of method is removed 'mpfr_' from that of correspnding MPFR function in C language.
-    The methods m_rint, m_ceil, m_floor, m_round and m_trunc are exceptions and
+    The methods fr_rint, fr_ceil, fr_floor, fr_round and fr_trunc are exceptions and
     respectively corresponts to mpfr_rint, mpfr_ceil, mpfr_floor, mpfr_round and mpfr_trunc.
     Note that there are also methods rint, ceil, floor, round and trunc
     which have respectively defferent actions
@@ -2956,11 +2956,11 @@ void Init_mpfr()
 
   /* ------------------------------ Integer Related Functions Start ------------------------------ */
 
-  rb_define_method(r_mpfr_class, "m_rint", r_mpfr_m_rint, -1);
-  rb_define_method(r_mpfr_class, "m_ceil", r_mpfr_m_ceil, -1);
-  rb_define_method(r_mpfr_class, "m_floor", r_mpfr_m_floor, -1);
-  rb_define_method(r_mpfr_class, "m_round", r_mpfr_m_round, -1);
-  rb_define_method(r_mpfr_class, "m_trunc", r_mpfr_m_trunc, -1);
+  rb_define_method(r_mpfr_class, "fr_rint", r_mpfr_fr_rint, -1);
+  rb_define_method(r_mpfr_class, "fr_ceil", r_mpfr_fr_ceil, -1);
+  rb_define_method(r_mpfr_class, "fr_floor", r_mpfr_fr_floor, -1);
+  rb_define_method(r_mpfr_class, "fr_round", r_mpfr_fr_round, -1);
+  rb_define_method(r_mpfr_class, "fr_trunc", r_mpfr_fr_trunc, -1);
   rb_define_method(r_mpfr_class, "rint_ceil", r_mpfr_rint_ceil, -1);
   rb_define_method(r_mpfr_class, "rint_floor", r_mpfr_rint_floor, -1);
   rb_define_method(r_mpfr_class, "rint_round", r_mpfr_rint_round, -1);
