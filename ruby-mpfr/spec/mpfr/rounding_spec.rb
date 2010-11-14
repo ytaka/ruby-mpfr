@@ -38,7 +38,7 @@ describe MPFR, "when rounding number by prec_round" do
 
   it "should be rounded by prec_round!" do
     @args.each do |a|
-      [MPFR::RNDU, MPFR::RNDD, MPFR::RNDN, MPFR::RNDZ].each do |rnd|
+      [MPFR::RNDU, MPFR::RNDD, MPFR::RNDN, MPFR::RNDZ, MPFR::RNDA].each do |rnd|
         b = a.dup
         old_object_id = b.object_id
         b.prec_round!(rnd, @prec)

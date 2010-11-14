@@ -3,8 +3,6 @@ require File.expand_path(File.dirname(__FILE__)) + '/spec_helper.rb'
 describe MPFR, "when calling constant of MPFR" do
   it "should be defined" do
     MPFR::MPFR_VERSION.should be_true
-    MPFR::MPFR_PATCHES.should be_true
-    MPFR::MPFR_VERSION2.should be_true
     MPFR::MPFR_VERSION_MAJOR.should be_true
     MPFR::MPFR_VERSION_MINOR.should be_true
     MPFR::MPFR_VERSION_PATCHLEVEL.should be_true

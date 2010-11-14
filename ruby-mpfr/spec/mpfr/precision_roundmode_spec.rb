@@ -6,9 +6,11 @@ def check_rnd(a)
   z = MPFR.new(a, MPFR::RNDZ)
   u = MPFR.new(a, MPFR::RNDU)
   d = MPFR.new(a, MPFR::RNDD)
+  a = MPFR.new(a, MPFR::RNDA)
   (n > 0 ? d : u).should == z
   [(a - z).abs, (a - u).abs, (a - d).abs].min.should >= (a - n).abs
   (d <= u && (n == z || n == u || n == d)).should be_true
+  z.abs.should <= a.abs
 end
 
 def check_set_rnd(rnd1, rnd2)
@@ -24,11 +26,11 @@ describe MPFR, 'when getting rounding mode' do
     args = GenerateNumber.float(100)
     args += [Math::PI, -Math::PI, Math::E, -Math::E, 0, 10, 27, -9, -293578]
     args.each{ |a| check_rnd(a) }
-    [MPFR::RNDN, MPFR::RNDZ, MPFR::RNDU, MPFR::RNDD].each{ |rnd| args.each{ |a| check_rnd(a) } }
+    [MPFR::RNDN, MPFR::RNDZ, MPFR::RNDU, MPFR::RNDD, MPFR::RNDA].each{ |rnd| args.each{ |a| check_rnd(a) } }
   end
 
   it "should be set rounding mode" do
-    rnds = [MPFR::RNDN, MPFR::RNDZ, MPFR::RNDU, MPFR::RNDD]
+    rnds = [MPFR::RNDN, MPFR::RNDZ, MPFR::RNDU, MPFR::RNDD, MPFR::RNDA]
     for i in 0...rnds.size
       for j in (i+1)...rnds.size
         check_set_rnd(rnds[i], rnds[j])
