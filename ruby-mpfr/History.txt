@@ -1,3 +1,13 @@
+=== 0.0.8
+* 2 major enhancements:
+  * Support MPFR v3.
+    * Add some methods.
+    * Note that ruby-mpfr does not support MPFR v2.
+  * Support Marshal.dump and Marshal.load.
+* 1 minor enhancements:
+  * Support rspec v2.
+  * some bug fixes.
+
 === 0.0.7
 * 1 bug fix:
   * Fix bugs of Methods MPFR::SquareMatrix, MPFR::ColumnVector, and MPFR::RowVector.

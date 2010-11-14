@@ -27,6 +27,7 @@ spec/mpfr/conversion_spec.rb
 spec/mpfr/exception_spec.rb
 spec/mpfr/functions_spec.rb
 spec/mpfr/generate_number_modulue.rb
+spec/mpfr/marshal_spec.rb
 spec/mpfr/precision_roundmode_spec.rb
 spec/mpfr/rounding_spec.rb
 spec/mpfr/set_value_spec.rb
@@ -35,6 +36,7 @@ spec/mpfr/string_spec.rb
 spec/mpfr_matrix/generate_matrix_arguments.rb
 spec/mpfr_matrix/mpfr_matrix_alloc_spec.rb
 spec/mpfr_matrix/mpfr_matrix_arithmetic_spec.rb
+spec/mpfr_matrix/mpfr_matrix_marshal_spec.rb
 spec/mpfr_matrix/mpfr_matrix_set_element_spec.rb
 spec/mpfr_matrix/mpfr_matrix_string_spec.rb
 spec/mpfr_matrix/mpfr_square_matrix_spec.rb
