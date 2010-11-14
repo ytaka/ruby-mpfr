@@ -1,3 +1,7 @@
+=== 0.0.9
+* 1 minor enhancements:
+  * Correct README.rdoc
+
 === 0.0.8
 * 2 major enhancements:
   * Support MPFR v3.

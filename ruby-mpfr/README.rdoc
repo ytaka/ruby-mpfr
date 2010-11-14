@@ -21,10 +21,13 @@ MPFR::ColumnVector, and MPFR::RowVector.
 == Requirements:
 
 * Ruby[http://www.ruby-lang.org/] 1.9.1 or later
-* MPFR[http://www.mpfr.org/] 2.4.1 or later
+* MPFR[http://www.mpfr.org/] 3.0.0 or later
 
-For Ubuntu 9.10, we can install MPFR with the following command.
+For Ubuntu 10.10, we can install MPFR with the following command.
  $ sudo apt-get install libmpfr-dev
+
+Note that ruby-mpfr does not work on MPFR 2.
+So, we need to upgrade MPFR to version 3.
 
 == Install:
 The package of rubygems of ruby-mpfr is provided.
@@ -45,7 +48,7 @@ The following is an another multiple precision library which uses GMP.
 == License:
 
 ruby-mpfr
-Copyright (C) 2009 Takayuki YAMAGUCHI
+Copyright (C) 2009 - 2010 Takayuki YAMAGUCHI
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free 
