@@ -10,7 +10,8 @@
 
 #define MPFR_P(obj) RTEST(rb_funcall(__mpfr_class__, eqq, 1, obj))
 
-static ID eqq, to_s, new, class, method_defined, object_id, respond_to_p, to_fr;
+static ID eqq, to_s, new, class, method_defined, object_id, respond_to_p, to_fr,
+  id_rndn, id_rndz, id_rndu, id_rndd, id_rnda;
 static VALUE __mpfr_class__, __sym_to_s__, __sym_to_str__;
 
 /* ------------------------------ Precision and Rounding Mode Start ------------------------------ */
@@ -21,45 +22,45 @@ static VALUE __mpfr_class__, __sym_to_s__, __sym_to_str__;
 /* return it if it is valid as rounding mode number. */
 mp_rnd_t r_mpfr_rnd_from_value(VALUE rnd)
 {
-  mp_rnd_t r = (mp_rnd_t)NUM2INT(rnd);
-  if(!VALID_RND(r)){
-    rb_raise(rb_eArgError, "Argument must be Rounding Mode.");
+  ID rnd_id = SYM2ID(rnd);
+  if (rnd_id == id_rndn) {
+    return MPFR_RNDN;
+  } else if (rnd_id == id_rndz) {
+    return MPFR_RNDZ;
+  } else if (rnd_id == id_rndu) {
+    return MPFR_RNDU;
+  } else if (rnd_id == id_rndd) {
+    return MPFR_RNDD;
+  } else if (rnd_id == id_rnda) {
+    return MPFR_RNDA;
   }
-  return r;
+  rb_raise(rb_eArgError, "Argument must be Rounding Mode.");
 }
 
 /* If argc equals max, convert last argument to rounding mode number. */
 /* Otherwise, return defoult rounding mode number. */
 mp_rnd_t r_mpfr_rnd_from_optional_argument(int min, int max, int argc, VALUE *argv)
 {
-  mp_rnd_t rnd;
   if(argc >= min && argc <= max){
     if(argc == max){
-      rnd = r_mpfr_rnd_from_value(argv[max-1]);
-    }else{
-      rnd = mpfr_get_default_rounding_mode();
+      return r_mpfr_rnd_from_value(argv[max-1]);
     }
-  }else{
-    rb_raise(rb_eArgError, "Invalid number of arguments.");
+    return mpfr_get_default_rounding_mode();
   }
-  return rnd;
+  rb_raise(rb_eArgError, "Invalid number of arguments.");
 }
 
 /* If argc equals max, convert last argument to precision number. */
 /* Otherwise, return defoult precision number. */
 mp_rnd_t r_mpfr_prec_from_optional_argument(int min, int max, int argc, VALUE *argv)
 {
-  mp_prec_t prec;
   if(argc >= min && argc <= max){
     if(argc == max){
-      prec = NUM2INT(argv[max - 1]);
-    }else{
-      prec = mpfr_get_default_prec();
+      return NUM2INT(argv[max - 1]);
     }
-  }else{
-    rb_raise(rb_eArgError, "Invalid number of arguments.");
+    return mpfr_get_default_prec();
   }
-  return prec;
+  rb_raise(rb_eArgError, "Invalid number of arguments.");
 }
 
 /* min is a minimum number of arguments. */
@@ -68,21 +69,40 @@ void r_mpfr_get_rnd_prec_from_optional_arguments(mp_rnd_t *rnd, mp_prec_t *prec,
 						 int argc, VALUE *argv)
 {
   if(argc >= min && argc <= max){
-    if(argc >= max - 1){
-      *rnd = r_mpfr_rnd_from_value(argv[max - 2]);
-    }else{
-      *rnd = mpfr_get_default_rounding_mode();
-    }
-    if(argc == max){
-      *prec = NUM2INT(argv[max - 1]);
-    }else{
+    if (argc == max - 1) {
+      switch(TYPE(argv[max - 2])){
+      case T_SYMBOL:
+	*prec = mpfr_get_default_prec();
+	*rnd = r_mpfr_rnd_from_value(argv[max - 2]);
+	return;
+      case T_FIXNUM:
+	*prec = NUM2INT(argv[max - 2]);
+	*rnd = mpfr_get_default_rounding_mode();
+	return;
+      }
+    } else if (argc == max) {
+      switch(TYPE(argv[max - 2])){
+      case T_SYMBOL:
+	*rnd = r_mpfr_rnd_from_value(argv[max - 2]);
+	if (FIXNUM_P(argv[max - 1])) {
+	  *prec = NUM2INT(argv[max - 1]);
+	  return;
+	}
+      case T_FIXNUM:
+	*prec = NUM2INT(argv[max - 2]);
+	if (SYMBOL_P(argv[max - 1])) {
+	  *rnd = r_mpfr_rnd_from_value(argv[max - 1]);
+	  return;
+	}
+      }
+    } else {
       *prec = mpfr_get_default_prec();
+      *rnd = mpfr_get_default_rounding_mode();
+      return;
     }
-  }else{
-    rb_raise(rb_eArgError, "Invalid number of arguments.");
   }
+  rb_raise(rb_eArgError, "Invalid number of arguments or invalid type of an argument.");
 }
-
 
 /* Set the default MPFR precision in bits. */
 static VALUE r_mpfr_set_default_prec(VALUE self, VALUE prec)
@@ -116,7 +136,22 @@ static VALUE r_mpfr_set_default_rounding_mode(VALUE self, VALUE rnd)
 /* Get the default rounding mode. */
 static VALUE r_mpfr_get_default_rounding_mode(VALUE self)
 {
-  return INT2NUM(mpfr_get_default_rounding_mode());
+  switch (mpfr_get_default_rounding_mode()) {
+  case MPFR_RNDN:
+    return ID2SYM(id_rndn);
+  case MPFR_RNDZ:
+    return ID2SYM(id_rndz);
+  case MPFR_RNDU:
+    return ID2SYM(id_rndu);
+  case MPFR_RNDD:
+    return ID2SYM(id_rndd);
+  case MPFR_RNDA:
+    return ID2SYM(id_rnda);
+  case MPFR_RNDF:
+  case MPFR_RNDNA:
+    rb_raise(rb_eStandardError, "Unsupported rounding mode.");
+  }
+  rb_raise(rb_eStandardError, "Invalid rounding mode.");
 }
 
 /* ------------------------------ Precision and Rounding Mode End ------------------------------ */
@@ -2906,16 +2941,22 @@ void Init_mpfr()
   /* Integer whichi is MPFR_EMIN_DEFAULT. */
   rb_define_const(r_mpfr_class, "EMIN_DEFAULT", INT2NUM(MPFR_EMIN_DEFAULT));
 
+  id_rndn = rb_intern("RNDN");
+  id_rndz = rb_intern("RNDZ");
+  id_rndu = rb_intern("RNDU");
+  id_rndd = rb_intern("RNDD");
+  id_rnda = rb_intern("RNDA");
+
   /* Integer that is macro MPFR_RNDN. */
-  rb_define_const(r_mpfr_class, "RNDN", INT2NUM(MPFR_RNDN));
+  rb_define_const(r_mpfr_class, "RNDN", ID2SYM(id_rndn));
   /* Integer that is macro MPFR_RNDZ. */
-  rb_define_const(r_mpfr_class, "RNDZ", INT2NUM(MPFR_RNDZ));
+  rb_define_const(r_mpfr_class, "RNDZ", ID2SYM(id_rndz));
   /* Integer that is macro MPFR_RNDU. */
-  rb_define_const(r_mpfr_class, "RNDU", INT2NUM(MPFR_RNDU));
+  rb_define_const(r_mpfr_class, "RNDU", ID2SYM(id_rndu));
   /* Integer that is macro MPFR_RNDD. */
-  rb_define_const(r_mpfr_class, "RNDD", INT2NUM(MPFR_RNDD));
+  rb_define_const(r_mpfr_class, "RNDD", ID2SYM(id_rndd));
   /* Integer that is macro MPFR_RNDD. */
-  rb_define_const(r_mpfr_class, "RNDA", INT2NUM(MPFR_RNDA));
+  rb_define_const(r_mpfr_class, "RNDA", ID2SYM(id_rnda));
 
   /* ------------------------------ Constants End ------------------------------ */
 
