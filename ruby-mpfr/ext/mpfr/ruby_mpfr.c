@@ -10,7 +10,7 @@
 
 #define MPFR_P(obj) RTEST(rb_funcall(__mpfr_class__, eqq, 1, obj))
 
-static ID eqq, to_s, new, class, method_defined, object_id, respond_to_p, to_fr,
+static ID eqq, to_s, new, class, method_defined, object_id, to_fr,
   id_rndn, id_rndz, id_rndu, id_rndd, id_rnda;
 static VALUE __mpfr_class__, __sym_to_s__, __sym_to_str__;
 
@@ -124,13 +124,19 @@ static VALUE r_mpfr_get_default_prec(VALUE self)
 /* Set the default rounding mode. The default rounding mode is MPFR::RNDN. */
 static VALUE r_mpfr_set_default_rounding_mode(VALUE self, VALUE rnd)
 {
-  mp_rnd_t a = NUM2INT(rnd);
-  if(VALID_RND(a)){
-    mpfr_set_default_rounding_mode(a);
-  }else{
-    rb_raise(rb_eArgError, "Argument must be Rounding Mode.");
+  ID rnd_id = SYM2ID(rnd);
+  if (rnd_id == id_rndn) {
+    mpfr_set_default_rounding_mode(MPFR_RNDN);
+  } else if (rnd_id == id_rndz) {
+    mpfr_set_default_rounding_mode(MPFR_RNDZ);
+  } else if (rnd_id == id_rndu) {
+    mpfr_set_default_rounding_mode(MPFR_RNDU);
+  } else if (rnd_id == id_rndd) {
+    mpfr_set_default_rounding_mode(MPFR_RNDD);
+  } else if (rnd_id == id_rnda) {
+    mpfr_set_default_rounding_mode(MPFR_RNDA);
   }
-  return INT2FIX(mpfr_get_default_rounding_mode());
+  return rnd;
 }
 
 /* Get the default rounding mode. */
@@ -394,7 +400,7 @@ void r_mpfr_set_robj(MPFR *ptr, VALUE obj, mp_rnd_t rnd)
       r_mpfr_convert_to_str_set(ptr, obj, rnd);
       break;
     default:
-      if(rb_respond_to(obj, respond_to_p)){
+      if(rb_respond_to(obj, to_fr)){
 	MPFR *ptr_obj;
 	volatile VALUE tmp = rb_funcall(obj, to_fr, 0);
 	r_mpfr_get_struct(ptr_obj, tmp);
@@ -442,7 +448,7 @@ int r_mpfr_init_set_robj(MPFR *ptr, int prec, VALUE obj, mp_rnd_t rnd)
 
 VALUE r_mpfr_robj_to_mpfr(VALUE obj, int argc, VALUE *argv)
 {
-  if (rb_respond_to(obj, respond_to_p)) {
+  if (rb_respond_to(obj, to_fr)) {
     return rb_funcall(obj, to_fr, argc, argv);
   }
   rb_raise(rb_eArgError, "The object of %s can not been converted to MPFR.", rb_class2name(obj));
@@ -454,7 +460,7 @@ VALUE r_mpfr_new_fr_obj(VALUE obj)
 {
   if(MPFR_P(obj)){
     return obj;
-  }else if (rb_respond_to(obj, respond_to_p)) {
+  }else if (rb_respond_to(obj, to_fr)) {
     return rb_funcall(obj, to_fr, 0);
   }else{
     return rb_funcall(__mpfr_class__, new, 1, obj);
@@ -821,7 +827,7 @@ static VALUE r_mpfr_add(VALUE self, VALUE other)
     volatile VALUE tmp = rb_funcall(__mpfr_class__, new, 1, other);
     r_mpfr_get_struct(ptr_other, tmp);
     mpfr_add(ptr_return, ptr_self, ptr_other, mpfr_get_default_rounding_mode());
-  }else if(rb_respond_to(other, respond_to_p)){
+  }else if(rb_respond_to(other, to_fr)){
     volatile VALUE tmp = rb_funcall(other, to_fr, 0);
     r_mpfr_get_struct(ptr_other, tmp);
     mpfr_add(ptr_return, ptr_self, ptr_other, mpfr_get_default_rounding_mode());
@@ -850,7 +856,7 @@ static VALUE r_mpfr_sub(VALUE self, VALUE other)
     volatile VALUE tmp = rb_funcall(__mpfr_class__, new, 1, other);
     r_mpfr_get_struct(ptr_other, tmp);
     mpfr_sub(ptr_return, ptr_self, ptr_other, mpfr_get_default_rounding_mode());
-  }else if(rb_respond_to(other, respond_to_p)){
+  }else if(rb_respond_to(other, to_fr)){
     volatile VALUE tmp = rb_funcall(other, to_fr, 0);
     r_mpfr_get_struct(ptr_other, tmp);
     mpfr_sub(ptr_return, ptr_self, ptr_other, mpfr_get_default_rounding_mode());
@@ -879,7 +885,7 @@ static VALUE r_mpfr_mul(VALUE self, VALUE other)
     volatile VALUE tmp = rb_funcall(__mpfr_class__, new, 1, other);
     r_mpfr_get_struct(ptr_other, tmp);
     mpfr_mul(ptr_return, ptr_self, ptr_other, mpfr_get_default_rounding_mode());
-  }else if(rb_respond_to(other, respond_to_p)){
+  }else if(rb_respond_to(other, to_fr)){
     volatile VALUE tmp = rb_funcall(other, to_fr, 0);
     r_mpfr_get_struct(ptr_other, tmp);
     mpfr_mul(ptr_return, ptr_self, ptr_other, mpfr_get_default_rounding_mode());
@@ -908,7 +914,7 @@ static VALUE r_mpfr_div(VALUE self, VALUE other)
     volatile VALUE tmp = rb_funcall(__mpfr_class__, new, 1, other);
     r_mpfr_get_struct(ptr_other, tmp);
     mpfr_div(ptr_return, ptr_self, ptr_other, mpfr_get_default_rounding_mode());
-  }else if(rb_respond_to(other, respond_to_p)){
+  }else if(rb_respond_to(other, to_fr)){
     volatile VALUE tmp = rb_funcall(other, to_fr, 0);
     r_mpfr_get_struct(ptr_other, tmp);
     mpfr_div(ptr_return, ptr_self, ptr_other, mpfr_get_default_rounding_mode());
@@ -3277,7 +3283,6 @@ void Init_mpfr()
   class = rb_intern("class");
   method_defined = rb_intern("method_defined?");
   object_id = rb_intern("object_id");
-  respond_to_p = rb_intern("respond_to?");
   to_fr = rb_intern("to_fr");
 
   __mpfr_class__ = rb_eval_string("MPFR");
