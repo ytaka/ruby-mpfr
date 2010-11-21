@@ -2023,7 +2023,7 @@ static VALUE r_mpfr_math_sin_cos(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return1, *ptr_return2;
   VALUE val_ret1, val_ret2;
   volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
