@@ -16,7 +16,8 @@ $hoe = Hoe.spec 'ruby-mpfr' do
   self.post_install_message = 'PostInstall.txt' # TODO remove if post-install message not required
   self.rubyforge_name       = self.name # TODO this is default value
   # self.extra_deps         = [['activesupport','>= 2.0.2']]
-  self.spec_extras[:extensions] = ["ext/mpfr/extconf.rb", "ext/mpfr_matrix/mpfr/extconf.rb"]
+  self.spec_extras[:extensions] = ["ext/mpfr/extconf.rb", "ext/mpfr_matrix/mpfr/extconf.rb",
+                                   "ext/gmp/mpfr/extconf.rb"]
   self.extra_rdoc_files << 'README.rdoc'
   self.extra_rdoc_files << 'Example.rdoc'
 end

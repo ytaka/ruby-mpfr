@@ -2953,7 +2953,7 @@ void Init_mpfr()
     == Conversion between MPFR and GMP (experimental)
 
     We can use ruby-mpfr with gmp bindings of ruby (https://github.com/srawlins/gmp).
-    If we add require 'mpfr/mpfr_gmp' in ruby code,
+    If we add require 'mpfr/gmp' in ruby code,
     some conversion methods between MPFR and GMP are added.
 
   */
