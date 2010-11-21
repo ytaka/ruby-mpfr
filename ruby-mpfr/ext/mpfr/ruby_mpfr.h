@@ -30,7 +30,6 @@ VALUE r_mpfr_make_new_fr_obj(MPFR *ptr);
 VALUE r_mpfr_make_new_fr_obj2(MPFR *ptr, int prec);
 VALUE r_mpfr_new_fr_obj(VALUE obj);
 void r_mpfr_set_robj(MPFR *ptr, VALUE obj, mp_rnd_t rnd);
-int r_mpfr_init_set_robj(MPFR *ptr, int prec, VALUE obj, mp_rnd_t rnd);
 VALUE r_mpfr_robj_to_mpfr(VALUE obj, int argc, VALUE *argv);
 
 mp_rnd_t r_mpfr_rnd_from_value(VALUE rnd);

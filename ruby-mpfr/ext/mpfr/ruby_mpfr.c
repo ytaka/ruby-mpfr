@@ -35,6 +35,7 @@ mp_rnd_t r_mpfr_rnd_from_value(VALUE rnd)
     return MPFR_RNDA;
   }
   rb_raise(rb_eArgError, "Argument must be Rounding Mode.");
+  /* rb_raise(rb_eArgError, "Argument must be Rounding Mode: %s", rb_class2name(rnd)); */
 }
 
 /* If argc equals max, convert last argument to rounding mode number. */
@@ -413,43 +414,10 @@ void r_mpfr_set_robj(MPFR *ptr, VALUE obj, mp_rnd_t rnd)
   }
 }
 
-int r_mpfr_init_set_robj(MPFR *ptr, int prec, VALUE obj, mp_rnd_t rnd)
-{
-  if(MPFR_P(obj)){
-    MPFR *ptr_obj;
-    mpfr_init2(ptr, prec);
-    r_mpfr_get_struct(ptr_obj, obj);
-    mpfr_set(ptr, ptr_obj, rnd);
-  }else{
-    switch(TYPE(obj)){
-    case T_STRING:
-      mpfr_init2(ptr, prec);
-      mpfr_set_str(ptr, StringValuePtr(obj), 10, rnd);
-      break;
-    case T_FLOAT:
-      mpfr_init2(ptr, prec);
-      mpfr_set_d(ptr, NUM2DBL(obj), rnd);
-      break;
-    case T_FIXNUM:
-      mpfr_init2(ptr, prec);
-      mpfr_set_si(ptr, FIX2LONG(obj), rnd);
-      break;
-    case T_BIGNUM:
-      mpfr_init2(ptr, prec);
-      r_mpfr_convert_to_str_set(ptr, obj, rnd);
-      break;
-    default:
-      return false;
-      break;
-    }
-  }
-  return true;
-}
-
 VALUE r_mpfr_robj_to_mpfr(VALUE obj, int argc, VALUE *argv)
 {
   if (rb_respond_to(obj, to_fr)) {
-    return rb_funcall(obj, to_fr, argc, argv);
+    return rb_funcall2(obj, to_fr, argc, argv);
   }
   rb_raise(rb_eArgError, "The object of %s can not been converted to MPFR.", rb_class2name(obj));
 }
@@ -474,39 +442,68 @@ static VALUE r_mpfr_alloc(VALUE self)
   return self;
 }
 
-static void r_mpfr_set_initial_value(MPFR *ptr, int argc, VALUE *argv)
-{
-  switch(argc){
-  case 0:
-    mpfr_init(ptr);
-    mpfr_set_nan(ptr);
-    break;
-  case 1:
-    mpfr_init(ptr);
-    r_mpfr_set_robj(ptr, argv[0], mpfr_get_default_rounding_mode());
-    break;
-  case 2:
-  case 3:
-    if(argc == 2){
-      mpfr_init(ptr);
-    }else{
-      mpfr_init2(ptr, NUM2INT(argv[2]));
-    }
-    r_mpfr_set_robj(ptr, argv[0], r_mpfr_rnd_from_value(argv[1]));
-    break;
-  default:
-    rb_raise(rb_eArgError, "Invalid number of arguments.");
-    break;
-  }
-}
-
 /* Return new MPFR instance. The same arguments as MPFR.new is acceptable. */
 static VALUE r_mpfr_global_new(int argc, VALUE *argv, VALUE self)
 {
   MPFR *ptr;
   VALUE val;
-  r_mpfr_make_struct(val, ptr);
-  r_mpfr_set_initial_value(ptr, argc, argv);
+  mp_prec_t prec;
+  mp_rnd_t rnd;
+  switch(argc){
+  case 0:
+    r_mpfr_make_struct_init(val, ptr);
+    mpfr_set_nan(ptr);
+    return val;
+  case 1:
+    prec = mpfr_get_default_prec();
+    rnd = mpfr_get_default_rounding_mode();
+    break;
+  case 2:
+    if (SYMBOL_P(argv[1])) {
+      rnd = r_mpfr_rnd_from_value(argv[1]);
+      prec = mpfr_get_default_prec();
+    } else if (FIXNUM_P(argv[1])) {
+      prec = NUM2INT(argv[1]);
+      rnd = mpfr_get_default_rounding_mode();
+    } else {
+      rb_raise(rb_eArgError, "Invalid argument.");
+    }
+    break;
+  case 3:
+    r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+    break;
+  default:
+    rb_raise(rb_eArgError, "Invalid number of arguments.");
+    break;
+  }
+  if(MPFR_P(argv[0])){
+    MPFR *ptr_obj;
+    r_mpfr_get_struct(ptr_obj, argv[0]);
+    r_mpfr_make_struct_init2(val, ptr, prec);
+    mpfr_set(ptr, ptr_obj, rnd);
+  }else{
+    switch(TYPE(argv[0])){
+    case T_STRING:
+      r_mpfr_make_struct_init2(val, ptr, prec);
+      mpfr_set_str(ptr, StringValuePtr(argv[0]), 10, rnd);
+      break;
+    case T_FLOAT:
+      r_mpfr_make_struct_init2(val, ptr, prec);
+      mpfr_set_d(ptr, NUM2DBL(argv[0]), rnd);
+      break;
+    case T_FIXNUM:
+      r_mpfr_make_struct_init2(val, ptr, prec);
+      mpfr_set_si(ptr, FIX2LONG(argv[0]), rnd);
+      break;
+    case T_BIGNUM:
+      r_mpfr_make_struct_init2(val, ptr, prec);
+      r_mpfr_convert_to_str_set(ptr, argv[0], rnd);
+      break;
+    default:
+      val = r_mpfr_robj_to_mpfr(argv[0], argc - 1, argv + 1);
+      break;
+    }
+  }
   return val;
 }
 
@@ -520,7 +517,37 @@ static VALUE r_mpfr_initialize(int argc, VALUE *argv, VALUE self)
 {
   MPFR *ptr;
   r_mpfr_get_struct(ptr, self);
-  r_mpfr_set_initial_value(ptr, argc, argv);
+  switch(argc){
+  case 0:
+    mpfr_init(ptr);
+    mpfr_set_nan(ptr);
+    break;
+  case 1:
+    mpfr_init(ptr);
+    r_mpfr_set_robj(ptr, argv[0], mpfr_get_default_rounding_mode());
+    break;
+  case 2:
+    if (SYMBOL_P(argv[1])) {
+      mpfr_init(ptr);
+      r_mpfr_set_robj(ptr, argv[0], r_mpfr_rnd_from_value(argv[1]));
+    } else if (FIXNUM_P(argv[1])) {
+      mpfr_init2(ptr, NUM2INT(argv[1]));
+      r_mpfr_set_robj(ptr, argv[0], mpfr_get_default_rounding_mode());
+    }
+    break;
+  case 3:
+    {
+      mp_prec_t prec;
+      mp_rnd_t rnd;
+      r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+      mpfr_init2(ptr, prec);
+      r_mpfr_set_robj(ptr, argv[0], rnd);
+    }
+    break;
+  default:
+    rb_raise(rb_eArgError, "Invalid number of arguments.");
+    break;
+  }
   return Qtrue;
 }
 
@@ -538,12 +565,7 @@ static VALUE r_mpfr_initialize_copy(VALUE self, VALUE other)
 /* Return array which have MPFR instance converted to from p1 and self. */
 static VALUE r_mpfr_coerce(VALUE self, VALUE other)
 {
-  VALUE val_other;
-  MPFR *ptr_self, *ptr_other;
-  r_mpfr_get_struct(ptr_self, self);
-  r_mpfr_make_struct_init2(val_other, ptr_other, mpfr_get_prec(ptr_self));
-  r_mpfr_set_robj(ptr_other, other, mpfr_get_default_rounding_mode());
-  return rb_ary_new3(2, val_other, self);
+  return rb_ary_new3(2, r_mpfr_global_new(1, &other, r_mpfr_class), self);
 }
 
 /* Return NaN. This method takes one optional argument meaning precision. */
@@ -679,7 +701,7 @@ static VALUE r_mpfr_swap(VALUE self, VALUE other)
 {
   MPFR *ptr_self, *ptr_other;
   r_mpfr_get_struct(ptr_self, self);
-  if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, other))){
+  if(MPFR_P(other)){
     r_mpfr_get_struct(ptr_other, other);
   }else{
     rb_raise(rb_eArgError, "Argument must be MPFR object.");
@@ -816,7 +838,7 @@ static VALUE r_mpfr_add(VALUE self, VALUE other)
   r_mpfr_get_struct(ptr_self, self);
   r_mpfr_make_struct_init(val_ret, ptr_return);
 
-  if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, other))){
+  if(MPFR_P(other)){
     r_mpfr_get_struct(ptr_other, other);
     mpfr_add(ptr_return, ptr_self, ptr_other, mpfr_get_default_rounding_mode());
   }else if(TYPE(other) == T_FIXNUM){
@@ -845,7 +867,7 @@ static VALUE r_mpfr_sub(VALUE self, VALUE other)
   r_mpfr_get_struct(ptr_self, self);
   r_mpfr_make_struct_init(val_ret, ptr_return);
 
-  if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, other))){
+  if(MPFR_P(other)){
     r_mpfr_get_struct(ptr_other, other);
     mpfr_sub(ptr_return, ptr_self, ptr_other, mpfr_get_default_rounding_mode());
   }else if(TYPE(other) == T_FIXNUM){
@@ -874,7 +896,7 @@ static VALUE r_mpfr_mul(VALUE self, VALUE other)
   r_mpfr_get_struct(ptr_self, self);
   r_mpfr_make_struct_init(val_ret, ptr_return);
 
-  if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, other))){
+  if(MPFR_P(other)){
     r_mpfr_get_struct(ptr_other, other);
     mpfr_mul(ptr_return, ptr_self, ptr_other, mpfr_get_default_rounding_mode());
   }else if(TYPE(other) == T_FIXNUM){
@@ -903,7 +925,7 @@ static VALUE r_mpfr_div(VALUE self, VALUE other)
   r_mpfr_get_struct(ptr_self, self);
   r_mpfr_make_struct_init(val_ret, ptr_return);
 
-  if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, other))){
+  if(MPFR_P(other)){
     r_mpfr_get_struct(ptr_other, other);
     mpfr_div(ptr_return, ptr_self, ptr_other, mpfr_get_default_rounding_mode());
   }else if(TYPE(other) == T_FIXNUM){
@@ -985,7 +1007,7 @@ static VALUE r_mpfr_math_add(int argc, VALUE *argv, VALUE self)
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
 
-  if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, argv[1]))){
+  if(MPFR_P(argv[1])){
     r_mpfr_get_struct(ptr_arg2, argv[1]);
     mpfr_add(ptr_return, ptr_arg1, ptr_arg2, rnd);
   }else if(TYPE(argv[1]) == T_FIXNUM){
@@ -1009,7 +1031,7 @@ static VALUE r_mpfr_math_sub(int argc, VALUE *argv, VALUE self)
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
 
-  if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, argv[1]))){
+  if(MPFR_P(argv[1])){
     r_mpfr_get_struct(ptr_arg2, argv[1]);
     mpfr_sub(ptr_return, ptr_arg1, ptr_arg2, rnd);
   }else if(TYPE(argv[1]) == T_FIXNUM){
@@ -1033,7 +1055,7 @@ static VALUE r_mpfr_math_mul(int argc, VALUE *argv, VALUE self)
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
 
-  if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, argv[1]))){
+  if(MPFR_P(argv[1])){
     r_mpfr_get_struct(ptr_arg2, argv[1]);
     mpfr_mul(ptr_return, ptr_arg1, ptr_arg2, rnd);
   }else if(TYPE(argv[1]) == T_FIXNUM){
@@ -1057,7 +1079,7 @@ static VALUE r_mpfr_math_div(int argc, VALUE *argv, VALUE self)
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
 
-  if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, argv[1]))){
+  if(MPFR_P(argv[1])){
     r_mpfr_get_struct(ptr_arg2, argv[1]);
     mpfr_div(ptr_return, ptr_arg1, ptr_arg2, rnd);
   }else if(TYPE(argv[1]) == T_FIXNUM){
@@ -1238,7 +1260,7 @@ static VALUE r_mpfr_cmp(VALUE self, VALUE other)
   r_mpfr_get_struct(ptr_self, self);
   int val_ret;
 
-  if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, other))){
+  if(MPFR_P(other)){
     r_mpfr_get_struct(ptr_other, other);
     val_ret = mpfr_cmp(ptr_self, ptr_other);
   }else if(TYPE(other) == T_FIXNUM){
@@ -2659,7 +2681,7 @@ static VALUE r_mpfr_math_free_cache(VALUE self)
 static VALUE r_mpfr_math_sum(int argc, VALUE *argv, VALUE self){
   int num;
   for (num = 0; num < argc; num += 1) {
-    if(!RTEST(rb_funcall(__mpfr_class__, eqq, 1, argv[num]))){ break; }
+    if(!MPFR_P(argv[num])){ break; }
   }
   
   mp_rnd_t rnd;
@@ -2919,6 +2941,21 @@ void Init_mpfr()
     MPFR#to_s makes a string corresponding to mpfr_printf("%.Re", fr).
     If you want to adjust format of string, you can MPFR#to_strf.
     MPFR#to_strf(format) returns a string corresponding to mpfr_printf(format, fr).
+
+    == Conversion to MPFR
+
+    ruby-mpfr defines methods 'to_fr' for Float, Fixnum, and Bignum and
+    uses these methods to convert an object of MPFR.
+    In particular, MPFR() uses method 'to_fr'.
+    The method 'to_fr' must accept two optional arguments that are rounding mode and precision
+    if you want to define a method 'to_fr' for your class.
+
+    == Conversion between MPFR and GMP (experimental)
+
+    We can use ruby-mpfr with gmp bindings of ruby (https://github.com/srawlins/gmp).
+    If we add require 'mpfr/mpfr_gmp' in ruby code,
+    some conversion methods between MPFR and GMP are added.
+
   */
   r_mpfr_class = rb_define_class("MPFR", rb_cNumeric);
   rb_include_module(r_mpfr_class, rb_mComparable);
