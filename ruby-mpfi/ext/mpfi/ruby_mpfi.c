@@ -39,16 +39,49 @@ VALUE r_mpfi_make_new_fi_obj(MPFI *ptr)
   return ret;
 }
 
-/* VALUE obj must have method to_s or to_str. */
-static void r_mpfi_set_from_object (MPFI *ptr, VALUE obj)
+static void r_mpfi_set_interv_from_robjs (MPFI *ptr, VALUE a1, VALUE a2)
 {
+  if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, a1)) && RTEST(rb_funcall(__mpfr_class__, eqq, 1, a2))){
+    MPFR *ptr_a1, *ptr_a2;
+    r_mpfr_get_struct(ptr_a1, a1);
+    r_mpfr_get_struct(ptr_a2, a2);
+    r_mpfi_set_function_state(mpfi_interv_fr(ptr, ptr_a1, ptr_a2));
+  }else if((TYPE(a1) == T_FIXNUM) && (TYPE(a2) == T_FIXNUM)){
+    r_mpfi_set_function_state(mpfi_interv_si(ptr, FIX2LONG(a1), FIX2LONG(a2)));
+  }else if((TYPE(a1) == T_FLOAT) && (TYPE(a2) == T_FLOAT)){
+    r_mpfi_set_function_state(mpfi_interv_d(ptr, NUM2DBL(a1), NUM2DBL(a2)));
+  }else{
+    MPFR *ptr_a1, *ptr_a2;
+    volatile VALUE tmp_a1 = r_mpfr_new_fr_obj(a1);
+    volatile VALUE tmp_a2 = r_mpfr_new_fr_obj(a2);
+    r_mpfr_get_struct(ptr_a1, tmp_a1);
+    r_mpfr_get_struct(ptr_a2, tmp_a2);
+    r_mpfi_set_function_state(mpfi_interv_fr(ptr, ptr_a1, ptr_a2));
+  }
+}
+
+static void r_mpfi_set_from_array (MPFI *ptr, VALUE obj)
+{
+  if (RARRAY_LEN(obj) != 2) {
+    rb_raise(rb_eArgError, "Invalid size of array for MPFI initialization.");
+  }
+  r_mpfi_set_interv_from_robjs(ptr, rb_ary_entry(obj, 0), rb_ary_entry(obj, 1));
+}
+
+/* VALUE obj must have method to_s or to_str.
+   The formats of strings that we can use are "number" or "[number1, number2]"
+   (refer MPFI documents). */
+static void r_mpfi_set_from_string (MPFI *ptr, VALUE obj)
+{
+  char *str;
   if(RTEST(rb_funcall(rb_funcall(obj, class, 0), method_defined, 1, __sym_to_str__))){
-    char *str = StringValuePtr(obj);
-    mpfi_set_str(ptr, str, 10);
+    str = StringValuePtr(obj);
   }else if(RTEST(rb_funcall(rb_funcall(obj, class, 0), method_defined, 1, __sym_to_s__))){
     VALUE tmp = rb_funcall(obj, to_s, 0);
-    char *str = StringValuePtr(tmp);
-    mpfi_set_str(ptr, str, 10);
+    str = StringValuePtr(tmp);
+  }
+  if(mpfi_set_str(ptr, str, 10) != 0) {
+    rb_raise(rb_eArgError, "Invalid string format of MPFI initialization: \"%s\"", str);
   }
 }
 
@@ -70,8 +103,11 @@ void r_mpfi_set_robj(MPFI *ptr, VALUE obj)
     case T_FIXNUM:
       mpfi_set_si(ptr, FIX2LONG(obj));
       break;
+    case T_ARRAY:
+      r_mpfi_set_from_array(ptr, obj);
+      break;
     default:
-      r_mpfi_set_from_object(ptr, obj);
+      r_mpfi_set_from_string(ptr, obj);
       break;
     }
   }
@@ -126,7 +162,11 @@ static VALUE r_mpfi_global_new(int argc, VALUE *argv, VALUE self)
   return val;
 }
 
-/* Two optional arguments are acceptable. First argument is value and second is precision. */
+/* Two optional arguments are acceptable.
+   The first argument means value of number,
+   which is MPFR, Float, Fixnum, String, and Array having two elements.
+   The string must be "number" or "[number1, number2]" (refer MPFI documents).
+   The second one is precision and its class is Fixnum. */
 static VALUE r_mpfi_initialize(int argc, VALUE *argv, VALUE self)
 {
   MPFI *ptr;
@@ -225,7 +265,7 @@ static VALUE r_mpfi_inspect(VALUE self)
   r_mpfi_get_struct(ptr_s, self);
   char *ret_str;
   mpfr_asprintf(&ret_str, "#<MPFI:%lx,['%.Re %.Re'],%d>",
-		NUM2LONG(rb_funcall(self, object_id, 0)), r_mpfi_left_ptr(ptr_s), r_mpfi_right_ptr(ptr_s), mpfi_get_prec(ptr_s));
+  		NUM2LONG(rb_funcall(self, object_id, 0)), r_mpfi_left_ptr(ptr_s), r_mpfi_right_ptr(ptr_s), mpfi_get_prec(ptr_s));
   VALUE ret_val = rb_str_new2(ret_str);
   mpfr_free_str(ret_str);
   return ret_val;
@@ -810,25 +850,8 @@ static VALUE r_mpfi_interv (VALUE self, VALUE a1, VALUE a2)
 {
   MPFI *ptr_self;
   r_mpfi_get_struct(ptr_self, self);
-
-  if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, a1)) && RTEST(rb_funcall(__mpfr_class__, eqq, 1, a2))){
-    MPFR *ptr_a1, *ptr_a2;
-    r_mpfr_get_struct(ptr_a1, a1);
-    r_mpfr_get_struct(ptr_a2, a2);
-    r_mpfi_set_function_state(mpfi_interv_fr(ptr_self, ptr_a1, ptr_a2));
-  }else if((TYPE(a1) == T_FIXNUM) && (TYPE(a2) == T_FIXNUM)){
-    r_mpfi_set_function_state(mpfi_interv_si(ptr_self, FIX2LONG(a1), FIX2LONG(a2)));
-  }else if((TYPE(a1) == T_FLOAT) && (TYPE(a2) == T_FLOAT)){
-    r_mpfi_set_function_state(mpfi_interv_d(ptr_self, NUM2DBL(a1), NUM2DBL(a2)));
-  }else{
-    MPFR *ptr_a1, *ptr_a2;
-    volatile VALUE tmp_a1 = r_mpfr_new_fr_obj(a1);
-    r_mpfr_get_struct(ptr_a1, tmp_a1);
-    volatile VALUE tmp_a2 = r_mpfr_new_fr_obj(a2);
-    r_mpfr_get_struct(ptr_a2, tmp_a2);
-    r_mpfi_set_function_state(mpfi_interv_fr(ptr_self, ptr_a1, ptr_a2));
-  }
-  return self;  
+  r_mpfi_set_interv_from_robjs(ptr_self, a1, a2);
+  return self;
 }
 
 /* Return new MPFI of which endpoints are the same as p1 and p2. */
@@ -837,29 +860,7 @@ static VALUE r_mpfi_interval (int argc, VALUE *argv, VALUE self)
   VALUE val_ret;
   MPFI *ptr_ret;
   r_mpfi_make_struct_init2(val_ret, ptr_ret, r_mpfr_prec_from_optional_argument(2, 3, argc, argv));
-
-  if(RTEST(rb_funcall(__mpfr_class__, eqq, 1, argv[0])) && RTEST(rb_funcall(__mpfr_class__, eqq, 1, argv[1]))){
-    MPFR *ptr_a0, *ptr_a1;
-    r_mpfr_get_struct(ptr_a0, argv[0]);
-    r_mpfr_get_struct(ptr_a1, argv[1]);
-    r_mpfi_set_function_state(mpfi_interv_fr(ptr_ret, ptr_a0, ptr_a1));
-  }else if((TYPE(argv[0]) == T_FIXNUM) && (TYPE(argv[1]) == T_FIXNUM)){
-    r_mpfi_set_function_state(mpfi_interv_si(ptr_ret, FIX2LONG(argv[0]), FIX2LONG(argv[1])));
-  }else if((TYPE(argv[0]) == T_FLOAT) && (TYPE(argv[1]) == T_FLOAT)){
-    r_mpfi_set_function_state(mpfi_interv_d(ptr_ret, NUM2DBL(argv[0]), NUM2DBL(argv[1])));
-  }else{
-    /* printf("r_mpfi_interval [start]\n"); */
-    MPFR *ptr_a0, *ptr_a1;
-    volatile VALUE tmp1 = r_mpfr_new_fr_obj(argv[0]), tmp2 = r_mpfr_new_fr_obj(argv[1]);
-    r_mpfr_get_struct(ptr_a0, tmp1);
-    r_mpfr_get_struct(ptr_a1, tmp2);
-    /* volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
-       r_mpfr_get_struct(ptr_a0, tmp_argv0); */
-    /* volatile VALUE tmp_argv1 = r_mpfr_new_fr_obj(argv[1]);
-       r_mpfr_get_struct(ptr_a1, tmp_argv1); */
-    r_mpfi_set_function_state(mpfi_interv_fr(ptr_ret, ptr_a0, ptr_a1));
-    /* printf("r_mpfi_interval [end]\n"); */
-  }
+  r_mpfi_set_interv_from_robjs(ptr_ret, argv[0], argv[1]);
   return val_ret;
 }
 
