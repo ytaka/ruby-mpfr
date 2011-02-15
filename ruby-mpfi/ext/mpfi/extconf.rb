@@ -1,5 +1,19 @@
 require 'mkmf'
 
+i = 0
+while i < ARGV.size
+  case ARGV[i]
+  when '--ldflags'
+    if args = ARGV[i+1]
+      i += 1
+      $LDFLAGS += " #{args}"
+    end
+  else
+    raise "Invalid option: #{ARGV[i]}"
+  end
+  i += 1
+end
+
 $CFLAGS += " -Wall"
 
 dir_config("mpfr")
