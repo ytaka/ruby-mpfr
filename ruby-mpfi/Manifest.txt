@@ -30,9 +30,6 @@ ext/mpfi_matrix/mpfi/ruby_mpfr_matrix.h
 lib/mpfi/matrix.rb
 lib/mpfi/version.rb
 ruby-mpfi.gemspec
-script/console
-script/destroy
-script/generate
 spec/mpfi/generate_number_module.rb
 spec/mpfi/mpfi_alloc_spec.rb
 spec/mpfi/mpfi_diam_arithmetic_spec.rb
@@ -42,6 +39,7 @@ spec/mpfi/mpfi_math_functions_spec.rb
 spec/mpfi/mpfi_set_operation_spec.rb
 spec/mpfi/ruby-mpfi_spec.rb
 spec/mpfi/spec_helper.rb
+spec/mpfi/string_spec.rb
 spec/mpfi_complex/spec_helper.rb
 spec/mpfi_matrix/generate_matrix_arguments.rb
 spec/mpfi_matrix/mpfi_matrix_alloc_spec.rb
@@ -54,5 +52,4 @@ spec/mpfi_matrix/mpfi_matrix_subdivision_spec.rb
 spec/mpfi_matrix/mpfi_square_matrix_spec.rb
 spec/mpfi_matrix/mpfi_vector_spec.rb
 spec/mpfi_matrix/spec_helper.rb
-spec/spec.opts
 tasks/extconf.rake
