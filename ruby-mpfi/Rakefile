@@ -19,8 +19,26 @@ $hoe = Hoe.spec 'ruby-mpfi' do
   self.extra_rdoc_files << 'README.rdoc'
 end
 
-require 'newgem/tasks'
-Dir['tasks/**/*.rake'].each { |t| load t }
+desc "Run 'make realclean' for extended libraries"
+task "ext:realclean" do
+  Dir.glob("ext/**/Makefile").each do |path|
+    system("cd #{File.dirname(path)}; make realclean")
+  end
+end
+
+desc "Run 'make clean' for extended libraries"
+task "ext:clean" do
+  Dir.glob("ext/**/Makefile").each do |path|
+    system("cd #{File.dirname(path)}; make clean")
+  end
+end
+
+desc "Run 'make realclean' for extended libraries"
+task 'ext:make' do
+  Dir.glob("ext/**/extconf.rb").each do |path|
+    system("cd #{File.dirname(path)}; ruby extconf.rb && make")
+  end
+end
 
 # TODO - want other tests/tasks run by default? Add them to the list
 # remove_task :default
