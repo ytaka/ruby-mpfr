@@ -1,8 +1,4 @@
-require 'rubygems'
-require 'spec'
-require 'mpfr'
-require 'mpfi'
-require "#{File.dirname(File.expand_path(__FILE__))}/generate_number_module.rb"
+require_relative 'spec_helper'
 
 #
 # The following is test for interval functions and endpoints. 

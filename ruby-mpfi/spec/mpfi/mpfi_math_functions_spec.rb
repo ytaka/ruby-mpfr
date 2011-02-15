@@ -1,9 +1,4 @@
-require 'rubygems'
-require 'spec'
-require 'mpfr'
-require 'mpfi'
-require "#{File.dirname(File.expand_path(__FILE__))}/generate_number_module.rb"
-
+require_relative 'spec_helper'
 
 describe MPFI, "when calculating mathematical functions" do
   it "should not raise error" do

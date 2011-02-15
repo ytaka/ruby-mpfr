@@ -7,4 +7,6 @@ rescue LoadError
 end
 
 $:.unshift(File.dirname(__FILE__) + '/../lib')
+require 'mpfr'
 require 'mpfi'
+require "#{File.dirname(File.expand_path(__FILE__))}/generate_number_module.rb"

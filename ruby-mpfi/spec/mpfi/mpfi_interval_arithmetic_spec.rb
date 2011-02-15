@@ -1,8 +1,4 @@
-require 'rubygems'
-require 'spec'
-require 'mpfr'
-require 'mpfi'
-require "#{File.dirname(File.expand_path(__FILE__))}/generate_number_module.rb"
+require_relative 'spec_helper'
 
 #
 # To test method +, -, / and *, we calculate these operator for MPFR and MPFI
