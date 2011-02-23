@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__)) + '/spec_helper.rb'
 
-describe MPFR, 'when allocating objects from integer' do
+describe MPFR, 'when allocating objects from numbers' do
   it "should equal bignum" do
     MPFR.set_default_prec(100)
     num = 1
@@ -23,13 +23,6 @@ describe MPFR, 'when allocating objects from integer' do
 
   end
 
-  it "should allocate from string" do
-    MPFR.set_default_prec(53)
-    for i in 0..1000
-      MPFR.new(i.to_s).should == i
-    end
-  end
-
   it "should equal float" do
     MPFR.set_default_prec(256)
     error = MPFR.new('1.0e-10')
@@ -38,6 +31,18 @@ describe MPFR, 'when allocating objects from integer' do
     end
   end
 
+end
+
+describe MPFR, 'when allocating from objects that is not numbers' do
+  it "should allocate from string" do
+    MPFR.set_default_prec(53)
+    for i in 0..1000
+      MPFR.new(i.to_s).should == i
+    end
+  end
+end
+
+describe MPFR, 'when creating new objects' do
   it "should duplicate" do
     MPFR.set_default_prec(141)
     for i in 0..1000
@@ -68,6 +73,4 @@ describe MPFR, 'when allocating objects from integer' do
       b.should == c
     end
   end
-  
 end
-
