@@ -40,6 +40,13 @@ describe MPFR, 'when allocating from objects that is not numbers' do
       MPFR.new(i.to_s).should == i
     end
   end
+
+  it "should raise error" do
+    lambda { MPFR.new(nil) }.should raise_error
+    lambda { MPFR.new(false) }.should raise_error
+    lambda { MPFR.new([]) }.should raise_error
+    lambda { MPFR.new(:sym) }.should raise_error
+  end
 end
 
 describe MPFR, 'when creating new objects' do
