@@ -34,8 +34,7 @@ mp_rnd_t r_mpfr_rnd_from_value(VALUE rnd)
   } else if (rnd_id == id_rnda) {
     return MPFR_RNDA;
   }
-  rb_raise(rb_eArgError, "Argument must be Rounding Mode.");
-  /* rb_raise(rb_eArgError, "Argument must be Rounding Mode: %s", rb_class2name(rnd)); */
+  rb_raise(rb_eArgError, "Argument must be a constant meaning rounding mode, but the objects is %s.", rb_obj_classname(rnd));
 }
 
 /* If argc equals max, convert last argument to rounding mode number. */
@@ -407,7 +406,7 @@ void r_mpfr_set_robj(MPFR *ptr, VALUE obj, mp_rnd_t rnd)
 	r_mpfr_get_struct(ptr_obj, tmp);
 	mpfr_set(ptr, ptr_obj, rnd);
       } else {
-	rb_raise(rb_eArgError, "Invalid class %s for making MPFR.", rb_class2name(obj));
+	rb_raise(rb_eArgError, "Invalid class %s for making MPFR.", rb_obj_classname(obj));
       }
       break;
     }
@@ -419,7 +418,7 @@ VALUE r_mpfr_robj_to_mpfr(VALUE obj, int argc, VALUE *argv)
   if (rb_respond_to(obj, to_fr)) {
     return rb_funcall2(obj, to_fr, argc, argv);
   }
-  rb_raise(rb_eArgError, "The object of %s can not been converted to MPFR.", rb_class2name(obj));
+  rb_raise(rb_eArgError, "The object of %s can not been converted to MPFR.", rb_obj_classname(obj));
 }
 
 /* If obj is MPFR instance, then this method returns obj. */
