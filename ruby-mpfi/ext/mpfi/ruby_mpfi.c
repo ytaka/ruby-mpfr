@@ -216,31 +216,33 @@ static VALUE r_mpfi_swap (VALUE self, VALUE other)
   return self;
 }
 
-static VALUE r_mpfi_marshal_dump(VALUE self)
+char *r_mpfi_dump_to_string(MPFI *ptr_s)
 {
-  MPFI *ptr_s;
-  r_mpfi_get_struct(ptr_s, self);
-  char *str_right, *str_left, *ret_str;
+  char *ret_str, *str_right, *str_left;
   str_left = r_mpfr_dump_to_string(r_mpfi_left_ptr(ptr_s));
   str_right = r_mpfr_dump_to_string(r_mpfi_right_ptr(ptr_s));
   if(!mpfr_asprintf(&ret_str, "%s %s", str_left, str_right)) {
     rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
   }
-  VALUE ret_val = rb_str_new2(ret_str);
   mpfr_free_str(str_left);
   mpfr_free_str(str_right);
-  free(ret_str);
+  return ret_str;
+}
+
+static VALUE r_mpfi_marshal_dump(VALUE self)
+{
+  MPFI *ptr_s;
+  r_mpfi_get_struct(ptr_s, self);
+  char *ret_str = r_mpfi_dump_to_string(ptr_s);
+  VALUE ret_val = rb_str_new2(ret_str);
+  mpfr_free_str(ret_str);
   return ret_val;
 }
 
-static VALUE r_mpfi_marshal_load(VALUE self, VALUE dump_string)
+void r_mpfi_load_string(MPFI *ptr_s, const char *dump)
 {
   int i;
-  MPFI *ptr_s;
-  r_mpfi_get_struct(ptr_s, self);
-  Check_Type(dump_string, T_STRING);
-  char *dump, *left;
-  dump = RSTRING_PTR(dump_string);
+  char *left;
   i = 0;
   while (dump[i] != ' ') {
     i++;
@@ -252,6 +254,16 @@ static VALUE r_mpfi_marshal_load(VALUE self, VALUE dump_string)
   r_mpfr_load_string(r_mpfi_left_ptr(ptr_s), left);
   free(left);
   r_mpfr_load_string(r_mpfi_right_ptr(ptr_s), dump + i);
+}
+
+static VALUE r_mpfi_marshal_load(VALUE self, VALUE dump_string)
+{
+  MPFI *ptr_s;
+  char *dump;
+  r_mpfi_get_struct(ptr_s, self);
+  Check_Type(dump_string, T_STRING);
+  dump = RSTRING_PTR(dump_string);
+  r_mpfi_load_string(ptr_s, dump);
   return self;
 }
 
