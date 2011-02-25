@@ -17,5 +17,4 @@ spec/mpc/const_spec.rb
 spec/mpc/functions_spec.rb
 spec/mpc/generate_complex_number.rb
 spec/mpc/spec_helper.rb
-spec/spec.opts
 tasks/extconf.rake
