@@ -30,11 +30,15 @@ VALUE r_mpfr_make_new_fr_obj(MPFR *ptr);
 VALUE r_mpfr_make_new_fr_obj2(MPFR *ptr, int prec);
 VALUE r_mpfr_new_fr_obj(VALUE obj);
 void r_mpfr_set_robj(MPFR *ptr, VALUE obj, mp_rnd_t rnd);
+VALUE r_mpfr_robj_to_mpfr(VALUE obj, int argc, VALUE *argv);
 
 mp_rnd_t r_mpfr_rnd_from_value(VALUE rnd);
 mp_rnd_t r_mpfr_rnd_from_optional_argument(int min, int max, int argc, VALUE *argv);
 mp_rnd_t r_mpfr_prec_from_optional_argument(int min, int max, int argc, VALUE *argv);
 void r_mpfr_get_rnd_prec_from_optional_arguments(mp_rnd_t *rnd, mp_prec_t *prec, int min, int max, int argc, VALUE *argv);
+
+char *r_mpfr_dump_to_string(MPFR *ptr_s);
+void r_mpfr_load_string(MPFR *ptr_s, const char *dump);
 
 #endif /* _RUBY_MPFR_H_ */
 
