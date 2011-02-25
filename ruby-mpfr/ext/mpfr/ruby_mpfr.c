@@ -2760,10 +2760,8 @@ static VALUE r_mpfr_buildopt_decimal_p(VALUE self)
   return mpfr_buildopt_decimal_p() == 0 ? Qnil : Qtrue;
 }
 
-static VALUE r_mpfr_marshal_dump(VALUE self)
+char *r_mpfr_dump_to_string(MPFR *ptr_s)
 {
-  MPFR *ptr_s;
-  r_mpfr_get_struct(ptr_s, self);
   char *ret_str;
   if (mpfr_regular_p(ptr_s)) {
     mpz_t m;
@@ -2789,19 +2787,23 @@ static VALUE r_mpfr_marshal_dump(VALUE self)
     }
     mpfr_asprintf(&ret_str, "%c%ld", type, mpfr_get_prec(ptr_s));
   }
+  return ret_str;
+}
+
+static VALUE r_mpfr_marshal_dump(VALUE self)
+{
+  MPFR *ptr_s;
+  r_mpfr_get_struct(ptr_s, self);
+  char *ret_str = r_mpfr_dump_to_string(ptr_s);
   VALUE ret_val = rb_str_new2(ret_str);
   mpfr_free_str(ret_str);
   return ret_val;
 }
 
-static VALUE r_mpfr_marshal_load(VALUE self, VALUE dump_string)
+void r_mpfr_load_string(MPFR *ptr_s, const char *dump)
 {
   long int prec;
-  MPFR *ptr_s;
-  r_mpfr_get_struct(ptr_s, self);
-  Check_Type(dump_string, T_STRING);
-  char *dump, type;
-  dump = RSTRING_PTR(dump_string);
+  char type;
   type = dump[0];
   dump++;
   if (type == MPFR_DUMP_NUMBER) {
@@ -2838,6 +2840,14 @@ static VALUE r_mpfr_marshal_load(VALUE self, VALUE dump_string)
       rb_raise(rb_eArgError, "Invalid dumped data for marshal_load.");
     }
   }
+}
+
+static VALUE r_mpfr_marshal_load(VALUE self, VALUE dump_string)
+{
+  MPFR *ptr_s;
+  r_mpfr_get_struct(ptr_s, self);
+  Check_Type(dump_string, T_STRING);
+  r_mpfr_load_string(ptr_s, RSTRING_PTR(dump_string));
   return self;
 }
 
