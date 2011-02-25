@@ -196,47 +196,19 @@ static VALUE r_mpfr_matrix_marshal_dump(VALUE self)
 {
   MPFRMatrix *ptr;
   r_mpfr_get_matrix_struct(ptr, self);
-  mpz_t m;
-  mp_exp_t e;
-  mpz_init(m);
   int i;
-  MPFR *ptr_el;
-  char *tmp_str, type;
+  char *tmp_str;
   VALUE ret_ary;
   ret_ary = rb_ary_new();
   rb_ary_push(ret_ary, INT2FIX(ptr->row));
   rb_ary_push(ret_ary, INT2FIX(ptr->column));
 
   for (i = 0; i < ptr->size; i++) {
-    ptr_el = ptr->data + i;
-    if (mpfr_regular_p(ptr_el)) {
-      e = mpfr_get_z_2exp(m, ptr_el);
-      if (!mpfr_asprintf(&tmp_str, "%c%ld\t%ld\t%Zd", MPFR_DUMP_NUMBER, mpfr_get_prec(ptr_el), (long int)e, m)) {
-	rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
-      }
-    } else {
-      if (mpfr_zero_p(ptr_el)) {
-	if (mpfr_sgn(ptr_el) >= 0) {
-	  type = MPFR_DUMP_PZERO;
-	} else {
-	  type = MPFR_DUMP_MZERO;
-	}
-      } else if (mpfr_nan_p(ptr_el)) {
-	type = MPFR_DUMP_NAN;
-      } else if (mpfr_sgn(ptr_el) >= 0) {
-	type = MPFR_DUMP_PINF;
-      } else {
-	type = MPFR_DUMP_MINF;
-      }
-      if (!mpfr_asprintf(&tmp_str, "%c%ld", type, mpfr_get_prec(ptr_el))) {
-	rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
-      }
-    }
+    tmp_str = r_mpfr_dump_to_string(ptr->data + i);
     rb_ary_push(ret_ary, rb_str_new2(tmp_str));
     mpfr_free_str(tmp_str);
   }
 
-  mpz_clear(m);
   return ret_ary;
 }
 
@@ -249,51 +221,15 @@ static VALUE r_mpfr_matrix_marshal_load(VALUE self, VALUE dump_ary)
   ptr->column = NUM2INT(rb_ary_entry(dump_ary, 1));
   ptr->size = ptr->row * ptr->column;
   ptr->data = ALLOC_N(MPFR, ptr->size);
-  int i, j;
-  long int prec, e;
-  MPFR *ptr_el;
-  char *dump, type;
+  int i;
+  char *dump;
   VALUE dump_element;
-  mpz_t m;
 
   for(i = 0; i < ptr->size; i++){
     dump_element = rb_ary_entry(dump_ary, i + 2);
-    ptr_el = ptr->data + i;
     Check_Type(dump_element, T_STRING);
     dump = RSTRING_PTR(dump_element);
-    type = dump[0];
-    dump++;
-    if (type == MPFR_DUMP_NUMBER) {
-      mpz_init(m);
-      sscanf(dump, "%ld\t%ld\t", &prec, &e);
-      j = 0;
-      while (j < 2) {
-	if (dump[0] == '\t') {
-	  j++;
-	}
-	dump++;
-      }
-      mpz_set_str(m, dump, 10);
-      mpfr_init2(ptr_el, prec);
-      mpfr_set_z_2exp(ptr_el, m, e, MPFR_RNDN);
-      mpz_clear(m);
-    } else {
-      sscanf(dump, "%ld", &prec);
-      mpfr_init2(ptr_el, prec);
-      if (type == MPFR_DUMP_PZERO) {
-	mpfr_set_zero(ptr_el, +1);
-      } else if (type == MPFR_DUMP_MZERO){
-	mpfr_set_zero(ptr_el, -1);
-      } else if (type == MPFR_DUMP_NAN) {
-	mpfr_set_nan(ptr_el);
-      } else if (type == MPFR_DUMP_PINF) {
-	mpfr_set_inf(ptr_el, +1);
-      } else if (type == MPFR_DUMP_MINF) {
-	mpfr_set_inf(ptr_el, -1);
-      } else {
-	rb_raise(rb_eArgError, "Invalid dumped data for marshal_load.");
-      }
-    }
+    r_mpfr_load_string(ptr->data + i, dump);
   }
   return self;
 }
