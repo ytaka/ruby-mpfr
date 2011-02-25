@@ -216,6 +216,45 @@ static VALUE r_mpfi_swap (VALUE self, VALUE other)
   return self;
 }
 
+static VALUE r_mpfi_marshal_dump(VALUE self)
+{
+  MPFI *ptr_s;
+  r_mpfi_get_struct(ptr_s, self);
+  char *str_right, *str_left, *ret_str;
+  str_left = r_mpfr_dump_to_string(r_mpfi_left_ptr(ptr_s));
+  str_right = r_mpfr_dump_to_string(r_mpfi_right_ptr(ptr_s));
+  if(!mpfr_asprintf(&ret_str, "%s %s", str_left, str_right)) {
+    rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+  }
+  VALUE ret_val = rb_str_new2(ret_str);
+  mpfr_free_str(str_left);
+  mpfr_free_str(str_right);
+  free(ret_str);
+  return ret_val;
+}
+
+static VALUE r_mpfi_marshal_load(VALUE self, VALUE dump_string)
+{
+  int i;
+  MPFI *ptr_s;
+  r_mpfi_get_struct(ptr_s, self);
+  Check_Type(dump_string, T_STRING);
+  char *dump, *left;
+  dump = RSTRING_PTR(dump_string);
+  i = 0;
+  while (dump[i] != ' ') {
+    i++;
+  }
+  i++;
+  left = malloc(sizeof(char) * i);
+  strncpy(left, dump, i - 1);
+  left[i - 1] = '\0';
+  r_mpfr_load_string(r_mpfi_left_ptr(ptr_s), left);
+  free(left);
+  r_mpfr_load_string(r_mpfi_right_ptr(ptr_s), dump + i);
+  return self;
+}
+
 /* ------------------------------ allocation end ------------------------------ */
 
 /* ------------------------------ Rounding Modes and Precision Handling start ------------------------------*/
@@ -1517,6 +1556,9 @@ void Init_mpfi()
 
   /* ------------------------------ string start ------------------------------ */
   rb_define_method(r_mpfi_class, "inspect", r_mpfi_inspect, 0);
+
+  rb_define_method(r_mpfi_class, "marshal_dump", r_mpfi_marshal_dump, 0);
+  rb_define_method(r_mpfi_class, "marshal_load", r_mpfi_marshal_load, 1);
 
   rb_define_method(r_mpfi_class, "to_str_ary", r_mpfi_to_str_ary, 0);
   rb_define_method(r_mpfi_class, "to_strf_ary", r_mpfi_to_strf_ary, 1);
