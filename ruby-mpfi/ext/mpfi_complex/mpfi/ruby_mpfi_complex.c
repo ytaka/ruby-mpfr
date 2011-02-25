@@ -132,9 +132,12 @@ static VALUE r_mpfi_complex_inspect(VALUE self){
   MPFIComplex *ptr_s;
   r_mpfi_get_complex_struct(ptr_s, self);
   char *ret_str;
-  mpfr_asprintf(&ret_str, "#<MPFI:%lx,['%.Re %.Re', '%.Re %.Re'], [%d, %d]>",
-		NUM2LONG(rb_funcall(self, object_id, 0)), r_mpfi_left_ptr(ptr_s->re), r_mpfi_right_ptr(ptr_s->re), r_mpfi_left_ptr(ptr_s->im), r_mpfi_right_ptr(ptr_s->im),
-		mpfi_get_prec(ptr_s->re), mpfi_get_prec(ptr_s->im));
+  if (!mpfr_asprintf(&ret_str, "#<MPFI:%lx,['%.Re %.Re', '%.Re %.Re'], [%d, %d]>",
+		     NUM2LONG(rb_funcall(self, object_id, 0)), r_mpfi_left_ptr(ptr_s->re),
+		     r_mpfi_right_ptr(ptr_s->re), r_mpfi_left_ptr(ptr_s->im), r_mpfi_right_ptr(ptr_s->im),
+		     mpfi_get_prec(ptr_s->re), mpfi_get_prec(ptr_s->im))) {
+    rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+  }
   VALUE ret_val = rb_str_new2(ret_str);
   mpfr_free_str(ret_str);
   return ret_val;

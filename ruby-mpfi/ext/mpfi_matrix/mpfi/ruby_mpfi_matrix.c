@@ -373,8 +373,10 @@ static VALUE r_mpfi_matrix_str_ary_for_inspect(VALUE self){
   VALUE ret_val[ptr_self->size];
   int i;
   for (i = 0; i < ptr_self->size; i++) {
-    mpfr_asprintf(&tmp_str, "%.Re %.Re",
-		  r_mpfi_left_ptr((ptr_self->data + i)), r_mpfi_right_ptr(ptr_self->data + i));
+    if(!mpfr_asprintf(&tmp_str, "%.Re %.Re",
+		      r_mpfi_left_ptr((ptr_self->data + i)), r_mpfi_right_ptr(ptr_self->data + i))) {
+      rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+    }
     ret_val[i] = rb_str_new2(tmp_str);
     mpfr_free_str(tmp_str);
   }
@@ -393,8 +395,10 @@ static VALUE r_mpfi_matrix_str_ary_for_inspect2(VALUE self){
   }
   for (i = 0; i < ptr_self->size; i += ptr_self->row) {
     for (j = 0; j < ptr_self->row; j++) {
-      mpfr_asprintf(&tmp_str, "%.Re %.Re",
-		    r_mpfi_left_ptr((ptr_self->data + i + j)), r_mpfi_right_ptr(ptr_self->data + i + j));
+      if(!mpfr_asprintf(&tmp_str, "%.Re %.Re",
+			r_mpfi_left_ptr((ptr_self->data + i + j)), r_mpfi_right_ptr(ptr_self->data + i + j))) {
+	rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+      }
       rb_ary_push(ary[j], rb_str_new2(tmp_str));
       mpfr_free_str(tmp_str);
     }
@@ -413,8 +417,12 @@ static VALUE r_mpfi_matrix_to_str_ary(VALUE self){
   }
   for (i = 0; i < ptr_self->size; i += ptr_self->row) {
     for (j = 0; j < ptr_self->row; j++) {
-      mpfr_asprintf(&tmp_str1, "%.Re", r_mpfi_left_ptr((ptr_self->data + i + j)));
-      mpfr_asprintf(&tmp_str2, "%.Re", r_mpfi_right_ptr(ptr_self->data + i + j));
+      if (!mpfr_asprintf(&tmp_str1, "%.Re", r_mpfi_left_ptr((ptr_self->data + i + j)))) {
+	rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+      }
+      if (!mpfr_asprintf(&tmp_str2, "%.Re", r_mpfi_right_ptr(ptr_self->data + i + j))) {
+	rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+      }
       rb_ary_push(ary[j], rb_ary_new3(2, rb_str_new2(tmp_str1), rb_str_new2(tmp_str2)));
       mpfr_free_str(tmp_str1);
       mpfr_free_str(tmp_str2);
@@ -435,8 +443,12 @@ static VALUE r_mpfi_matrix_to_strf_ary(VALUE self, VALUE format_str){
   }
   for (i = 0; i < ptr_self->size; i += ptr_self->row) {
     for (j = 0; j < ptr_self->row; j++) {
-      mpfr_asprintf(&tmp_str1, format, r_mpfi_left_ptr((ptr_self->data + i + j)));
-      mpfr_asprintf(&tmp_str2, format, r_mpfi_right_ptr(ptr_self->data + i + j));
+      if(!mpfr_asprintf(&tmp_str1, format, r_mpfi_left_ptr((ptr_self->data + i + j)))) {
+	rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+      }
+      if(!mpfr_asprintf(&tmp_str2, format, r_mpfi_right_ptr(ptr_self->data + i + j))) {
+	rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+      }
       rb_ary_push(ary[j], rb_ary_new3(2, rb_str_new2(tmp_str1), rb_str_new2(tmp_str2)));
       mpfr_free_str(tmp_str1);
       mpfr_free_str(tmp_str2);

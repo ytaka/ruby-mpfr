@@ -720,7 +720,9 @@ static VALUE r_mpfr_to_strf(VALUE self, VALUE format_str)
   r_mpfr_get_struct(ptr_self, self);
   char *format = StringValuePtr(format_str);
   char *ret_str;
-  mpfr_asprintf(&ret_str, format, ptr_self);
+  if (!mpfr_asprintf(&ret_str, format, ptr_self)) {
+    rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+  }
   VALUE ret_val = rb_str_new2(ret_str);
   mpfr_free_str(ret_str);
   return ret_val;
@@ -732,7 +734,9 @@ static VALUE r_mpfr_to_s(VALUE self)
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
   char *ret_str;
-  mpfr_asprintf(&ret_str, "%.Re", ptr_self);
+  if (!mpfr_asprintf(&ret_str, "%.Re", ptr_self)) {
+    rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+  }
   VALUE ret_val = rb_str_new2(ret_str);
   mpfr_free_str(ret_str);
   return ret_val;
@@ -744,7 +748,10 @@ static VALUE r_mpfr_inspect(VALUE self)
   MPFR *ptr_s;
   r_mpfr_get_struct(ptr_s, self);
   char *ret_str;
-  mpfr_asprintf(&ret_str, "#<MPFR:%lx,'%0.Re',%d>", NUM2LONG(rb_funcall(self, object_id, 0)), ptr_s, mpfr_get_prec(ptr_s));
+  if (!mpfr_asprintf(&ret_str, "#<MPFR:%lx,'%0.Re',%d>", NUM2LONG(rb_funcall(self, object_id, 0)),
+		     ptr_s, mpfr_get_prec(ptr_s))) {
+    rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+  }
   VALUE ret_val = rb_str_new2(ret_str);
   mpfr_free_str(ret_str);
   return ret_val;
@@ -2768,7 +2775,9 @@ char *r_mpfr_dump_to_string(MPFR *ptr_s)
     mp_exp_t e;
     mpz_init(m);
     e = mpfr_get_z_2exp(m, ptr_s);
-    mpfr_asprintf(&ret_str, "%c%ld\t%ld\t%Zd", MPFR_DUMP_NUMBER, mpfr_get_prec(ptr_s), (long int)e, m);
+    if (!mpfr_asprintf(&ret_str, "%c%ld\t%ld\t%Zd", MPFR_DUMP_NUMBER, mpfr_get_prec(ptr_s), (long int)e, m)) {
+      rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+    }
     mpz_clear(m);
   } else {
     char type;
@@ -2785,7 +2794,9 @@ char *r_mpfr_dump_to_string(MPFR *ptr_s)
     } else {
       type = MPFR_DUMP_MINF;
     }
-    mpfr_asprintf(&ret_str, "%c%ld", type, mpfr_get_prec(ptr_s));
+    if (!mpfr_asprintf(&ret_str, "%c%ld", type, mpfr_get_prec(ptr_s))) {
+      rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+    }
   }
   return ret_str;
 }

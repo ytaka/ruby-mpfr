@@ -211,7 +211,9 @@ static VALUE r_mpfr_matrix_marshal_dump(VALUE self)
     ptr_el = ptr->data + i;
     if (mpfr_regular_p(ptr_el)) {
       e = mpfr_get_z_2exp(m, ptr_el);
-      mpfr_asprintf(&tmp_str, "%c%ld\t%ld\t%Zd", MPFR_DUMP_NUMBER, mpfr_get_prec(ptr_el), (long int)e, m);
+      if (!mpfr_asprintf(&tmp_str, "%c%ld\t%ld\t%Zd", MPFR_DUMP_NUMBER, mpfr_get_prec(ptr_el), (long int)e, m)) {
+	rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+      }
     } else {
       if (mpfr_zero_p(ptr_el)) {
 	if (mpfr_sgn(ptr_el) >= 0) {
@@ -226,7 +228,9 @@ static VALUE r_mpfr_matrix_marshal_dump(VALUE self)
       } else {
 	type = MPFR_DUMP_MINF;
       }
-      mpfr_asprintf(&tmp_str, "%c%ld", type, mpfr_get_prec(ptr_el));
+      if (!mpfr_asprintf(&tmp_str, "%c%ld", type, mpfr_get_prec(ptr_el))) {
+	rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+      }
     }
     rb_ary_push(ret_ary, rb_str_new2(tmp_str));
     mpfr_free_str(tmp_str);
@@ -521,7 +525,9 @@ static VALUE r_mpfr_matrix_str_ary(VALUE self, VALUE format_str)
   VALUE ret_val[ptr_self->size];
   int i;
   for (i = 0; i < ptr_self->size; i++) {
-    mpfr_asprintf(&tmp_str, format, ptr_self->data + i);
+    if (!mpfr_asprintf(&tmp_str, format, ptr_self->data + i)) {
+      rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+    }
     ret_val[i] = rb_str_new2(tmp_str);
     mpfr_free_str(tmp_str);
   }
@@ -541,7 +547,9 @@ static VALUE r_mpfr_matrix_str_ary2(VALUE self, VALUE format_str)
   }
   for (i = 0; i < ptr_self->size; i += ptr_self->row) {
     for (j = 0; j < ptr_self->row; j++) {
-      mpfr_asprintf(&tmp_str, format, ptr_self->data + i + j);
+      if (!mpfr_asprintf(&tmp_str, format, ptr_self->data + i + j)) {
+	rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+      }
       rb_ary_push(ary[j], rb_str_new2(tmp_str));
       mpfr_free_str(tmp_str);
     }

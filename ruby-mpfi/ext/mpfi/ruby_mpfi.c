@@ -264,8 +264,11 @@ static VALUE r_mpfi_inspect(VALUE self)
   MPFI *ptr_s;
   r_mpfi_get_struct(ptr_s, self);
   char *ret_str;
-  mpfr_asprintf(&ret_str, "#<MPFI:%lx,['%.Re %.Re'],%d>",
-  		NUM2LONG(rb_funcall(self, object_id, 0)), r_mpfi_left_ptr(ptr_s), r_mpfi_right_ptr(ptr_s), mpfi_get_prec(ptr_s));
+  if (!mpfr_asprintf(&ret_str, "#<MPFI:%lx,['%.Re %.Re'],%d>",
+		    NUM2LONG(rb_funcall(self, object_id, 0)), r_mpfi_left_ptr(ptr_s),
+		    r_mpfi_right_ptr(ptr_s), mpfi_get_prec(ptr_s))) {
+    rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+  }
   VALUE ret_val = rb_str_new2(ret_str);
   mpfr_free_str(ret_str);
   return ret_val;
@@ -277,8 +280,12 @@ static VALUE r_mpfi_to_str_ary(VALUE self)
   MPFI *ptr_self;
   r_mpfi_get_struct(ptr_self, self);
   char *ret_str1, *ret_str2;
-  mpfr_asprintf(&ret_str1, "%.Re", r_mpfi_left_ptr(ptr_self));
-  mpfr_asprintf(&ret_str2, "%.Re", r_mpfi_right_ptr(ptr_self));
+  if (!mpfr_asprintf(&ret_str1, "%.Re", r_mpfi_left_ptr(ptr_self))) {
+    rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+  }
+  if (!mpfr_asprintf(&ret_str2, "%.Re", r_mpfi_right_ptr(ptr_self))) {
+    rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+  }
   VALUE str1 = rb_str_new2(ret_str1), str2 = rb_str_new2(ret_str2);
   mpfr_free_str(ret_str1);
   mpfr_free_str(ret_str2);
@@ -292,8 +299,12 @@ static VALUE r_mpfi_to_strf_ary(VALUE self, VALUE format_str)
   r_mpfi_get_struct(ptr_self, self);
   char *format = StringValuePtr(format_str);
   char *ret_str1, *ret_str2;
-  mpfr_asprintf(&ret_str1, format, r_mpfi_left_ptr(ptr_self));
-  mpfr_asprintf(&ret_str2, format, r_mpfi_right_ptr(ptr_self));
+  if (!mpfr_asprintf(&ret_str1, format, r_mpfi_left_ptr(ptr_self))) {
+    rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+  }
+  if (!mpfr_asprintf(&ret_str2, format, r_mpfi_right_ptr(ptr_self))) {
+    rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+  }
   VALUE str1 = rb_str_new2(ret_str1), str2 = rb_str_new2(ret_str2);
   mpfr_free_str(ret_str1);
   mpfr_free_str(ret_str2);

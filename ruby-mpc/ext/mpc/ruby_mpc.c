@@ -255,9 +255,11 @@ static VALUE r_mpc_inspect(VALUE self)
   MPC *ptr_s;
   r_mpc_get_struct(ptr_s, self);
   char *ret_str;
-  mpfr_asprintf(&ret_str, "#<MPC:%lx,['%.Re','%.Re'],[%d,%d]>",
-		NUM2LONG(rb_funcall(self, object_id, 0)), mpc_realref (ptr_s), mpc_imagref (ptr_s),
-		mpfr_get_prec(mpc_realref (ptr_s)), mpfr_get_prec(mpc_imagref (ptr_s)));
+  if(!mpfr_asprintf(&ret_str, "#<MPC:%lx,['%.Re','%.Re'],[%d,%d]>",
+		    NUM2LONG(rb_funcall(self, object_id, 0)), mpc_realref (ptr_s), mpc_imagref (ptr_s),
+		    mpfr_get_prec(mpc_realref (ptr_s)), mpfr_get_prec(mpc_imagref (ptr_s)))) {
+    rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+  }
   VALUE ret_val = rb_str_new2(ret_str);
   mpfr_free_str(ret_str);
   return ret_val;
