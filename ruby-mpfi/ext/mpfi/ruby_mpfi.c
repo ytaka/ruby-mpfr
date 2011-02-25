@@ -15,7 +15,7 @@ void r_mpfi_set_function_state(int num)
 }
 
 /* Return state of last function of MPFI. */
-VALUE r_mpfr_get_function_state(VALUE self)
+VALUE r_mpfi_get_function_state(VALUE self)
 {
   return rb_cv_get(r_mpfi_class, CLASS_VAL_FUNCTION_STATE);
 }
@@ -1546,7 +1546,7 @@ void Init_mpfi()
 
   /* ------------------------------ function state start ------------------------------ */
   rb_define_class_variable(r_mpfi_class, CLASS_VAL_FUNCTION_STATE, INT2FIX(0));
-  rb_define_singleton_method(r_mpfi_class, "function_state", r_mpfr_get_function_state, 0);
+  rb_define_singleton_method(r_mpfi_class, "function_state", r_mpfi_get_function_state, 0);
   /* ------------------------------ function state end ------------------------------ */
 
   /* ------------------------------ allocation start ------------------------------ */

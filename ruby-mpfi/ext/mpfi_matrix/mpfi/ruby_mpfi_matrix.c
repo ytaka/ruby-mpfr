@@ -270,6 +270,48 @@ static VALUE r_mpfi_row_vector_initialize (VALUE self, VALUE arg){
   return Qtrue;
 }
 
+static VALUE r_mpfi_matrix_marshal_dump(VALUE self)
+{
+  MPFIMatrix *ptr;
+  r_mpfi_get_matrix_struct(ptr, self);
+  int i;
+  char *tmp_str;
+  VALUE ret_ary;
+  ret_ary = rb_ary_new();
+  rb_ary_push(ret_ary, INT2FIX(ptr->row));
+  rb_ary_push(ret_ary, INT2FIX(ptr->column));
+
+  for (i = 0; i < ptr->size; i++) {
+    tmp_str = r_mpfi_dump_to_string(ptr->data + i);
+    rb_ary_push(ret_ary, rb_str_new2(tmp_str));
+    mpfr_free_str(tmp_str);
+  }
+
+  return ret_ary;
+}
+
+static VALUE r_mpfi_matrix_marshal_load(VALUE self, VALUE dump_ary)
+{
+  MPFIMatrix *ptr;
+  r_mpfi_get_matrix_struct(ptr, self);
+
+  ptr->row = NUM2INT(rb_ary_entry(dump_ary, 0));
+  ptr->column = NUM2INT(rb_ary_entry(dump_ary, 1));
+  ptr->size = ptr->row * ptr->column;
+  ptr->data = ALLOC_N(MPFI, ptr->size);
+  int i;
+  char *dump;
+  VALUE dump_element;
+
+  for(i = 0; i < ptr->size; i++){
+    dump_element = rb_ary_entry(dump_ary, i + 2);
+    Check_Type(dump_element, T_STRING);
+    dump = RSTRING_PTR(dump_element);
+    r_mpfi_load_string(ptr->data + i, dump);
+  }
+  return self;
+}
+
 /* Return size of data array which equals to column * row. */
 static VALUE r_mpfi_matrix_size (VALUE self){
   MPFIMatrix *ptr_self;
@@ -1162,6 +1204,9 @@ void Init_matrix(){
   rb_define_alloc_func(r_mpfi_matrix, r_mpfi_matrix_alloc);
   rb_define_private_method(r_mpfi_matrix, "initialize", r_mpfi_matrix_initialize, -1);
   rb_define_private_method(r_mpfi_matrix, "initialize_copy", r_mpfi_matrix_initialize_copy, 1);
+
+  rb_define_method(r_mpfi_matrix, "marshal_dump", r_mpfi_matrix_marshal_dump, 0);
+  rb_define_method(r_mpfi_matrix, "marshal_load", r_mpfi_matrix_marshal_load, 1);
 
   rb_define_singleton_method(tmp_r_mpfi_class, "SquareMatrix", r_mpfi_square_matrix_global_new, 1);
   rb_define_alloc_func(r_mpfi_square_matrix, r_mpfi_square_matrix_alloc);

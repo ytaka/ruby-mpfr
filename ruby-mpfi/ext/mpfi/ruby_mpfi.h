@@ -34,7 +34,7 @@ void r_mpfi_set_robj(MPFI *ptr, VALUE obj);
 int r_mpfi_subdivision2(int num, MPFI *ret, mpfi_t x);
 
 void r_mpfi_set_function_state(int num);
-VALUE r_mpfr_get_function_state(VALUE self);
+VALUE r_mpfi_get_function_state(VALUE self);
 
 void r_mpfi_load_string(MPFI *ptr_s, const char *dump);
 char *r_mpfi_dump_to_string(MPFI *ptr_s);
