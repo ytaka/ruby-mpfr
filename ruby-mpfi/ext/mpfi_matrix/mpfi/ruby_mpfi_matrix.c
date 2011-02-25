@@ -208,7 +208,7 @@ static VALUE r_mpfi_col_vector_global_new(int argc, VALUE arg)
 {
   MPFIMatrix *ptr;
   VALUE val;
-  r_mpfi_make_matrix_struct(val, ptr);
+  r_mpfi_make_col_vector_struct(val, ptr);
   r_mpfi_col_vector_set_initial_value(ptr, arg);
   return val;
 }
@@ -1228,9 +1228,6 @@ void Init_matrix(){
   /* Initialization of MPFI::Vector module */
   r_mpfi_vector_module = rb_define_module_under(tmp_r_mpfi_class, "Vector");
 
-  rb_include_module(r_mpfi_col_vector, r_mpfi_vector_module);
-  rb_include_module(r_mpfi_row_vector, r_mpfi_vector_module);
-
   rb_define_method(r_mpfi_vector_module, "[]=", r_mpfi_vector_set_element, 2);
   rb_define_method(r_mpfi_vector_module, "[]", r_mpfi_vector_element, 1);
   rb_define_method(r_mpfi_vector_module, "each_element", r_mpfi_vector_each_element, 0);
@@ -1256,6 +1253,8 @@ void Init_matrix(){
 
   rb_define_method(r_mpfr_matrix, "to_fi_matrix", r_mpfr_matrix_to_fi_matrix, 0);
 
+  rb_include_module(r_mpfi_col_vector, r_mpfi_vector_module);
+  rb_include_module(r_mpfi_row_vector, r_mpfi_vector_module);
 
   eqq = rb_intern("===");
   __mpfr_matrix_class__ = rb_eval_string("MPFR::Matrix");
