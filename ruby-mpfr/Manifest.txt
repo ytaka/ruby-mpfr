@@ -24,6 +24,7 @@ ext/mpfr_matrix/mpfr/ruby_mpfr_matrix.c
 ext/mpfr_matrix/mpfr/ruby_mpfr_matrix.h
 lib/mpfr/gmp.rb
 lib/mpfr/matrix.rb
+lib/mpfr/rspec.rb
 lib/mpfr/version.rb
 ruby-mpfr.gemspec
 script/console
