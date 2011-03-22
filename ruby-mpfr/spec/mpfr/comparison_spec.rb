@@ -19,3 +19,62 @@ describe MPFR, "when comparing two numbers" do
   end
 end
 
+describe MPFR do
+  context "checking whether number is nan" do
+    it "should return true" do
+      MPFR('nan').nan?.should be_true
+    end
+
+    it "should return false" do
+      MPFR('1.23').nan?.should be_false
+      MPFR('inf').nan?.should be_false
+    end
+  end
+
+  context "checking whether number is finite" do
+    it "should return true" do
+      MPFR('-0.28').finite?.should be_true
+    end
+
+    it "should return false" do
+      MPFR('nan').finite?.should be_false
+      MPFR('inf').finite?.should be_false
+    end
+  end
+
+  context "checking whether number is zero" do
+    it "should return true" do
+      MPFR(0).zero?.should be_true
+    end
+
+    it "should return false" do
+      MPFR(1).zero?.should be_false
+      MPFR('nan').zero?.should be_false
+      MPFR('inf').zero?.should be_false
+    end
+  end
+
+  context "checking whether number is nonzero" do
+    it "should return true" do
+      MPFR(1).nonzero?.should be_true
+      MPFR('nan').nonzero?.should be_true
+      MPFR('inf').nonzero?.should be_true
+    end
+
+    it "should return false" do
+      MPFR(0).nonzero?.should be_false
+    end
+  end
+
+  context "checking whether number is regular" do
+    it "should return true" do
+      MPFR(-1).regular?.should be_true
+    end
+
+    it "should return false" do
+      MPFR(0).regular?.should be_false
+      MPFR('nan').regular?.should be_false
+      MPFR('inf').regular?.should be_false
+    end
+  end
+end
