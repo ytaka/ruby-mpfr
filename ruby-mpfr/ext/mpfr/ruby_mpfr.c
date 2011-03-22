@@ -3161,8 +3161,8 @@ void Init_mpfr()
   rb_define_alias(r_mpfr_class, "nan?", "nan_p");
   rb_define_alias(r_mpfr_class, "finite?", "number_p");
   rb_define_alias(r_mpfr_class, "zero?", "zero_p");
-  rb_define_method(r_mpfr_class, "nonzero?", r_mpfr_nonzero_p, 1);
-  rb_define_method(r_mpfr_class, "regular?", r_mpfr_regular_p, 1);
+  rb_define_method(r_mpfr_class, "nonzero?", r_mpfr_nonzero_p, 0);
+  rb_define_method(r_mpfr_class, "regular?", r_mpfr_regular_p, 0);
 
   /* ------------------------------ Comparison Functions Start ------------------------------ */
 
