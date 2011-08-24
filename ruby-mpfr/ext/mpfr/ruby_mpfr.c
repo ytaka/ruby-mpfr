@@ -777,7 +777,7 @@ static VALUE r_mpfr_get_d_2exp(int argc, VALUE *argv, VALUE self)
   r_mpfr_get_struct(ptr_self, self);
   long int ret_val2;
   double ret_val1 = mpfr_get_d_2exp(&ret_val2, ptr_self, r_mpfr_rnd_from_optional_argument(0, 1, argc, argv));
-  return rb_ary_new3(2, rb_float_new(ret_val1), INT2NUM(ret_val2));
+  return rb_ary_new3(2, rb_float_new(ret_val1), LONG2NUM(ret_val2));
 }
 
 /* Return Fixnum object converted after rounding self with respect to rnd which is optional argument. */
@@ -785,7 +785,7 @@ static VALUE r_mpfr_get_si(int argc, VALUE *argv, VALUE self)
 {
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
-  return INT2NUM(mpfr_get_si(ptr_self, r_mpfr_rnd_from_optional_argument(0, 1, argc, argv)));
+  return LONG2NUM(mpfr_get_si(ptr_self, r_mpfr_rnd_from_optional_argument(0, 1, argc, argv)));
 }
 
 /* Return Fixnum object which is nearest integer to self. */
@@ -793,7 +793,7 @@ static VALUE r_mpfr_round_to_i(VALUE self)
 {
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
-  return INT2NUM(mpfr_get_si(ptr_self, GMP_RNDN));
+  return LONG2NUM(mpfr_get_si(ptr_self, GMP_RNDN));
 }
 
 /* Return Fixnum object which is the minimum integer over self. */
@@ -801,7 +801,7 @@ static VALUE r_mpfr_ceil_to_i(VALUE self)
 {
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
-  return INT2NUM(mpfr_get_si(ptr_self, GMP_RNDU));
+  return LONG2NUM(mpfr_get_si(ptr_self, GMP_RNDU));
 }
 
 /* Return Fixnum object which is the maximum integer not over self. */
@@ -809,7 +809,7 @@ static VALUE r_mpfr_floor_to_i(VALUE self)
 {
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
-  return INT2NUM(mpfr_get_si(ptr_self, GMP_RNDD));
+  return LONG2NUM(mpfr_get_si(ptr_self, GMP_RNDD));
 }
 
 /* Return Fixnum object by truncating self. */
@@ -817,7 +817,7 @@ static VALUE r_mpfr_truncate_to_i(VALUE self)
 {
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
-  return INT2NUM(mpfr_get_si(ptr_self, GMP_RNDZ));
+  return LONG2NUM(mpfr_get_si(ptr_self, GMP_RNDZ));
 }
 
 /* Return array having String object meaning mantissa and Fixnum object meaning exponent. See MPFR reference for detail. */
