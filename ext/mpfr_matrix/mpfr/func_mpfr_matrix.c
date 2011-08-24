@@ -1,12 +1,12 @@
 #include "func_mpfr_matrix.h"
 
 void mpfr_matrix_init(MPFRMatrix *mat, int row, int column){
+  int i;
   mat->row = row;
   mat->column = column;
   mat->size = row * column;
   /* mat->data = (MPFR *)malloc(sizeof(MPF) * mat->size); */
   mat->data = ALLOC_N(MPFR, mat->size);
-  int i;
   for(i = 0; i < mat->size; i++){
     mpfr_init(mat->data + i);
   }
@@ -75,7 +75,6 @@ void mpfr_matrix_neg(MPFRMatrix *new, MPFRMatrix *x){
     mpfr_neg(new->data + i, x->data + i, GMP_RNDN);
   }
 }
-
 
 /* Return 0 if *x and *y has the same elements. Otherwise return 1. */
 int mpfr_matrix_equal_p(MPFRMatrix *x, MPFRMatrix *y){
@@ -150,8 +149,8 @@ void mpfr_matrix_div_scalar(MPFRMatrix *new, MPFRMatrix *x, MPFR *scalar){
 
 void mpfr_matrix_inner_product(MPFR *pr, MPFRMatrix *x, MPFRMatrix *y){
   MPFR *tmp;
-  r_mpfr_temp_alloc_init(tmp);
   int i;
+  r_mpfr_temp_alloc_init(tmp);
   mpfr_set_si(pr, 0, GMP_RNDN);
   for(i = 0; i < x->size; i++){
     mpfr_mul(tmp, x->data + i, y->data + i, GMP_RNDN);
@@ -162,8 +161,8 @@ void mpfr_matrix_inner_product(MPFR *pr, MPFRMatrix *x, MPFRMatrix *y){
 
 void mpfr_matrix_vector_distance(MPFR *distance, MPFRMatrix *x, MPFRMatrix *y){
   MPFR *tmp;
-  r_mpfr_temp_alloc_init(tmp);
   int i;
+  r_mpfr_temp_alloc_init(tmp);
   mpfr_set_si(distance, 0, GMP_RNDN);
   for(i = 0; i < x->size; i++){
     mpfr_sub(tmp, x->data + i, y->data + i, GMP_RNDN);
@@ -176,8 +175,8 @@ void mpfr_matrix_vector_distance(MPFR *distance, MPFRMatrix *x, MPFRMatrix *y){
 
 void mpfr_matrix_vector_norm(MPFR *norm, MPFRMatrix *x){
   MPFR *tmp;
-  r_mpfr_temp_alloc_init(tmp);
   int i;
+  r_mpfr_temp_alloc_init(tmp);
   mpfr_set_si(norm, 0, GMP_RNDN);
   for(i = 0; i < x->size; i++){
     mpfr_mul(tmp, x->data + i, x->data + i, GMP_RNDN);
@@ -189,8 +188,8 @@ void mpfr_matrix_vector_norm(MPFR *norm, MPFRMatrix *x){
 
 void mpfr_matrix_max_norm(MPFR *norm, MPFRMatrix *x){
   MPFR *tmp;
-  r_mpfr_temp_alloc_init(tmp);
   int i;
+  r_mpfr_temp_alloc_init(tmp);
   mpfr_set_si(norm, 0, GMP_RNDN);
   for(i = 0; i < x->size; i++){
     mpfr_abs(tmp, x->data + i, GMP_RNDN);
@@ -202,24 +201,24 @@ void mpfr_matrix_max_norm(MPFR *norm, MPFRMatrix *x){
 }
 
 void mpfr_col_vector_init(MPFRMatrix *mat, int row){
+  int i;
   mat->row = row;
   mat->column = 1;
   mat->size = row;
   /* mat->data = (MPFR *)malloc(sizeof(MPF) * mat->size); */
   mat->data = ALLOC_N(MPFR, mat->size);
-  int i;
   for(i = 0; i < mat->size; i++){
     mpfr_init(mat->data + i);
   }
 }
 
 void mpfr_row_vector_init(MPFRMatrix *mat, int column){
+  int i;
   mat->row = 1;
   mat->column = column;
   mat->size = column;
   /* mat->data = (MPFR *)malloc(sizeof(MPF) * mat->size); */
   mat->data = ALLOC_N(MPFR, mat->size);
-  int i;
   for(i = 0; i < mat->size; i++){
     mpfr_init(mat->data + i);
   }
@@ -228,9 +227,9 @@ void mpfr_row_vector_init(MPFRMatrix *mat, int column){
 /* If length of MPFRMatrix *x is zero, return 1. Otherwise return 0. */
 int mpfr_vector_normalize(MPFRMatrix *new, MPFRMatrix *x){
   MPFR *norm;
+  int i, j, index, ret = 0;
   r_mpfr_temp_alloc_init(norm);
   mpfr_matrix_vector_norm(norm, x);
-  int i, j, index, ret = 0;
   if(mpfr_cmp_ui(norm, 0) > 0){
     for(j = 0; j < x->column; j++){
       index = j * x->row;
@@ -248,9 +247,9 @@ int mpfr_vector_normalize(MPFRMatrix *new, MPFRMatrix *x){
 /* If length of MPFRMatrix *x is zero, return 1. Otherwise return 0. */
 int mpfr_vector_set_length(MPFRMatrix *new, MPFRMatrix *x, MPFR *length){
   MPFR *factor;
+  int i, j, index, ret = 0;
   r_mpfr_temp_alloc_init(factor);
   mpfr_matrix_vector_norm(factor, x);
-  int i, j, index, ret = 0;
   if(mpfr_cmp_ui(factor, 0) > 0){
     mpfr_ui_div(factor, 1, factor, GMP_RNDN);
     mpfr_mul(factor, factor, length, GMP_RNDN);
@@ -278,10 +277,10 @@ void mpfr_vector_midpoint(MPFRMatrix *new, MPFRMatrix *x, MPFRMatrix *y){
 /* "distance between *new and *x" / "distance between *y and *x" = *div */
 void mpfr_vector_dividing_point(MPFRMatrix *new, MPFRMatrix *x, MPFRMatrix *y, MPFR *div){
   MPFRMatrix *tmp_x, *tmp_y;
+  MPFR *ratio;
   r_mpfr_matrix_temp_alloc_init(tmp_x, new->row, new->column);
   r_mpfr_matrix_temp_alloc_init(tmp_y, new->row, new->column);
 
-  MPFR *ratio;
   r_mpfr_temp_alloc_init(ratio);
   mpfr_ui_sub(ratio, 1, div, GMP_RNDN);
   mpfr_matrix_mul_scalar(tmp_y, y, ratio);
@@ -441,8 +440,9 @@ void mpfr_square_matrix_determinant(MPFR *det, MPFRMatrix *x){
     mpfr_3d_square_matrix_determinant(det, x);
   }else{
     MPFRMatrix *ptr_lu;
+    int i, *indx;
     r_mpfr_matrix_temp_alloc_init(ptr_lu, x->row, x->column);
-    int indx[x->row], i;
+    indx = (int *)malloc(sizeof(int) * x->row);
     if((i = mpfr_square_matrix_lu_decomp (ptr_lu, indx, x)) >= 0){
       if (i == 0) {
 	mpfr_set_si(det, 1, GMP_RNDN);
@@ -456,22 +456,21 @@ void mpfr_square_matrix_determinant(MPFR *det, MPFRMatrix *x){
       mpfr_set_ui(det, 0, GMP_RNDN);
     }
     r_mpfr_matrix_temp_free(ptr_lu);
+    free(indx);
   }
-
 }
 
 void mpfr_square_matrix_qr_decomp(MPFRMatrix *q, MPFRMatrix *r, MPFRMatrix *x){
-  MPFRMatrix *q_mat, *r_mat;
+  MPFRMatrix *q_mat, *r_mat, *ary;
+  int i, j, k, ind1, ind2, ind3, size;
+  MPFR *tmp;
   r_mpfr_matrix_temp_alloc_init(q_mat, q->row, q->column);
   r_mpfr_matrix_temp_alloc_init(r_mat, r->row, r->column);
 
-  int size = x->row;
-  MPFRMatrix *ary;
+  size = x->row;
   r_mpfr_matrix_temp_alloc_init(ary, size, size);
   mpfr_matrix_set(ary, x);
-  MPFR *tmp;
   r_mpfr_temp_alloc_init(tmp);
-  int i, j, k, ind1, ind2, ind3;
   for (i = 0; i < size; i++) {
     ind1 = i * size;
     ind2 = i + ind1;
@@ -518,7 +517,5 @@ void mpfr_square_matrix_identity(MPFRMatrix *id){
 	mpfr_set_si(id->data + i + index, 0, GMP_RNDN);
       }
     }
-  }
-  
+  }  
 }
-
