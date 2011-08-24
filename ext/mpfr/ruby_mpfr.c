@@ -12,7 +12,7 @@
 
 static ID eqq, to_s, new, class, method_defined, object_id, to_fr,
   id_rndn, id_rndz, id_rndu, id_rndd, id_rnda;
-static VALUE __mpfr_class__, __sym_to_s__, __sym_to_str__;
+static VALUE __mpfr_class__, __sym_to_s__, __sym_to_str__, __mpfr_domain_error__;
 
 /* ------------------------------ Precision and Rounding Mode Start ------------------------------ */
 #define VALID_RND(rnd_mode) (rnd_mode >= MPFR_RNDN && rnd_mode < ((MPFR_RNDA)+1))
@@ -786,20 +786,28 @@ static VALUE r_mpfr_get_d_2exp(int argc, VALUE *argv, VALUE self)
   return rb_ary_new3(2, rb_float_new(ret_val1), LONG2NUM(ret_val2));
 }
 
-/* Return Fixnum object converted after rounding self with respect to rnd which is optional argument. */
-static VALUE r_mpfr_get_si(int argc, VALUE *argv, VALUE self)
-{
-  MPFR *ptr_self;
-  r_mpfr_get_struct(ptr_self, self);
-  return LONG2NUM(mpfr_get_si(ptr_self, r_mpfr_rnd_from_optional_argument(0, 1, argc, argv)));
-}
-
 /* Return Fixnum object which is nearest integer to self. */
 static VALUE r_mpfr_round_to_i(VALUE self)
 {
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
-  return LONG2NUM(mpfr_get_si(ptr_self, GMP_RNDN));
+  if (mpfr_fits_slong_p(ptr_self, GMP_RNDN)) {
+    return LONG2NUM(mpfr_get_si(ptr_self, GMP_RNDN));
+  } else if (mpfr_nan_p(ptr_self)) {
+    rb_raise(__mpfr_domain_error__, "Can not convert NaN to an integer");
+  } else {
+    MPFR *tmp_int;
+    char *tmp_str;
+    VALUE bignum;
+    r_mpfr_temp_alloc_init2(tmp_int, mpfr_get_prec(ptr_self));
+    mpfr_round(tmp_int, ptr_self);
+    if (!mpfr_asprintf(&tmp_str, "%Rf", tmp_int)) {
+      rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+    }
+    bignum = rb_cstr_to_inum(tmp_str, 10, false);
+    r_mpfr_temp_free(tmp_int);
+    return bignum;
+  }
 }
 
 /* Return Fixnum object which is the minimum integer over self. */
@@ -807,7 +815,23 @@ static VALUE r_mpfr_ceil_to_i(VALUE self)
 {
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
-  return LONG2NUM(mpfr_get_si(ptr_self, GMP_RNDU));
+  if (mpfr_fits_slong_p(ptr_self, GMP_RNDU)) {
+    return LONG2NUM(mpfr_get_si(ptr_self, GMP_RNDU));
+  } else if (mpfr_nan_p(ptr_self)) {
+    rb_raise(__mpfr_domain_error__, "Can not convert NaN to an integer");
+  } else {
+    MPFR *tmp_int;
+    char *tmp_str;
+    VALUE bignum;
+    r_mpfr_temp_alloc_init2(tmp_int, mpfr_get_prec(ptr_self));
+    mpfr_ceil(tmp_int, ptr_self);
+    if (!mpfr_asprintf(&tmp_str, "%Rf", tmp_int)) {
+      rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+    }
+    bignum = rb_cstr_to_inum(tmp_str, 10, false);
+    r_mpfr_temp_free(tmp_int);
+    return bignum;
+  }
 }
 
 /* Return Fixnum object which is the maximum integer not over self. */
@@ -815,7 +839,23 @@ static VALUE r_mpfr_floor_to_i(VALUE self)
 {
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
-  return LONG2NUM(mpfr_get_si(ptr_self, GMP_RNDD));
+  if (mpfr_fits_slong_p(ptr_self, GMP_RNDD)) {
+    return LONG2NUM(mpfr_get_si(ptr_self, GMP_RNDD));
+  } else if (mpfr_nan_p(ptr_self)) {
+    rb_raise(__mpfr_domain_error__, "Can not convert NaN to an integer");
+  } else {
+    MPFR *tmp_int;
+    char *tmp_str;
+    VALUE bignum;
+    r_mpfr_temp_alloc_init2(tmp_int, mpfr_get_prec(ptr_self));
+    mpfr_floor(tmp_int, ptr_self);
+    if (!mpfr_asprintf(&tmp_str, "%Rf", tmp_int)) {
+      rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+    }
+    bignum = rb_cstr_to_inum(tmp_str, 10, false);
+    r_mpfr_temp_free(tmp_int);
+    return bignum;
+  }
 }
 
 /* Return Fixnum object by truncating self. */
@@ -823,7 +863,23 @@ static VALUE r_mpfr_truncate_to_i(VALUE self)
 {
   MPFR *ptr_self;
   r_mpfr_get_struct(ptr_self, self);
-  return LONG2NUM(mpfr_get_si(ptr_self, GMP_RNDZ));
+  if (mpfr_fits_slong_p(ptr_self, GMP_RNDZ)) {
+    return LONG2NUM(mpfr_get_si(ptr_self, GMP_RNDZ));
+  } else if (mpfr_nan_p(ptr_self)) {
+    rb_raise(__mpfr_domain_error__, "Can not convert NaN to an integer");
+  } else {
+    MPFR *tmp_int;
+    char *tmp_str;
+    VALUE bignum;
+    r_mpfr_temp_alloc_init2(tmp_int, mpfr_get_prec(ptr_self));
+    mpfr_trunc(tmp_int, ptr_self);
+    if (!mpfr_asprintf(&tmp_str, "%Rf", tmp_int)) {
+      rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
+    }
+    bignum = rb_cstr_to_inum(tmp_str, 10, false);
+    r_mpfr_temp_free(tmp_int);
+    return bignum;
+  }
 }
 
 /* Return array having String object meaning mantissa and Fixnum object meaning exponent. See MPFR reference for detail. */
@@ -3071,6 +3127,8 @@ void Init_mpfr()
   r_mpfr_class = rb_define_class("MPFR", rb_cNumeric);
   rb_include_module(r_mpfr_class, rb_mComparable);
 
+  __mpfr_domain_error__ = rb_define_class("MPFRDomainError", rb_eRangeError);
+
   /* ------------------------------ Class MPFR End ------------------------------ */
 
   /* ------------------------------ Constants Start ------------------------------ */
@@ -3202,7 +3260,6 @@ void Init_mpfr()
 
   rb_define_method(r_mpfr_class, "get_d", r_mpfr_get_d, -1);
   rb_define_method(r_mpfr_class, "get_d_2exp", r_mpfr_get_d_2exp, -1);
-  rb_define_method(r_mpfr_class, "get_si", r_mpfr_get_si, -1);
   rb_define_method(r_mpfr_class, "get_str", r_mpfr_get_str, 0);
   
   rb_define_method(r_mpfr_class, "round", r_mpfr_round_to_i, 0);
