@@ -1,7 +1,7 @@
 = ruby-mpfr
 
-* http://rubyforge.org/projects/ruby-mpfr/
-* http://gemcutter.org/gems/ruby-mpfr/
+* https://github.com/ytaka/ruby-mpfr/
+* http://rubygems.org/gems/ruby-mpfr/
 
 == Description:
 
@@ -34,21 +34,22 @@ The package of rubygems of ruby-mpfr is provided.
 You can install ruby-mpfr with the following command
 in the system satisfying the above requirements.
  
- $ sudo gem install ruby-mpfr
+ $ gem install ruby-mpfr
 
 == Related Software:
 These two gem packages uses ruby-mpfr.
 
-* ruby-mpc[http://gemcutter.org/gems/ruby-mpc/]: the arithmetic of complex numbers with multiprecision
-* ruby-mpfi[http://gemcutter.org/gems/ruby-mpfi/]: the interval arithmetic with multiprecision
+* ruby-mpc[http://rubygems.org/gems/ruby-mpc/]: the arithmetic of complex numbers with multiprecision
+* ruby-mpfi[http://rubygems.org/gems/ruby-mpfi/]: the interval arithmetic with multiprecision
 
 The following is an another multiple precision library which uses GMP.
-* http://gemcutter.org/gems/gmp
+
+* http://rubygems.org/gems/gmp
 
 == License:
 
 ruby-mpfr
-Copyright (C) 2009 - 2010 Takayuki YAMAGUCHI
+Copyright (C) 2009 Takayuki YAMAGUCHI
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free 
