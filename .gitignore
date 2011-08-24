@@ -1,8 +1,8 @@
-*/pkg/*
+pkg/*
 *.o
 *.so
 *.log
 *~
 \#*\#
-*/ext/*/Makefile
-*/ext/*/*/Makefile
+ext/*/Makefile
+ext/*/*/Makefile
