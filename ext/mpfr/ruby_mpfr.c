@@ -640,8 +640,9 @@ static VALUE r_mpfr_get_prec(VALUE self)
 static VALUE r_mpfr_set(int argc, VALUE *argv, VALUE self)
 {
   MPFR *ptr_self;
+  mp_rnd_t rnd;
   r_mpfr_get_struct(ptr_self, self);
-  mp_rnd_t rnd = r_mpfr_rnd_from_optional_argument(1, 2, argc, argv);
+  rnd = r_mpfr_rnd_from_optional_argument(1, 2, argc, argv);
   r_mpfr_set_robj(ptr_self, argv[0], rnd);
   return self;
 }
@@ -653,8 +654,9 @@ static VALUE r_mpfr_set(int argc, VALUE *argv, VALUE self)
 static VALUE r_mpfr_set_fixnum_2exp(int argc, VALUE *argv, VALUE self)
 {
   MPFR *ptr_self;
+  mp_rnd_t rnd;
   r_mpfr_get_struct(ptr_self, self);
-  mp_rnd_t rnd = r_mpfr_rnd_from_optional_argument(2, 3, argc, argv);
+  rnd = r_mpfr_rnd_from_optional_argument(2, 3, argc, argv);
   mpfr_set_si_2exp(ptr_self, NUM2INT(argv[0]), NUM2INT(argv[1]), rnd);
   return self;
 }
@@ -717,13 +719,14 @@ static VALUE r_mpfr_swap(VALUE self, VALUE other)
 static VALUE r_mpfr_to_strf(VALUE self, VALUE format_str)
 {
   MPFR *ptr_self;
+  char *format, *ret_str;
+  VALUE ret_val;
   r_mpfr_get_struct(ptr_self, self);
-  char *format = StringValuePtr(format_str);
-  char *ret_str;
+  format = StringValuePtr(format_str);
   if (!mpfr_asprintf(&ret_str, format, ptr_self)) {
     rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
   }
-  VALUE ret_val = rb_str_new2(ret_str);
+  ret_val = rb_str_new2(ret_str);
   mpfr_free_str(ret_str);
   return ret_val;
 }
@@ -732,12 +735,13 @@ static VALUE r_mpfr_to_strf(VALUE self, VALUE format_str)
 static VALUE r_mpfr_to_s(VALUE self)
 {
   MPFR *ptr_self;
-  r_mpfr_get_struct(ptr_self, self);
   char *ret_str;
+  VALUE ret_val;
+  r_mpfr_get_struct(ptr_self, self);
   if (!mpfr_asprintf(&ret_str, "%.Re", ptr_self)) {
     rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
   }
-  VALUE ret_val = rb_str_new2(ret_str);
+  ret_val = rb_str_new2(ret_str);
   mpfr_free_str(ret_str);
   return ret_val;
 }
@@ -746,13 +750,14 @@ static VALUE r_mpfr_to_s(VALUE self)
 static VALUE r_mpfr_inspect(VALUE self)
 {
   MPFR *ptr_s;
-  r_mpfr_get_struct(ptr_s, self);
   char *ret_str;
+  VALUE ret_val;
+  r_mpfr_get_struct(ptr_s, self);
   if (!mpfr_asprintf(&ret_str, "#<MPFR:%lx,'%0.Re',%d>", NUM2LONG(rb_funcall(self, object_id, 0)),
 		     ptr_s, mpfr_get_prec(ptr_s))) {
     rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
   }
-  VALUE ret_val = rb_str_new2(ret_str);
+  ret_val = rb_str_new2(ret_str);
   mpfr_free_str(ret_str);
   return ret_val;
 }
@@ -774,9 +779,10 @@ static VALUE r_mpfr_get_d(int argc, VALUE *argv, VALUE self)
 static VALUE r_mpfr_get_d_2exp(int argc, VALUE *argv, VALUE self)
 {
   MPFR *ptr_self;
-  r_mpfr_get_struct(ptr_self, self);
+  double ret_val1;
   long int ret_val2;
-  double ret_val1 = mpfr_get_d_2exp(&ret_val2, ptr_self, r_mpfr_rnd_from_optional_argument(0, 1, argc, argv));
+  r_mpfr_get_struct(ptr_self, self);
+  ret_val1 = mpfr_get_d_2exp(&ret_val2, ptr_self, r_mpfr_rnd_from_optional_argument(0, 1, argc, argv));
   return rb_ary_new3(2, rb_float_new(ret_val1), LONG2NUM(ret_val2));
 }
 
@@ -824,10 +830,12 @@ static VALUE r_mpfr_truncate_to_i(VALUE self)
 static VALUE r_mpfr_get_str(VALUE self)
 {
   MPFR *ptr_self;
-  r_mpfr_get_struct(ptr_self, self);
   mp_exp_t e;
-  char *str = mpfr_get_str(NULL, &e, 10, 0, ptr_self, GMP_RNDN);
-  VALUE ret_str = rb_str_new2(str);
+  char *str;
+  VALUE ret_str;
+  r_mpfr_get_struct(ptr_self, self);
+  str = mpfr_get_str(NULL, &e, 10, 0, ptr_self, GMP_RNDN);
+  ret_str = rb_str_new2(str);
   mpfr_free_str(str);
   return rb_ary_new3(2, ret_str, INT2FIX((int)e));
 }
@@ -974,9 +982,9 @@ static VALUE r_mpfr_neg(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   MPFR *ptr_self, *ptr_return;
   VALUE val_ret;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   r_mpfr_get_struct(ptr_self, self);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   mpfr_neg(ptr_return, ptr_self, rnd);
@@ -988,9 +996,9 @@ static VALUE r_mpfr_abs(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   MPFR *ptr_self, *ptr_return;
   VALUE val_ret;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   r_mpfr_get_struct(ptr_self, self);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   mpfr_abs(ptr_return, ptr_self, rnd);
@@ -1006,10 +1014,11 @@ static VALUE r_mpfr_math_add(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   MPFR *ptr_arg1, *ptr_arg2, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
 
@@ -1030,10 +1039,11 @@ static VALUE r_mpfr_math_sub(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   MPFR *ptr_arg1, *ptr_arg2, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
 
@@ -1054,10 +1064,11 @@ static VALUE r_mpfr_math_mul(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   MPFR *ptr_arg1, *ptr_arg2, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
 
@@ -1078,10 +1089,11 @@ static VALUE r_mpfr_math_div(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   MPFR *ptr_arg1, *ptr_arg2, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
 
@@ -1102,10 +1114,11 @@ static VALUE r_mpfr_math_sqr(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   mpfr_sqr(ptr_return, ptr_arg1, rnd);
@@ -1117,9 +1130,9 @@ static VALUE r_mpfr_math_sqrt(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
 
   if(TYPE(argv[0]) == T_FIXNUM){
@@ -1142,10 +1155,11 @@ static VALUE r_mpfr_math_rec_sqrt(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   mpfr_rec_sqrt(ptr_return, ptr_arg1, rnd);
@@ -1157,10 +1171,11 @@ static VALUE r_mpfr_math_cbrt(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   mpfr_cbrt(ptr_return, ptr_arg1, rnd);
@@ -1172,13 +1187,15 @@ static VALUE r_mpfr_math_root(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  int root;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
-  int root = NUM2INT(argv[1]);
+  root = NUM2INT(argv[1]);
   if(root > 0){
     mpfr_root(ptr_return, ptr_arg1, root, rnd);
   }else{
@@ -1192,10 +1209,11 @@ static VALUE r_mpfr_math_pow(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   MPFR *ptr_arg0, *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg0, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   if(TYPE(argv[1]) == T_FIXNUM){
@@ -1213,12 +1231,13 @@ static VALUE r_mpfr_math_dim(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   MPFR *ptr_arg0, *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0, tmp_argv1;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg0, tmp_argv0);
-  volatile VALUE tmp_argv1 = r_mpfr_new_fr_obj(argv[1]);
+  tmp_argv1 = r_mpfr_new_fr_obj(argv[1]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv1);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   mpfr_dim(ptr_return, ptr_arg0, ptr_arg1, rnd);
@@ -1230,10 +1249,11 @@ static VALUE r_mpfr_math_mul_2si(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   MPFR *ptr_arg0, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg0, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   mpfr_mul_2si(ptr_return, ptr_arg0, NUM2INT(argv[1]), rnd);
@@ -1245,10 +1265,11 @@ static VALUE r_mpfr_math_div_2si(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   MPFR *ptr_arg0, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg0, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   mpfr_div_2si(ptr_return, ptr_arg0, NUM2INT(argv[1]), rnd);
@@ -1263,8 +1284,8 @@ static VALUE r_mpfr_math_div_2si(int argc, VALUE *argv, VALUE self)
 static VALUE r_mpfr_cmp(VALUE self, VALUE other)
 {
   MPFR *ptr_self, *ptr_other;
-  r_mpfr_get_struct(ptr_self, self);
   int val_ret;
+  r_mpfr_get_struct(ptr_self, self);
 
   if(MPFR_P(other)){
     r_mpfr_get_struct(ptr_other, other);
@@ -1287,9 +1308,10 @@ static VALUE r_mpfr_cmp(VALUE self, VALUE other)
 static VALUE r_mpfr_cmp_ui_2exp(VALUE self, VALUE other, VALUE exp)
 {
   MPFR *ptr_self;
-  r_mpfr_get_struct(ptr_self, self);
   VALUE val_ret;
-  int i = NUM2INT(other);
+  int i;
+  r_mpfr_get_struct(ptr_self, self);
+  i = NUM2INT(other);
   if(i > 0){
     val_ret = INT2FIX(mpfr_cmp_ui_2exp(ptr_self, i, (mp_exp_t)NUM2INT(exp)));
   }else{
@@ -1310,8 +1332,9 @@ static VALUE r_mpfr_cmp_si_2exp(VALUE self, VALUE other, VALUE exp)
 static VALUE r_mpfr_cmpabs(VALUE self, VALUE other)
 {
   MPFR *ptr_self, *ptr_other;
+  volatile VALUE tmp_other;
   r_mpfr_get_struct(ptr_self, self);
-  volatile VALUE tmp_other = r_mpfr_new_fr_obj(other);
+  tmp_other = r_mpfr_new_fr_obj(other);
   r_mpfr_get_struct(ptr_other, tmp_other);
   return INT2FIX(mpfr_cmpabs(ptr_self, ptr_other));
 }
@@ -1392,8 +1415,9 @@ static VALUE r_mpfr_sgn(VALUE self)
 static VALUE r_mpfr_greater_p(VALUE self, VALUE other)
 {
   MPFR *ptr_self, *ptr_other;
+  volatile VALUE tmp_other;
   r_mpfr_get_struct(ptr_self, self);
-  volatile VALUE tmp_other = r_mpfr_new_fr_obj(other);
+  tmp_other = r_mpfr_new_fr_obj(other);
   r_mpfr_get_struct(ptr_other, tmp_other);
   return (mpfr_greater_p(ptr_self, ptr_other) != 0 ? Qtrue : Qfalse);
 }
@@ -1402,8 +1426,9 @@ static VALUE r_mpfr_greater_p(VALUE self, VALUE other)
 static VALUE r_mpfr_greaterequal_p(VALUE self, VALUE other)
 {
   MPFR *ptr_self, *ptr_other;
+  volatile VALUE tmp_other;
   r_mpfr_get_struct(ptr_self, self);
-  volatile VALUE tmp_other = r_mpfr_new_fr_obj(other);
+  tmp_other = r_mpfr_new_fr_obj(other);
   r_mpfr_get_struct(ptr_other, tmp_other);
   return (mpfr_greaterequal_p(ptr_self, ptr_other) != 0 ? Qtrue : Qfalse);
 }
@@ -1412,8 +1437,9 @@ static VALUE r_mpfr_greaterequal_p(VALUE self, VALUE other)
 static VALUE r_mpfr_less_p(VALUE self, VALUE other)
 {
   MPFR *ptr_self, *ptr_other;
+  volatile VALUE tmp_other;
   r_mpfr_get_struct(ptr_self, self);
-  volatile VALUE tmp_other = r_mpfr_new_fr_obj(other);
+  tmp_other = r_mpfr_new_fr_obj(other);
   r_mpfr_get_struct(ptr_other, tmp_other);
   return (mpfr_less_p(ptr_self, ptr_other) != 0 ? Qtrue : Qfalse);
 }
@@ -1422,8 +1448,9 @@ static VALUE r_mpfr_less_p(VALUE self, VALUE other)
 static VALUE r_mpfr_lessequal_p(VALUE self, VALUE other)
 {
   MPFR *ptr_self, *ptr_other;
+  volatile VALUE tmp_other;
   r_mpfr_get_struct(ptr_self, self);
-  volatile VALUE tmp_other = r_mpfr_new_fr_obj(other);
+  tmp_other = r_mpfr_new_fr_obj(other);
   r_mpfr_get_struct(ptr_other, tmp_other);
   return (mpfr_lessequal_p(ptr_self, ptr_other) != 0 ? Qtrue : Qfalse);
 }
@@ -1432,8 +1459,9 @@ static VALUE r_mpfr_lessequal_p(VALUE self, VALUE other)
 static VALUE r_mpfr_lessgreater_p(VALUE self, VALUE other)
 {
   MPFR *ptr_self, *ptr_other;
+  volatile VALUE tmp_other;
   r_mpfr_get_struct(ptr_self, self);
-  volatile VALUE tmp_other = r_mpfr_new_fr_obj(other);
+  tmp_other = r_mpfr_new_fr_obj(other);
   r_mpfr_get_struct(ptr_other, tmp_other);
   return (mpfr_lessgreater_p(ptr_self, ptr_other) != 0 ? Qtrue : Qfalse);
 }
@@ -1442,8 +1470,9 @@ static VALUE r_mpfr_lessgreater_p(VALUE self, VALUE other)
 static VALUE r_mpfr_equal_p(VALUE self, VALUE other)
 {
   MPFR *ptr_self, *ptr_other;
+  volatile VALUE tmp_other;
   r_mpfr_get_struct(ptr_self, self);
-  volatile VALUE tmp_other = r_mpfr_new_fr_obj(other);
+  tmp_other = r_mpfr_new_fr_obj(other);
   r_mpfr_get_struct(ptr_other, tmp_other);
   return (mpfr_equal_p(ptr_self, ptr_other) != 0 ? Qtrue : Qfalse);
 }
@@ -1452,8 +1481,9 @@ static VALUE r_mpfr_equal_p(VALUE self, VALUE other)
 static VALUE r_mpfr_unordered_p(VALUE self, VALUE other)
 {
   MPFR *ptr_self, *ptr_other;
+  volatile VALUE tmp_other;
   r_mpfr_get_struct(ptr_self, self);
-  volatile VALUE tmp_other = r_mpfr_new_fr_obj(other);
+  tmp_other = r_mpfr_new_fr_obj(other);
   r_mpfr_get_struct(ptr_other, tmp_other);
   return (mpfr_unordered_p(ptr_self, ptr_other) != 0 ? Qtrue : Qfalse);
 }
@@ -1467,9 +1497,9 @@ static VALUE r_mpfr_fr_rint(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   MPFR *ptr_self, *ptr_return;
   VALUE val_ret;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   r_mpfr_get_struct(ptr_self, self);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   mpfr_rint(ptr_return, ptr_self, rnd);
@@ -1529,9 +1559,9 @@ static VALUE r_mpfr_rint_ceil(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   MPFR *ptr_self, *ptr_return;
   VALUE val_ret;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   r_mpfr_get_struct(ptr_self, self);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   mpfr_rint_ceil(ptr_return, ptr_self, rnd);
@@ -1543,9 +1573,9 @@ static VALUE r_mpfr_rint_floor(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   MPFR *ptr_self, *ptr_return;
   VALUE val_ret;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   r_mpfr_get_struct(ptr_self, self);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   mpfr_rint_floor(ptr_return, ptr_self, rnd);
@@ -1557,9 +1587,9 @@ static VALUE r_mpfr_rint_round(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   MPFR *ptr_self, *ptr_return;
   VALUE val_ret;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   r_mpfr_get_struct(ptr_self, self);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   mpfr_rint_round(ptr_return, ptr_self, rnd);
@@ -1571,9 +1601,9 @@ static VALUE r_mpfr_rint_trunc(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   MPFR *ptr_self, *ptr_return;
   VALUE val_ret;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   r_mpfr_get_struct(ptr_self, self);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   mpfr_rint_trunc(ptr_return, ptr_self, rnd);
@@ -1585,9 +1615,9 @@ static VALUE r_mpfr_frac(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   MPFR *ptr_self, *ptr_return;
   VALUE val_ret;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   r_mpfr_get_struct(ptr_self, self);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   mpfr_frac(ptr_return, ptr_self, rnd);
@@ -1599,9 +1629,9 @@ static VALUE r_mpfr_modf(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   MPFR *ptr_self, *ptr_return1, *ptr_return2;
   VALUE val_ret1, val_ret2;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   r_mpfr_get_struct(ptr_self, self);
   r_mpfr_make_struct_init2(val_ret1, ptr_return1, prec);
   r_mpfr_make_struct_init2(val_ret2, ptr_return2, prec);
@@ -1614,12 +1644,13 @@ static VALUE r_mpfr_fmod(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_self, *ptr_other, *ptr_return;
   VALUE val_ret;
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   r_mpfr_get_struct(ptr_self, self);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_other, tmp_argv0);
   mpfr_fmod(ptr_return, ptr_self, ptr_other, rnd);
   return val_ret;
@@ -1630,12 +1661,13 @@ static VALUE r_mpfr_remainder(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_self, *ptr_other, *ptr_return;
   VALUE val_ret;
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   r_mpfr_get_struct(ptr_self, self);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_other, tmp_argv0);
   mpfr_remainder(ptr_return, ptr_self, ptr_other, rnd);
   return val_ret;
@@ -1645,10 +1677,11 @@ static VALUE r_mpfr_remainder(int argc, VALUE *argv, VALUE self)
 static VALUE r_mpfr_remainder2(VALUE self, VALUE other)
 {
   MPFR *ptr_self, *ptr_other, *ptr_return;
+  volatile VALUE tmp_other;
   VALUE val_ret;
   r_mpfr_get_struct(ptr_self, self);
   r_mpfr_make_struct_init(val_ret, ptr_return);
-  volatile VALUE tmp_other = r_mpfr_new_fr_obj(other);
+  tmp_other = r_mpfr_new_fr_obj(other);
   r_mpfr_get_struct(ptr_other, tmp_other);
   mpfr_remainder(ptr_return, ptr_self, ptr_other, mpfr_get_default_rounding_mode());
   return val_ret;
@@ -1659,13 +1692,14 @@ static VALUE r_mpfr_remquo(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_self, *ptr_other, *ptr_return;
   VALUE val_ret;
   long q;
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   r_mpfr_get_struct(ptr_self, self);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_other, tmp_argv0);
   mpfr_remquo(ptr_return, &q, ptr_self, ptr_other, rnd);
   return rb_ary_new3(2, val_ret, LONG2FIX(q));
@@ -1687,8 +1721,9 @@ static VALUE r_mpfr_integer_p(VALUE self)
 static VALUE r_mpfr_nexttoward(VALUE self, VALUE other)
 {
   MPFR *ptr_self, *ptr_other;
+  volatile VALUE tmp_other;
   r_mpfr_get_struct(ptr_self, self);
-  volatile VALUE tmp_other = r_mpfr_new_fr_obj(other);
+  tmp_other = r_mpfr_new_fr_obj(other);
   r_mpfr_get_struct(ptr_other, tmp_other);
   mpfr_nexttoward(ptr_self, ptr_other);
   return self;
@@ -1728,8 +1763,9 @@ static VALUE r_mpfr_get_exp(VALUE self)
 static VALUE r_mpfr_set_exp(VALUE self, VALUE arg_exp)
 {
   MPFR *ptr_self;
+  mp_exp_t exp;
   r_mpfr_get_struct(ptr_self, self);
-  mp_exp_t exp = NUM2INT(arg_exp);
+  exp = NUM2INT(arg_exp);
   mpfr_set_exp(ptr_self, exp);
   return self;
 }
@@ -1747,12 +1783,13 @@ static VALUE r_mpfr_setsign(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   MPFR *ptr_self, *ptr_return;
   VALUE val_ret;
+  int s;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   r_mpfr_get_struct(ptr_self, self);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
-  int s = NUM2INT(argv[0]);
+  s = NUM2INT(argv[0]);
   mpfr_setsign(ptr_return, ptr_self, s, rnd);
   return val_ret;
 }
@@ -1762,12 +1799,13 @@ static VALUE r_mpfr_copysign(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   MPFR *ptr_self, *ptr_return, *ptr_arg;
   VALUE val_ret;
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   r_mpfr_get_struct(ptr_self, self);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg, tmp_argv0);
   mpfr_copysign(ptr_return, ptr_self, ptr_arg, rnd);
   return val_ret;
@@ -1782,9 +1820,9 @@ static VALUE r_mpfr_prec_round(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   MPFR *ptr_self, *ptr_return;
   VALUE val_ret;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   r_mpfr_get_struct(ptr_self, self);
   r_mpfr_make_struct_init2(val_ret, ptr_return, mpfr_get_prec(ptr_self));
   mpfr_set(ptr_return, ptr_self, mpfr_get_default_prec());
@@ -1797,8 +1835,8 @@ static VALUE r_mpfr_prec_round2(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   MPFR *ptr_self;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   r_mpfr_get_struct(ptr_self, self);
   mpfr_prec_round(ptr_self, prec, rnd);
   return self;
@@ -1849,10 +1887,11 @@ static VALUE r_mpfr_math_log(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_log(ptr_return, ptr_arg1, rnd));
@@ -1864,10 +1903,11 @@ static VALUE r_mpfr_math_log2(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_log2(ptr_return, ptr_arg1, rnd));
@@ -1879,10 +1919,11 @@ static VALUE r_mpfr_math_log10(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_log10(ptr_return, ptr_arg1, rnd));
@@ -1894,10 +1935,11 @@ static VALUE r_mpfr_math_exp(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_exp(ptr_return, ptr_arg1, rnd));
@@ -1909,10 +1951,11 @@ static VALUE r_mpfr_math_exp2(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_exp2(ptr_return, ptr_arg1, rnd));
@@ -1924,10 +1967,11 @@ static VALUE r_mpfr_math_exp10(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_exp10(ptr_return, ptr_arg1, rnd));
@@ -1939,10 +1983,11 @@ static VALUE r_mpfr_math_cos(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_cos(ptr_return, ptr_arg1, rnd));
@@ -1954,10 +1999,11 @@ static VALUE r_mpfr_math_sin(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_sin(ptr_return, ptr_arg1, rnd));
@@ -1969,10 +2015,11 @@ static VALUE r_mpfr_math_tan(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_tan(ptr_return, ptr_arg1, rnd));
@@ -1984,10 +2031,11 @@ static VALUE r_mpfr_math_sec(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_sec(ptr_return, ptr_arg1, rnd));
@@ -1999,10 +2047,11 @@ static VALUE r_mpfr_math_csc(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_csc(ptr_return, ptr_arg1, rnd));
@@ -2014,10 +2063,11 @@ static VALUE r_mpfr_math_cot(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_cot(ptr_return, ptr_arg1, rnd));
@@ -2029,10 +2079,11 @@ static VALUE r_mpfr_math_sin_cos(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return1, *ptr_return2;
   VALUE val_ret1, val_ret2;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret1, ptr_return1, prec);
   r_mpfr_make_struct_init2(val_ret2, ptr_return2, prec);
@@ -2045,10 +2096,11 @@ static VALUE r_mpfr_math_acos(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_acos(ptr_return, ptr_arg1, rnd));
@@ -2060,10 +2112,11 @@ static VALUE r_mpfr_math_asin(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_asin(ptr_return, ptr_arg1, rnd));
@@ -2075,10 +2128,11 @@ static VALUE r_mpfr_math_atan(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_atan(ptr_return, ptr_arg1, rnd));
@@ -2090,12 +2144,13 @@ static VALUE r_mpfr_math_atan2(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   MPFR *ptr_arg0, *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0, tmp_argv1;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg0, tmp_argv0);
-  volatile VALUE tmp_argv1 = r_mpfr_new_fr_obj(argv[1]);
+  tmp_argv1 = r_mpfr_new_fr_obj(argv[1]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv1);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_atan2(ptr_return, ptr_arg0, ptr_arg1, rnd));
@@ -2107,10 +2162,11 @@ static VALUE r_mpfr_math_cosh(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_cosh(ptr_return, ptr_arg1, rnd));
@@ -2122,10 +2178,11 @@ static VALUE r_mpfr_math_sinh(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_sinh(ptr_return, ptr_arg1, rnd));
@@ -2137,10 +2194,11 @@ static VALUE r_mpfr_math_tanh(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_tanh(ptr_return, ptr_arg1, rnd));
@@ -2152,10 +2210,11 @@ static VALUE r_mpfr_math_sinh_cosh(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return1, *ptr_return2;
   VALUE val_ret1, val_ret2;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret1, ptr_return1, prec);
   r_mpfr_make_struct_init2(val_ret2, ptr_return2, prec);
@@ -2168,10 +2227,11 @@ static VALUE r_mpfr_math_sech(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_sech(ptr_return, ptr_arg1, rnd));
@@ -2183,10 +2243,11 @@ static VALUE r_mpfr_math_csch(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_csch(ptr_return, ptr_arg1, rnd));
@@ -2198,10 +2259,11 @@ static VALUE r_mpfr_math_coth(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_coth(ptr_return, ptr_arg1, rnd));
@@ -2213,10 +2275,11 @@ static VALUE r_mpfr_math_acosh(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_acosh(ptr_return, ptr_arg1, rnd));
@@ -2228,10 +2291,11 @@ static VALUE r_mpfr_math_asinh(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_asinh(ptr_return, ptr_arg1, rnd));
@@ -2243,10 +2307,11 @@ static VALUE r_mpfr_math_atanh(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_atanh(ptr_return, ptr_arg1, rnd));
@@ -2258,11 +2323,12 @@ static VALUE r_mpfr_math_fac_ui(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_return;
   VALUE val_ret;
+  int num;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
-  int num = NUM2INT(argv[0]);
+  num = NUM2INT(argv[0]);
   if(num >= 0){
     r_mpfr_set_special_func_state(mpfr_fac_ui(ptr_return, num, rnd));  
   }else{
@@ -2276,10 +2342,11 @@ static VALUE r_mpfr_math_log1p(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0= r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_log1p(ptr_return, ptr_arg1, rnd));
@@ -2291,10 +2358,11 @@ static VALUE r_mpfr_math_expm1(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0= r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_expm1(ptr_return, ptr_arg1, rnd));
@@ -2306,10 +2374,11 @@ static VALUE r_mpfr_math_eint(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_eint(ptr_return, ptr_arg1, rnd));
@@ -2321,10 +2390,11 @@ static VALUE r_mpfr_math_li2(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_li2(ptr_return, ptr_arg1, rnd));
@@ -2336,10 +2406,11 @@ static VALUE r_mpfr_math_gamma(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_gamma(ptr_return, ptr_arg1, rnd));
@@ -2351,10 +2422,11 @@ static VALUE r_mpfr_math_lngamma(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_lngamma(ptr_return, ptr_arg1, rnd));
@@ -2366,11 +2438,12 @@ static VALUE r_mpfr_math_lgamma(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
   int singp;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_lgamma(ptr_return, &singp, ptr_arg1, rnd));
@@ -2382,10 +2455,11 @@ static VALUE r_mpfr_math_digamma(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_digamma(ptr_return, ptr_arg1, rnd));
@@ -2397,9 +2471,9 @@ static VALUE r_mpfr_math_zeta(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   if(TYPE(argv[0]) == T_FIXNUM){
     int num = FIX2LONG(argv[0]);
@@ -2420,10 +2494,11 @@ static VALUE r_mpfr_math_erf(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_erf(ptr_return, ptr_arg1, rnd));
@@ -2435,10 +2510,11 @@ static VALUE r_mpfr_math_erfc(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_erfc(ptr_return, ptr_arg1, rnd));
@@ -2450,10 +2526,11 @@ static VALUE r_mpfr_math_j0(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_j0(ptr_return, ptr_arg1, rnd));
@@ -2465,10 +2542,11 @@ static VALUE r_mpfr_math_j1(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_j1(ptr_return, ptr_arg1, rnd));
@@ -2480,13 +2558,15 @@ static VALUE r_mpfr_math_jn(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  int n;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
-  int n = NUM2INT(argv[1]);
+  n = NUM2INT(argv[1]);
   r_mpfr_set_special_func_state(mpfr_jn(ptr_return, n, ptr_arg1, rnd));
   return val_ret;
 }
@@ -2496,10 +2576,11 @@ static VALUE r_mpfr_math_y0(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_y0(ptr_return, ptr_arg1, rnd));
@@ -2511,10 +2592,11 @@ static VALUE r_mpfr_math_y1(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_y1(ptr_return, ptr_arg1, rnd));
@@ -2526,13 +2608,15 @@ static VALUE r_mpfr_math_yn(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  int n;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
-  int n = NUM2INT(argv[1]);
+  n = NUM2INT(argv[1]);
   r_mpfr_set_special_func_state(mpfr_yn(ptr_return, n, ptr_arg1, rnd));
   return val_ret;
 }
@@ -2542,14 +2626,15 @@ static VALUE r_mpfr_math_fma(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 3, 5, argc, argv);
   MPFR *ptr_arg1, *ptr_arg2, *ptr_arg3, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0, tmp_argv1, tmp_argv2;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 3, 5, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
-  volatile VALUE tmp_argv1 = r_mpfr_new_fr_obj(argv[1]);
+  tmp_argv1 = r_mpfr_new_fr_obj(argv[1]);
   r_mpfr_get_struct(ptr_arg2, tmp_argv1);
-  volatile VALUE tmp_argv2 = r_mpfr_new_fr_obj(argv[2]);
+  tmp_argv2 = r_mpfr_new_fr_obj(argv[2]);
   r_mpfr_get_struct(ptr_arg3, tmp_argv2);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_fma(ptr_return, ptr_arg1, ptr_arg2, ptr_arg3, rnd));
@@ -2561,14 +2646,15 @@ static VALUE r_mpfr_math_fms(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 3, 5, argc, argv);
   MPFR *ptr_arg1, *ptr_arg2, *ptr_arg3, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0, tmp_argv1, tmp_argv2;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 3, 5, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
-  volatile VALUE tmp_argv1 = r_mpfr_new_fr_obj(argv[1]);
+  tmp_argv1 = r_mpfr_new_fr_obj(argv[1]);
   r_mpfr_get_struct(ptr_arg2, tmp_argv1);
-  volatile VALUE tmp_argv2 = r_mpfr_new_fr_obj(argv[2]);
+  tmp_argv2 = r_mpfr_new_fr_obj(argv[2]);
   r_mpfr_get_struct(ptr_arg3, tmp_argv2);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_fms(ptr_return, ptr_arg1, ptr_arg2, ptr_arg3, rnd));
@@ -2580,12 +2666,13 @@ static VALUE r_mpfr_math_agm(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   MPFR *ptr_arg1, *ptr_arg2, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0, tmp_argv1;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
-  volatile VALUE tmp_argv1 = r_mpfr_new_fr_obj(argv[1]);
+  tmp_argv1 = r_mpfr_new_fr_obj(argv[1]);
   r_mpfr_get_struct(ptr_arg2, tmp_argv1);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_agm(ptr_return, ptr_arg1, ptr_arg2, rnd));
@@ -2597,12 +2684,13 @@ static VALUE r_mpfr_math_hypot(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   MPFR *ptr_arg1, *ptr_arg2, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0, tmp_argv1;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
-  volatile VALUE tmp_argv1 = r_mpfr_new_fr_obj(argv[1]);
+  tmp_argv1 = r_mpfr_new_fr_obj(argv[1]);
   r_mpfr_get_struct(ptr_arg2, tmp_argv1);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_hypot(ptr_return, ptr_arg1, ptr_arg2, rnd));
@@ -2614,10 +2702,11 @@ static VALUE r_mpfr_math_ai(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
   MPFR *ptr_arg1, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 1, 3, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_ai(ptr_return, ptr_arg1, rnd));
@@ -2629,9 +2718,9 @@ static VALUE r_mpfr_math_const_log2(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   MPFR *ptr_return;
   VALUE val_ret;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_const_log2(ptr_return, rnd));
   return val_ret;
@@ -2642,9 +2731,9 @@ static VALUE r_mpfr_math_const_pi(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   MPFR *ptr_return;
   VALUE val_ret;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_const_pi(ptr_return, rnd));
   return val_ret;
@@ -2655,9 +2744,9 @@ static VALUE r_mpfr_math_const_euler(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   MPFR *ptr_return;
   VALUE val_ret;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_const_euler(ptr_return, rnd));
   return val_ret;
@@ -2668,9 +2757,9 @@ static VALUE r_mpfr_math_const_catalan(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   MPFR *ptr_return;
   VALUE val_ret;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 0, 2, argc, argv);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_const_catalan(ptr_return, rnd));
   return val_ret;
@@ -2685,17 +2774,15 @@ static VALUE r_mpfr_math_free_cache(VALUE self)
 
 /* Calculate sum of MPFR objects. */
 static VALUE r_mpfr_math_sum(int argc, VALUE *argv, VALUE self){
-  int num;
+  int num, i;
+  mp_rnd_t rnd;
+  mp_prec_t prec;
+  VALUE val_ret;
   for (num = 0; num < argc; num += 1) {
     if(!MPFR_P(argv[num])){ break; }
   }
-  
-  mp_rnd_t rnd;
-  mp_prec_t prec;
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, num, num + 2, argc, argv);
   MPFR *ptr_return, *ptr_args[num];
-  VALUE val_ret;
-  int i;
   for(i = 0; i < num; i++){
     volatile VALUE tmp_argvi = r_mpfr_new_fr_obj(argv[i]);
     r_mpfr_get_struct(ptr_args[i], tmp_argvi);
@@ -2714,12 +2801,13 @@ static VALUE r_mpfr_math_min(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   MPFR *ptr_arg1, *ptr_arg2, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0, tmp_argv1;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
-  volatile VALUE tmp_argv1 = r_mpfr_new_fr_obj(argv[1]);
+  tmp_argv1 = r_mpfr_new_fr_obj(argv[1]);
   r_mpfr_get_struct(ptr_arg2, tmp_argv1);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   mpfr_min(ptr_return, ptr_arg1, ptr_arg2, rnd);
@@ -2731,12 +2819,13 @@ static VALUE r_mpfr_math_max(int argc, VALUE *argv, VALUE self)
 {
   mp_rnd_t rnd;
   mp_prec_t prec;
-  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
   MPFR *ptr_arg1, *ptr_arg2, *ptr_return;
   VALUE val_ret;
-  volatile VALUE tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
+  volatile VALUE tmp_argv0, tmp_argv1;
+  r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, 2, 4, argc, argv);
+  tmp_argv0 = r_mpfr_new_fr_obj(argv[0]);
   r_mpfr_get_struct(ptr_arg1, tmp_argv0);
-  volatile VALUE tmp_argv1 = r_mpfr_new_fr_obj(argv[1]);
+  tmp_argv1 = r_mpfr_new_fr_obj(argv[1]);
   r_mpfr_get_struct(ptr_arg2, tmp_argv1);
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   mpfr_max(ptr_return, ptr_arg1, ptr_arg2, rnd);
@@ -2804,9 +2893,11 @@ char *r_mpfr_dump_to_string(MPFR *ptr_s)
 static VALUE r_mpfr_marshal_dump(VALUE self)
 {
   MPFR *ptr_s;
+  char *ret_str;
+  VALUE ret_val;
   r_mpfr_get_struct(ptr_s, self);
-  char *ret_str = r_mpfr_dump_to_string(ptr_s);
-  VALUE ret_val = rb_str_new2(ret_str);
+  ret_str = r_mpfr_dump_to_string(ptr_s);
+  ret_val = rb_str_new2(ret_str);
   mpfr_free_str(ret_str);
   return ret_val;
 }
@@ -2820,9 +2911,9 @@ void r_mpfr_load_string(MPFR *ptr_s, const char *dump)
   if (type == MPFR_DUMP_NUMBER) {
     mpz_t m;
     long int e;
+    int i;
     mpz_init(m);
     sscanf(dump, "%ld\t%ld\t", &prec, &e);
-    int i;
     i = 0;
     while (i < 2) {
       if (dump[0] == '\t') {
