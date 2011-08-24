@@ -9,3 +9,5 @@ pkg/*
 \#*\#
 ext/*/Makefile
 ext/*/*/Makefile
+doc
+.yardoc
