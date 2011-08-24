@@ -5,4 +5,5 @@ rescue
   raise
 end
 
+require 'mpfr'
 require 'mpfr/mpfr_gmp'

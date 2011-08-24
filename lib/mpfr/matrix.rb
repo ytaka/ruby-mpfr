@@ -1,3 +1,4 @@
+require 'mpfr'
 require 'mpfr/matrix.so'
 
 class MPFR
