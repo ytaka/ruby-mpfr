@@ -1,22 +1,31 @@
 require "bundler/gem_tasks"
 
-desc "Run 'make realclean' for extended libraries"
-task "ext:realclean" do
-  Dir.glob("ext/**/Makefile").each do |path|
-    sh "cd #{File.dirname(path)}; make realclean"
+def each_extconf_directory(&block)
+  Dir.glob("ext/**/extconf.rb").each do |extconf|
+    cd File.dirname(extconf) do
+      yield
+    end
   end
 end
 
-desc "Run 'make clean' for extended libraries"
-task "ext:clean" do
-  Dir.glob("ext/**/Makefile").each do |path|
-    sh "cd #{File.dirname(path)}; make clean"
+desc 'Compile extended library'
+task 'ext:compile' do |t|
+  each_extconf_directory do
+    sh 'ruby extconf.rb' unless File.exist?('Makefile')
+    sh 'make'
   end
 end
 
-desc "Run 'make realclean' for extended libraries"
-task 'ext:make' do
-  Dir.glob("ext/**/extconf.rb").each do |path|
-    sh "cd #{File.dirname(path)}; ruby extconf.rb && make"
+desc 'Clean'
+task 'ext:clean' do |t|
+  each_extconf_directory do
+    sh 'make clean' if File.exist?('Makefile')
+  end
+end
+
+desc 'Clean completely'
+task 'ext:distclean' do |t|
+  each_extconf_directory do
+    sh 'make distclean' if File.exist?('Makefile')
   end
 end
