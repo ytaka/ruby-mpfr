@@ -30,6 +30,7 @@ if have_header('mpfr.h') && have_library('mpfr') && have_header('gmp.h') && have
 #endif
 SRC
     end
+    find_header("ruby_mpfr.h", File.join(File.dirname(__FILE__), "../../mpfr"))
     create_makefile("mpfr/matrix")
   end
 end
