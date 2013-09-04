@@ -23,5 +23,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec"
   s.add_development_dependency "yard"
   s.add_development_dependency "extconf-task"
+  s.add_development_dependency "gmp"
   # s.add_runtime_dependency "rest-client"
 end
