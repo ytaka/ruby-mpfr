@@ -1,4 +1,4 @@
-class MPFR
+class MPFR < Numeric
   @@error = MPFR('1e-12')
 
   def self.set_error_of_test(err)

@@ -1,7 +1,7 @@
 require 'mpfr'
 require 'mpfr/matrix.so'
 
-class MPFR
+class MPFR < Numeric
   class Matrix
     def str_ary2_2(format)
       ary = str_ary(format)
