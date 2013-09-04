@@ -1,7 +1,5 @@
 require File.expand_path(File.join(File.dirname(__FILE__), "../spec_helper.rb"))
 
-MPFR.set_default_prec(256)
-
 describe MPFR do
   context "when converting to float" do
     it "should be transformed to float" do
@@ -11,6 +9,11 @@ describe MPFR do
         a.should == b
       end
     end
+  end
+
+  before(:all) do
+    @prec_old = MPFR.get_default_prec
+    MPFR.set_default_prec(256)
   end
 
   context "when rounding" do
@@ -36,7 +39,7 @@ describe MPFR do
 
     it "should round a big number." do
       a = MPFR('1.3e+50')
-      a.round.should == 1.3e+50
+      a.round.should == ("13" + "0" * 49).to_i
     end
 
     it "should raise MPFRDomainError." do
@@ -69,7 +72,7 @@ describe MPFR do
 
     it "should floor a big number." do
       a = MPFR('1.3e+50')
-      a.floor.should == 1.3e+50
+      a.floor.should == ("13" + "0" * 49).to_i
     end
 
     it "should raise MPFRDomainError." do
@@ -102,7 +105,7 @@ describe MPFR do
 
     it "should ceil a big number." do
       a = MPFR('1.3e+50')
-      a.ceil.should == 1.3e+50
+      a.ceil.should == ("13" + "0" * 49).to_i
     end
 
     it "should raise MPFRDomainError." do
@@ -135,7 +138,7 @@ describe MPFR do
 
     it "should truncate." do
       a = MPFR('1.3e+50')
-      a.truncate.should == 1.3e+50
+      a.truncate.should == ("13" + "0" * 49).to_i
     end
 
     it "should raise MPFRDomainError." do
@@ -168,7 +171,7 @@ describe MPFR do
 
     it "should to_i." do
       a = MPFR('1.3e+50')
-      a.to_i.should == 1.3e+50
+      a.to_i.should == ("13" + "0" * 49).to_i
     end
 
     it "should raise MPFRDomainError." do
@@ -176,5 +179,9 @@ describe MPFR do
         MPFR.nan.to_i
       end.should raise_error MPFRDomainError
     end
+  end
+
+  after(:all) do
+    MPFR.set_default_prec(@prec_old)
   end
 end
