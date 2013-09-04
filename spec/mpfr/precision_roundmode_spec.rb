@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__)) + '/spec_helper.rb'
+require File.expand_path(File.join(File.dirname(__FILE__), "../spec_helper.rb"))
 
 def check_rnd(a)
   MPFR.new(a).should == MPFR.new(a, MPFR.get_default_rounding_mode)

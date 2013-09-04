@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__)) + '/spec_helper.rb'
+require File.expand_path(File.join(File.dirname(__FILE__), "../spec_helper.rb"))
 
 MPFR.set_default_prec(256)
 
@@ -72,6 +72,9 @@ describe MPFR::Math do
       end
     end
 
-
+    it "should return sum of MPFR objects" do
+      nums = 10.times.to_a.map { |n| MPFR(n) }
+      MPFR::Math.sum(*nums).should == MPFR(45)
+    end
   end
 end

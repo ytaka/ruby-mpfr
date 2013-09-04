@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__)) + '/spec_helper.rb'
+require File.expand_path(File.join(File.dirname(__FILE__), "../spec_helper.rb"))
 
 describe MPFR, "when executing methods which are exception related functions" do
   it "should get and set emin and emax" do
