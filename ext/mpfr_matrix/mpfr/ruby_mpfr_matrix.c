@@ -463,17 +463,18 @@ static VALUE r_mpfr_matrix_str_ary(VALUE self, VALUE format_str)
   MPFRMatrix *ptr_self;
   char *format, *tmp_str;
   int i;
+  VALUE ret_ary;
   r_mpfr_get_matrix_struct(ptr_self, self);
-  VALUE ret_val[ptr_self->size];
+  ret_ary = rb_ary_new2(ptr_self->size);
   format = StringValuePtr(format_str);
   for (i = 0; i < ptr_self->size; i++) {
     if (!mpfr_asprintf(&tmp_str, format, ptr_self->data + i)) {
       rb_raise(rb_eFatal, "Can not allocate a string by mpfr_asprintf.");
     }
-    ret_val[i] = rb_str_new2(tmp_str);
+    rb_ary_store(ret_ary, i, rb_str_new2(tmp_str));
     mpfr_free_str(tmp_str);
   }
-  return rb_ary_new4(ptr_self->size, ret_val);
+  return ret_ary;
 }
 
 /* Return two dimensinal array including strings which elements of matrix is converted to by MPFR#to_strf. */
@@ -482,9 +483,10 @@ static VALUE r_mpfr_matrix_str_ary2(VALUE self, VALUE format_str)
   MPFRMatrix *ptr_self;
   char *format, *tmp_str;
   int i, j;
+  VALUE ret, *ary;
   r_mpfr_get_matrix_struct(ptr_self, self);
   format = StringValuePtr(format_str);
-  VALUE ary[ptr_self->row];
+  ary = ALLOC_N(VALUE, ptr_self->row);
   for(i = 0; i < ptr_self->row; i++){
     ary[i] = rb_ary_new();
   }
@@ -497,7 +499,9 @@ static VALUE r_mpfr_matrix_str_ary2(VALUE self, VALUE format_str)
       mpfr_free_str(tmp_str);
     }
   }
-  return rb_ary_new4(ptr_self->row, ary);
+  ret = rb_ary_new4(ptr_self->row, ary);
+  free(ary);
+  return ret;
 }
 
 /* Retrn two dimensinal array including MPFR elements of matrix. */
@@ -505,12 +509,13 @@ static VALUE r_mpfr_matrix_to_array(VALUE self)
 {
   MPFRMatrix *ptr_self;
   int i;
+  VALUE ret_ary;
   r_mpfr_get_matrix_struct(ptr_self, self);
-  VALUE ret_val[ptr_self->size];
+  ret_ary = rb_ary_new2(ptr_self->size);
   for (i = 0; i < ptr_self->size; i++) {
-    ret_val[i] = r_mpfr_make_new_fr_obj(ptr_self->data + i);
+    rb_ary_store(ret_ary, i, r_mpfr_make_new_fr_obj(ptr_self->data + i));
   }
-  return rb_ary_new4(ptr_self->size, ret_val);
+  return ret_ary;
 }
 
 /* Retrn one dimensinal array including MPFR elements of matrix. */
@@ -518,8 +523,9 @@ static VALUE r_mpfr_matrix_to_array2(VALUE self)
 {
   MPFRMatrix *ptr_self;
   int i, j;
+  VALUE ret_ary, *ary;
   r_mpfr_get_matrix_struct(ptr_self, self);
-  VALUE ary[ptr_self->row];
+  ary = ALLOC_N(VALUE, ptr_self->row);
   for(i = 0; i < ptr_self->row; i++){
     ary[i] = rb_ary_new();
   }
@@ -528,7 +534,9 @@ static VALUE r_mpfr_matrix_to_array2(VALUE self)
       rb_ary_push(ary[j], r_mpfr_make_new_fr_obj(ptr_self->data + i + j));
     }
   }
-  return rb_ary_new4(ptr_self->row, ary);
+  ret_ary = rb_ary_new4(ptr_self->row, ary);
+  free(ary);
+  return ret_ary;
 }
 
 /* Return _p1_-th row vector. */
@@ -803,14 +811,14 @@ static VALUE r_mpfr_square_matrix_dim (VALUE self)
 static VALUE r_mpfr_square_matrix_lu_decomp (VALUE self)
 {
   MPFRMatrix *ptr_self, *ptr_ret_l, *ptr_ret_u;
-  VALUE ret_l, ret_u;
-  int i, j;
+  VALUE ret_l, ret_u, ret, ret_indx_ary;
+  int i, j, *indx;
   r_mpfr_get_matrix_struct(ptr_self, self);
   r_mpfr_matrix_suitable_matrix_init (&ret_l, &ptr_ret_l, ptr_self->row, ptr_self->column);
   r_mpfr_matrix_suitable_matrix_init (&ret_u, &ptr_ret_u, ptr_self->row, ptr_self->column);
-  VALUE ret_indx[ptr_self->row];
-  int indx[ptr_self->row];
+  indx = ALLOC_N(int, ptr_self->row);
   if(mpfr_square_matrix_lu_decomp (ptr_ret_u, indx, ptr_self) >= 0){
+    ret_indx_ary = rb_ary_new2(ptr_self->row);
     for(i = 1; i < ptr_ret_u->row; i++){
       for(j = 0; j < i; j++){
 	mpfr_set(mpfr_matrix_get_element(ptr_ret_l, i, j), mpfr_matrix_get_element(ptr_ret_u, i, j), GMP_RNDN);
@@ -826,12 +834,14 @@ static VALUE r_mpfr_square_matrix_lu_decomp (VALUE self)
       }
     }
     for(i = 0; i < ptr_ret_u->row; i++){
-      ret_indx[i] = INT2NUM(indx[i]);
+      rb_ary_store(ret_indx_ary, i, INT2NUM(indx[i]));
     }
-    return rb_ary_new3(3, ret_l, ret_u, rb_ary_new4(ptr_ret_u->row, ret_indx));
-  }else{
-    return Qnil;
+    ret = rb_ary_new3(3, ret_l, ret_u, ret_indx_ary);
+  } else {
+    ret = Qnil;
   }
+  free(indx);
+  return ret;
 }
 
 /* Return determinant of matrix. */

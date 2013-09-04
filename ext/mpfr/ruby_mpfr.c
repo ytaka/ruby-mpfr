@@ -2144,7 +2144,7 @@ static VALUE r_mpfr_math_sin_cos(int argc, VALUE *argv, VALUE self)
   r_mpfr_make_struct_init2(val_ret1, ptr_return1, prec);
   r_mpfr_make_struct_init2(val_ret2, ptr_return2, prec);
   mpfr_sin_cos(ptr_return1, ptr_return2, ptr_arg1, rnd);
-  return rb_ary_new3(2, ptr_return1, ptr_return2);
+  return rb_ary_new3(2, val_ret1, val_ret2);
 }
 
 /* mpfr_acos(ret, p1, rnd). */
@@ -2834,17 +2834,19 @@ static VALUE r_mpfr_math_sum(int argc, VALUE *argv, VALUE self){
   mp_rnd_t rnd;
   mp_prec_t prec;
   VALUE val_ret;
+  MPFR *ptr_return, **ptr_args;
   for (num = 0; num < argc; num += 1) {
     if(!MPFR_P(argv[num])){ break; }
   }
   r_mpfr_get_rnd_prec_from_optional_arguments(&rnd, &prec, num, num + 2, argc, argv);
-  MPFR *ptr_return, *ptr_args[num];
+  ptr_args = ALLOC_N(MPFR *, num);
   for(i = 0; i < num; i++){
     volatile VALUE tmp_argvi = r_mpfr_new_fr_obj(argv[i]);
     r_mpfr_get_struct(ptr_args[i], tmp_argvi);
   }
   r_mpfr_make_struct_init2(val_ret, ptr_return, prec);
   r_mpfr_set_special_func_state(mpfr_sum(ptr_return, ptr_args, argc, rnd));
+  free(ptr_args);
   return val_ret;
 }
 
