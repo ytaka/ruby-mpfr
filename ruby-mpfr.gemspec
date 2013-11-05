@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.homepage    = ""
   spec.summary     = "Ruby bindings of MPFR"
   spec.description = "Ruby bindings of MPFR that is a C library for multiple-precision floating-point computations"
-  spec.license = "GPLv3"
+  spec.license = "LGPL"
 
   spec.files         = `git ls-files`.split("\n")
   spec.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
